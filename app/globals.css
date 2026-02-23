@@ -20,6 +20,7 @@ html {
 /* Custom cursor */
 body {
   cursor: none;
+  background: var(--cream);
 }
 
 .cursor {
