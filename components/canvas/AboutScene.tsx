@@ -11,7 +11,7 @@ import {
 import * as THREE from "three";
 
 function Model() {
-  const { scene } = useGLTF("/models/your-model.glb");
+  const { scene } = useGLTF("/models/mascot.glb");
 
   // Make all materials slightly rough for an editorial look
   scene.traverse((child) => {
@@ -26,7 +26,7 @@ function Model() {
 
   return (
     <Float speed={0.8} floatIntensity={0.4} rotationIntensity={0.1}>
-      <primitive object={scene} scale={1.5} position={[0, -0.5, 0]} />
+      <primitive object={scene} scale={0.015} position={[0, -2, 0]} />
     </Float>
   );
 }
@@ -54,7 +54,7 @@ function SceneContent() {
   return (
     <>
       {/* TODO: Replace FallbackModel with <Model /> after placing your .glb in /public/models/ */}
-      <FallbackModel />
+      <Model />
       <ContactShadows
         position={[0, -2, 0]}
         opacity={0.15}

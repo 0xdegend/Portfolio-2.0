@@ -53,17 +53,31 @@ export default function Hero() {
       id="hero"
       className="relative min-h-screen flex flex-col justify-end pb-20 px-8 md:px-16 overflow-hidden"
     >
-      <div className="absolute top-0 right-0 w-full md:w-[80%] h-full z-0">
-        <HeroScene />
+      {/*
+        Canvas wrapper:
+        - pointer-events-none on the outer div so it never blocks text links below
+        - [&>div>canvas]:pointer-events-auto re-enables events on the actual <canvas>
+          so R3F's raycaster receives mouse events for hover/click interactions
+      */}
+      <div className="absolute top-0 right-0 w-full md:w-[80%] h-full z-0 pointer-events-none">
+        <div className="w-full h-full [&>canvas]:pointer-events-auto">
+          <HeroScene />
+        </div>
       </div>
 
-      {/* Gradient fade at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-40 bg-linear-to-t from-cream to-transparent z-10" />
-      <div className="hidden md:block absolute top-0 left-1/3 w-48 h-full bg-linear-to-r from-cream to-transparent z-10 pointer-events-none" />
-      <div className="relative z-20 max-w-7xl">
+      {/* Gradients — always pointer-events-none, they're purely visual */}
+      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-cream to-transparent z-10 pointer-events-none" />
+      <div className="hidden md:block absolute top-0 left-1/3 w-48 h-full bg-gradient-to-r from-cream to-transparent z-10 pointer-events-none" />
+
+      {/*
+        Text content — pointer-events-none on the container so the canvas
+        behind it stays interactive. Re-enable only on actual clickable elements.
+      */}
+      <div className="relative z-20 max-w-7xl pointer-events-none">
         <div className="line-mask mb-6">
           <p className="hero-line section-label">Frontend Engineer</p>
         </div>
+
         <h1 className="font-display font-light text-6xl md:text-8xl lg:text-[10rem] leading-none tracking-tight text-ink mb-8">
           <div className="line-mask">
             <span className="hero-line block">Crafting</span>
@@ -80,6 +94,7 @@ export default function Hero() {
             </span>
           </div>
         </h1>
+
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-t border-muted pt-6">
           <p
             ref={subRef}
@@ -89,16 +104,17 @@ export default function Hero() {
             from design systems to full-stack applications.
           </p>
           <div ref={metaRef} className="flex items-center gap-8">
+            {/* Re-enable pointer events on links so they're still clickable */}
             <a
               href="#projects"
-              className="inline-flex items-center gap-3 text-xs tracking-widest uppercase font-mono text-ink hover:text-accent transition-colors duration-300"
+              className="pointer-events-auto inline-flex items-center gap-3 text-xs tracking-widest uppercase font-mono text-ink hover:text-accent transition-colors duration-300"
             >
               View Work
               <span className="w-12 h-px bg-current inline-block" />
             </a>
             <a
               href="#contact"
-              className="inline-flex items-center gap-3 text-xs tracking-widest uppercase font-mono text-stone hover:text-ink transition-colors duration-300"
+              className="pointer-events-auto inline-flex items-center gap-3 text-xs tracking-widest uppercase font-mono text-stone hover:text-ink transition-colors duration-300"
             >
               Contact
             </a>
@@ -106,10 +122,10 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Scroll indicator */}
+      {/* Scroll indicator — re-enable pointer events so it's interactive if needed */}
       <div
         ref={scrollRef}
-        className="absolute bottom-8 right-8 md:right-16 z-20 flex flex-col items-center gap-3"
+        className="absolute bottom-8 right-8 md:right-16 z-20 flex flex-col items-center gap-3 pointer-events-none"
       >
         <span className="section-label" style={{ writingMode: "vertical-rl" }}>
           Scroll
