@@ -53,12 +53,6 @@ export default function Hero() {
       id="hero"
       className="relative min-h-screen flex flex-col justify-end pb-20 px-8 md:px-16 overflow-hidden"
     >
-      {/*
-        Canvas wrapper:
-        - pointer-events-none on the outer div so it never blocks text links below
-        - [&>div>canvas]:pointer-events-auto re-enables events on the actual <canvas>
-          so R3F's raycaster receives mouse events for hover/click interactions
-      */}
       <div className="absolute top-0 right-0 w-full md:w-[80%] h-full z-0 pointer-events-none">
         <div className="w-full h-full [&>canvas]:pointer-events-auto">
           <HeroScene />
