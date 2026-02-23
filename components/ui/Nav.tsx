@@ -15,21 +15,29 @@ export default function Nav() {
   const linksRef = useRef<HTMLUListElement>(null);
   const ctaRef = useRef<HTMLAnchorElement>(null);
   const statusRef = useRef<HTMLDivElement>(null);
-  const logoRef = useRef<HTMLAnchorElement>(null);
+  const initialized = useRef(false);
   const [scrolled, setScrolled] = useState(false);
-  const isAnimating = useRef(false); // guard against
   useEffect(() => {
-    // Animate nav and logo on mount
-    gsap.fromTo(
-      navRef.current,
-      { y: -24, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1, delay: 0.5, ease: "power3.out" },
-    );
-    gsap.fromTo(
-      logoRef.current,
-      { scale: 0.85, opacity: 0 },
-      { scale: 1, opacity: 1, duration: 1, delay: 0.7, ease: "power3.out" },
-    );
+    const nav = navRef.current;
+    const links = linksRef.current;
+    const cta = ctaRef.current;
+    const badge = statusRef.current;
+    if (!nav || !links || !cta || !badge) return;
+
+    requestAnimationFrame(() => {
+      nav.style.width = "max-content";
+      nav.style.justifyContent = "space-between";
+      nav.style.gap = "1.25rem";
+      const naturalW = nav.getBoundingClientRect().width;
+      nav.style.width = `${naturalW}px`;
+      initialized.current = true;
+
+      gsap.fromTo(
+        nav,
+        { y: -24, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.9, delay: 0.3, ease: "power3.out" },
+      );
+    });
   }, []);
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -37,130 +45,102 @@ export default function Nav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
   useEffect(() => {
+    if (!initialized.current) return;
     const nav = navRef.current;
     const links = linksRef.current;
     const cta = ctaRef.current;
     const badge = statusRef.current;
-    const logo = logoRef.current;
-    if (!nav || !links || !cta || !badge || !logo) return;
-    if (isAnimating.current) gsap.killTweensOf([nav, links, cta, badge, logo]);
+    if (!nav || !links || !cta || !badge) return;
 
-    isAnimating.current = true;
+    gsap.killTweensOf([nav, links, cta, badge]);
 
-    // Use GSAP timeline for smoother, sequenced animations
-    const tl = gsap.timeline({
-      defaults: { ease: "power3.out" },
-      onComplete: () => {
-        isAnimating.current = false;
-      },
-    });
+    const fromW = nav.getBoundingClientRect().width;
 
     if (scrolled) {
+      links.style.display = "none";
+      cta.style.display = "none";
       badge.style.display = "flex";
-      badge.style.opacity = "0";
-      badge.style.position = "absolute";
-      const collapsedW = nav.scrollWidth;
-      badge.style.position = "";
-
-      const currentW = nav.getBoundingClientRect().width;
-
-      tl.to([links, cta], {
+      badge.style.visibility = "hidden";
+      nav.style.width = "max-content";
+      nav.style.justifyContent = "flex-start";
+      nav.style.gap = "0.75rem";
+      const targetW = nav.getBoundingClientRect().width;
+      nav.style.width = `${fromW}px`;
+      nav.style.justifyContent = "space-between";
+      nav.style.gap = "1.25rem";
+      links.style.display = "flex";
+      cta.style.display = "inline-flex";
+      badge.style.display = "none";
+      badge.style.visibility = "";
+      gsap.to([links, cta], {
         autoAlpha: 0,
-        y: -16,
-        duration: 0.44,
-        ease: "power4.inOut",
-        stagger: 0.08,
+        y: -8,
+        duration: 0.25,
+        ease: "power2.in",
         onComplete: () => {
           links.style.display = "none";
           cta.style.display = "none";
+          nav.style.justifyContent = "flex-start";
+          nav.style.gap = "0.75rem";
+          badge.style.display = "flex";
+          gsap.fromTo(
+            badge,
+            { autoAlpha: 0, y: 8 },
+            { autoAlpha: 1, y: 0, duration: 0.28, ease: "power2.out" },
+          );
         },
-      })
-        .to(
-          logo,
-          {
-            scale: 0.93,
-            duration: 0.38,
-            ease: "power2.inOut",
-          },
-          "<",
-        )
-        .fromTo(
-          nav,
-          { width: currentW },
-          {
-            width: collapsedW,
-            duration: 0.7,
-            ease: "power3.inOut",
-          },
-          ">-0.10",
-        )
-        .fromTo(
-          badge,
-          { opacity: 0, y: 18 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.44,
-            ease: "power3.out",
-          },
-          ">-0.22",
-        );
+      });
+
+      gsap.to(nav, {
+        width: targetW,
+        duration: 0.5,
+        ease: "power3.inOut",
+        onComplete: () => {
+          nav.style.width = `${targetW}px`;
+        },
+      });
     } else {
+      badge.style.display = "none";
       links.style.display = "flex";
-      links.style.opacity = "0";
-      links.style.position = "absolute";
+      links.style.visibility = "hidden";
       cta.style.display = "inline-flex";
-      cta.style.opacity = "0";
-      cta.style.position = "absolute";
-      const expandedW = nav.scrollWidth;
-      links.style.position = "";
-      cta.style.position = "";
-
-      const currentW = nav.getBoundingClientRect().width;
-
-      tl.to(badge, {
-        opacity: 0,
-        y: -16,
-        duration: 0.44,
-        ease: "power4.inOut",
+      cta.style.visibility = "hidden";
+      nav.style.width = "max-content";
+      nav.style.justifyContent = "space-between";
+      nav.style.gap = "1.25rem";
+      const targetW = nav.getBoundingClientRect().width;
+      nav.style.width = `${fromW}px`;
+      links.style.display = "none";
+      links.style.visibility = "";
+      cta.style.display = "none";
+      cta.style.visibility = "";
+      gsap.to(badge, {
+        autoAlpha: 0,
+        y: -8,
+        duration: 0.25,
+        ease: "power2.in",
         onComplete: () => {
           badge.style.display = "none";
+          nav.style.justifyContent = "space-between";
+          nav.style.gap = "1.25rem";
+          links.style.display = "flex";
+          cta.style.display = "inline-flex";
+          gsap.fromTo(
+            [links, cta],
+            { autoAlpha: 0, y: 8 },
+            { autoAlpha: 1, y: 0, duration: 0.28, ease: "power2.out" },
+          );
         },
-      })
-        .to(
-          logo,
-          {
-            scale: 1,
-            duration: 0.44,
-            ease: "power2.inOut",
-          },
-          "<",
-        )
-        .fromTo(
-          nav,
-          { width: currentW },
-          {
-            width: expandedW,
-            duration: 0.7,
-            ease: "power3.inOut",
-          },
-          ">-0.10",
-        )
-        .fromTo(
-          [links, cta],
-          { autoAlpha: 0, y: 18 },
-          {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.44,
-            ease: "power3.out",
-            onComplete: () => {
-              gsap.set(nav, { width: "" });
-            },
-            stagger: 0.08,
-          },
-          ">-0.22",
-        );
+      });
+
+      gsap.to(nav, {
+        width: targetW,
+        duration: 0.5,
+        ease: "power3.inOut",
+        onComplete: () => {
+          nav.style.width = `${targetW}px`;
+        },
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scrolled]);
@@ -168,14 +148,14 @@ export default function Nav() {
   return (
     <nav
       ref={navRef}
-      className={`mx-auto fixed top-5 left-0 right-0 z-50 px-4 md:px-5 py-3 flex items-center gap-5 rounded-full justify-between transition-colors duration-500 ${
-        scrolled
-          ? "w-fit bg-cream/80 backdrop-blur-md border border-mute"
-          : "w-1/2 bg-transparent border border-muted"
-      }`}
+      className={`fixed top-5 left-1/2 -translate-x-1/2 z-50 px-4 md:px-5 py-3
+        flex items-center rounded-full transition-colors duration-500 ${
+          scrolled
+            ? "bg-cream/80 backdrop-blur-md border border-muted"
+            : "bg-transparent border border-muted"
+        }`}
     >
-      {/* Logo — always visible, now animated */}
-      <a ref={logoRef} href="#" className="w-10 h-10 ">
+      <a href="#" className="w-10 h-10 shrink-0">
         <Image
           src="/images/my-bosu-pfp.png"
           alt="Logo"
@@ -183,16 +163,14 @@ export default function Nav() {
           height={40}
           className="rounded-full"
         />
-        {/* 0x<span className="text-accent">.</span> */}
       </a>
 
-      {/* Links — GSAP controls visibility */}
-      <ul ref={linksRef} className="hidden md:flex items-center gap-5">
+      <ul ref={linksRef} className="hidden md:flex items-center gap-5 shrink-0">
         {NAV_LINKS.map((link) => (
           <li key={link.label}>
             <a
               href={link.href}
-              className="section-label hover:text-ink transition-colors duration-300 relative group"
+              className="section-label hover:text-ink transition-colors duration-300 relative group whitespace-nowrap"
             >
               {link.label}
               <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-accent group-hover:w-full transition-all duration-300" />
@@ -201,8 +179,7 @@ export default function Nav() {
         ))}
       </ul>
 
-      {/* Availability badge — GSAP controls visibility */}
-      <div ref={statusRef} className="hidden items-center gap-2.5 shrink-0">
+      <div ref={statusRef} className="hidden items-center gap-2 shrink-0">
         <span className="relative flex h-2 w-2">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
           <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
@@ -212,12 +189,13 @@ export default function Nav() {
         </span>
       </div>
 
-      {/* Résumé CTA — GSAP controls visibility */}
       <a
         ref={ctaRef}
         href="/resume.pdf"
         target="_blank"
-        className="hidden md:inline-flex items-center gap-2 border border-ink px-5 py-2 text-xs tracking-widest uppercase font-mono hover:bg-ink hover:text-cream transition-all duration-300 shrink-0"
+        className="hidden md:inline-flex items-center gap-2 border rounded-2xl border-ink px-5 py-2
+          text-xs tracking-widest uppercase font-mono shrink-0 whitespace-nowrap
+          hover:bg-ink hover:text-cream transition-all duration-300"
       >
         Résumé
       </a>

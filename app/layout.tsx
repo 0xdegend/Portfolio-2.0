@@ -5,6 +5,10 @@ export const metadata: Metadata = {
   title: "Olagboye Seyi — Frontend Engineer",
   description:
     "Portfolio of a frontend & full-stack developer crafting elegant digital experiences.",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
