@@ -19,8 +19,8 @@ function GlassKnot() {
   });
 
   return (
-    <Float speed={1.2} rotationIntensity={0.3} floatIntensity={0.8}>
-      <mesh ref={meshRef} position={[2.5, 0, 0]} scale={0.5}>
+    <Float speed={1.2} rotationIntensity={0.3} floatIntensity={0.4}>
+      <mesh ref={meshRef} position={[1.8, 0, 0]} scale={1}>
         <torusKnotGeometry args={[1.2, 0.38, 200, 32, 2, 3]} />
         <MeshTransmissionMaterial
           backside
@@ -44,14 +44,15 @@ function SmallSphere() {
   const ref = useRef<THREE.Mesh>(null);
   useFrame((state) => {
     if (!ref.current) return;
+    // Orbits around the knot on the right side — clamped so it never drifts left
     ref.current.position.y =
-      Math.sin(state.clock.elapsedTime * 0.6) * 0.4 - 1.5;
+      Math.sin(state.clock.elapsedTime * 0.6) * 0.4 - 0.5;
     ref.current.position.x =
-      Math.cos(state.clock.elapsedTime * 0.4) * 0.3 + 0.8;
+      Math.cos(state.clock.elapsedTime * 0.4) * 0.5 + 2.2;
   });
   return (
-    <mesh ref={ref} position={[1, -1.5, -1]}>
-      <sphereGeometry args={[0.15, 32, 32]} />
+    <mesh ref={ref} position={[2.2, -0.5, -0.5]}>
+      <sphereGeometry args={[0.12, 32, 32]} />
       <meshStandardMaterial color="#C9A96E" roughness={0.2} metalness={0.8} />
     </mesh>
   );
@@ -65,7 +66,8 @@ function Ring() {
     ref.current.rotation.z = state.clock.elapsedTime * 0.15;
   });
   return (
-    <mesh ref={ref} position={[4.5, 1.5, -1.5]}>
+    // Tucked behind and to the right of the knot
+    <mesh ref={ref} position={[3.2, 1.2, -1.5]}>
       <torusGeometry args={[0.6, 0.03, 16, 80]} />
       <meshStandardMaterial color="#8C8580" roughness={0.5} />
     </mesh>
@@ -88,15 +90,6 @@ export default function HeroScene() {
         <Ring />
         <Environment preset="studio" />
       </Suspense>
-      <OrbitControls
-        enableZoom={false}
-        enablePan={false}
-        minPolarAngle={Math.PI / 4}
-        maxPolarAngle={Math.PI / 1.6}
-        autoRotate
-        autoRotateSpeed={0.5}
-        makeDefault
-      />
     </Canvas>
   );
 }

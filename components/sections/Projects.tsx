@@ -55,8 +55,8 @@ function ProjectCard({
   project: (typeof projects)[0];
   index: number;
 }) {
-  const wrapperRef = useRef<HTMLDivElement>(null); // trigger — never animated, always stable
-  const cardRef = useRef<HTMLDivElement>(null); // animation target only
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const lineRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
@@ -70,17 +70,15 @@ function ProjectCard({
           duration: 0.8,
           ease: "power3.out",
           scrollTrigger: {
-            trigger: wrapperRef.current, // trigger on wrapper, not the animated el
+            trigger: wrapperRef.current,
             start: "top 85%",
-            toggleActions: "play none none reverse", // clean reverse on scroll back up
+            toggleActions: "play none none reverse",
           },
         },
       );
     },
-    { scope: wrapperRef }, // scope to the stable wrapper
+    { scope: wrapperRef },
   );
-
-  // Hover handlers — imperative gsap.to, intentionally outside useGSAP
   const onEnter = () => {
     gsap.to(lineRef.current, { scaleX: 1, duration: 0.4, ease: "power3.out" });
   };
@@ -102,14 +100,11 @@ function ProjectCard({
           ref={cardRef}
           className="group border-t border-muted py-8 grid grid-cols-12 gap-6 items-start hover:bg-muted/20 transition-colors duration-300 px-2 -mx-2 rounded-sm"
         >
-          {/* Number */}
           <div className="col-span-1">
             <span className="font-mono text-xs text-stone/50">
               {project.number}
             </span>
           </div>
-
-          {/* Title & desc */}
           <div className="col-span-12 md:col-span-6">
             <h3 className="font-display text-3xl md:text-4xl font-light text-ink mb-3 group-hover:text-accent transition-colors duration-300">
               {project.title}
@@ -118,8 +113,6 @@ function ProjectCard({
               {project.description}
             </p>
           </div>
-
-          {/* Meta */}
           <div className="col-span-12 md:col-span-3 flex flex-col gap-2">
             <span className="section-label text-stone/70">
               {project.category}
@@ -135,8 +128,6 @@ function ProjectCard({
               ))}
             </div>
           </div>
-
-          {/* Year + arrow */}
           <div className="col-span-12 md:col-span-2 flex md:flex-col md:items-end gap-4 md:gap-2 justify-between items-center">
             <span className="font-mono text-xs text-stone/50">
               {project.year}
@@ -146,8 +137,6 @@ function ProjectCard({
             </span>
           </div>
         </div>
-
-        {/* Accent underline */}
         <div
           ref={lineRef}
           className="h-px bg-accent origin-left"
@@ -182,13 +171,11 @@ export default function Projects() {
           GitHub <span className="text-base">↗</span>
         </a>
       </div>
-
-      {/* Project list */}
       <div>
         {projects.map((project, i) => (
           <ProjectCard key={project.number} project={project} index={i} />
         ))}
-        {/* Final rule */}
+
         <div className="border-t border-muted" />
       </div>
     </section>

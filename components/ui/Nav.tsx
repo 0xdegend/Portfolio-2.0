@@ -18,7 +18,7 @@ export default function Nav() {
     gsap.fromTo(
       navRef.current,
       { y: -20, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1, delay: 0.5, ease: "power3.out" }
+      { y: 0, opacity: 1, duration: 1, delay: 0.5, ease: "power3.out" },
     );
 
     const handleScroll = () => setScrolled(window.scrollY > 60);
@@ -30,12 +30,17 @@ export default function Nav() {
     <nav
       ref={navRef}
       className={`fixed top-0 left-0 right-0 z-50 px-8 md:px-16 py-6 flex items-center justify-between transition-all duration-500 ${
-        scrolled ? "bg-cream/80 backdrop-blur-md border-b border-muted" : "bg-transparent"
+        scrolled
+          ? "bg-cream/80 backdrop-blur-md border-b border-muted"
+          : "bg-transparent"
       }`}
     >
       {/* Logo */}
-      <a href="#" className="font-display text-xl font-light tracking-widest text-ink">
-        YN<span className="text-accent">.</span>
+      <a
+        href="#"
+        className="font-display text-xl font-light tracking-widest text-ink"
+      >
+        0x<span className="text-accent">.</span>
       </a>
 
       {/* Links */}

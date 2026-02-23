@@ -20,7 +20,6 @@ export default function Hero() {
     () => {
       const tl = gsap.timeline({ delay: 0.2 });
 
-      // Staggered line reveals
       tl.fromTo(
         ".hero-line",
         { y: "100%", opacity: 0 },
@@ -54,22 +53,17 @@ export default function Hero() {
       id="hero"
       className="relative min-h-screen flex flex-col justify-end pb-20 px-8 md:px-16 overflow-hidden"
     >
-      {/* 3D Canvas — full background */}
-      <div className="absolute inset-0 z-0 pointer-events-none hero-canvas-wrapper">
+      <div className="absolute top-0 right-0 w-full md:w-[80%] h-full z-0">
         <HeroScene />
       </div>
 
       {/* Gradient fade at bottom */}
       <div className="absolute bottom-0 left-0 right-0 h-40 bg-linear-to-t from-cream to-transparent z-10" />
-
-      {/* Content */}
+      <div className="hidden md:block absolute top-0 left-1/3 w-48 h-full bg-linear-to-r from-cream to-transparent z-10 pointer-events-none" />
       <div className="relative z-20 max-w-7xl">
-        {/* Label */}
         <div className="line-mask mb-6">
-          <p className="hero-line section-label">Full-Stack Developer</p>
+          <p className="hero-line section-label">Frontend Engineer</p>
         </div>
-
-        {/* Main heading */}
         <h1 className="font-display font-light text-6xl md:text-8xl lg:text-[10rem] leading-none tracking-tight text-ink mb-8">
           <div className="line-mask">
             <span className="hero-line block">Crafting</span>
@@ -86,8 +80,6 @@ export default function Hero() {
             </span>
           </div>
         </h1>
-
-        {/* Sub + meta row */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-t border-muted pt-6">
           <p
             ref={subRef}
