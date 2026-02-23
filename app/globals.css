@@ -20,7 +20,7 @@ html {
 /* Custom cursor */
 body {
   cursor: none;
-  background: var(--cream);
+  background: var(--muted) !important;
 }
 
 .cursor {
