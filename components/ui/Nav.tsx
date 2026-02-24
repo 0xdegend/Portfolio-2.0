@@ -148,7 +148,7 @@ export default function Nav() {
   return (
     <nav
       ref={navRef}
-      className={`fixed top-5 left-1/2 -translate-x-1/2 z-50 px-4 md:px-5 py-3
+      className={`fixed top-5 left-1/2 -translate-x-1/2 z-50 px-3 md:px-3 py-2
         flex items-center rounded-full transition-colors duration-500 ${
           scrolled
             ? "bg-cream/80 backdrop-blur-md border border-muted"
@@ -180,12 +180,12 @@ export default function Nav() {
       </ul>
 
       <div ref={statusRef} className="hidden items-center gap-2 shrink-0">
+        <span className="font-mono text-xs tracking-widest text-ink/70 uppercase whitespace-nowrap">
+          Available for Work
+        </span>
         <span className="relative flex h-2 w-2">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
           <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
-        </span>
-        <span className="font-mono text-xs tracking-widest text-ink/70 uppercase whitespace-nowrap">
-          Available for Work
         </span>
       </div>
 

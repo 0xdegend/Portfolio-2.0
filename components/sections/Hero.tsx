@@ -60,13 +60,8 @@ export default function Hero() {
       </div>
 
       {/* Gradients — always pointer-events-none, they're purely visual */}
-      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-cream to-transparent z-10 pointer-events-none" />
-      <div className="hidden md:block absolute top-0 left-1/3 w-48 h-full bg-gradient-to-r from-cream to-transparent z-10 pointer-events-none" />
-
-      {/*
-        Text content — pointer-events-none on the container so the canvas
-        behind it stays interactive. Re-enable only on actual clickable elements.
-      */}
+      <div className="absolute bottom-0 left-0 right-0 h-40 bg-linear-to-t from-cream to-transparent z-10 pointer-events-none" />
+      <div className="hidden md:block absolute top-0 left-1/3 w-48 h-full bg-linear-to-r from-cream to-transparent z-10 pointer-events-none" />
       <div className="relative z-20 max-w-7xl pointer-events-none">
         <div className="line-mask mb-6">
           <p className="hero-line section-label">Frontend Engineer</p>
