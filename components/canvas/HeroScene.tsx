@@ -323,7 +323,7 @@ export default function HeroScene() {
       gl={{ antialias: true, alpha: true }}
       style={{ background: "transparent" }}
     >
-      <ambientLight intensity={1} />
+      <ambientLight intensity={1.7} />
       <directionalLight position={[5, 5, 5]} intensity={1.5} />
       <pointLight position={[-3, -3, -3]} intensity={1} color="#C9A96E" />
       <Suspense fallback={null}>

@@ -1,13 +1,15 @@
 "use client";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import dynamic from "next/dynamic";
 
 gsap.registerPlugin(useGSAP);
 
 const HeroScene = dynamic(() => import("@/components/canvas/HeroScene"), {
   ssr: false,
+  loading: () => <div className="w-full h-full" />,
 });
 
 export default function Hero() {
@@ -15,6 +17,61 @@ export default function Hero() {
   const subRef = useRef<HTMLParagraphElement>(null);
   const metaRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const canvasWrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // We must wait for R3F to finish mounting the <canvas> element into the DOM
+    // before we can grab it. R3F renders asynchronously via dynamic import +
+    // Suspense, so we poll with a small interval until it appears.
+    let canvas: HTMLCanvasElement | null = null;
+    let rafId: ReturnType<typeof setTimeout>;
+
+    const blockWheel = (e: WheelEvent) => {
+      // Prevent R3F / the canvas from consuming this wheel event entirely.
+      // We stop it from being processed by anything inside the canvas,
+      // but the browser's native scroll still fires because we do NOT
+      // call preventDefault() — so ScrollTrigger receives it normally.
+      e.stopImmediatePropagation();
+    };
+
+    const attach = () => {
+      const wrapper = canvasWrapperRef.current;
+      if (!wrapper) return;
+
+      canvas = wrapper.querySelector("canvas");
+      if (!canvas) {
+        // Canvas not mounted yet — retry on next tick
+        rafId = setTimeout(attach, 50);
+        return;
+      }
+
+      // Attach directly on the canvas element itself (not a parent div).
+      // R3F registers its own wheel/pointer listeners on the canvas element,
+      // so that's exactly where we need to intercept — a parent wrapper div
+      // fires AFTER the canvas listener in the capture chain, which is too late.
+      // Using { capture: true } here puts us BEFORE R3F's own listeners.
+      canvas.addEventListener("wheel", blockWheel, {
+        capture: true,
+        passive: true,
+      });
+
+      // Also force pointer-events back to auto so hover/click still works
+      // (R3F sets this correctly, but just in case the parent none bleeds in)
+      canvas.style.pointerEvents = "auto";
+
+      // Refresh ScrollTrigger now that the canvas is fully painted
+      ScrollTrigger.refresh();
+    };
+
+    rafId = setTimeout(attach, 50);
+
+    return () => {
+      clearTimeout(rafId);
+      if (canvas) {
+        canvas.removeEventListener("wheel", blockWheel, { capture: true });
+      }
+    };
+  }, []);
 
   useGSAP(
     () => {
@@ -23,7 +80,13 @@ export default function Hero() {
       tl.fromTo(
         ".hero-line",
         { y: "100%", opacity: 0 },
-        { y: "0%", opacity: 1, duration: 1.1, stagger: 0.12, ease: "expo.out" },
+        {
+          y: "0%",
+          opacity: 1,
+          duration: 1.1,
+          stagger: 0.12,
+          ease: "expo.out",
+        },
       )
         .fromTo(
           subRef.current,
@@ -44,7 +107,7 @@ export default function Hero() {
           "-=0.2",
         );
     },
-    { scope: containerRef },
+    { scope: canvasWrapperRef },
   );
 
   return (
@@ -54,14 +117,14 @@ export default function Hero() {
       className="relative min-h-screen flex flex-col justify-end pb-20 px-8 md:px-16 overflow-hidden"
     >
       <div className="absolute top-0 right-0 w-full md:w-[80%] h-full z-0 pointer-events-none">
-        <div className="w-full h-full [&>canvas]:pointer-events-auto">
-          <HeroScene />
+        <div ref={canvasWrapperRef} className="w-full h-full">
+          \<HeroScene />
         </div>
       </div>
 
-      {/* Gradients — always pointer-events-none, they're purely visual */}
       <div className="absolute bottom-0 left-0 right-0 h-40 bg-linear-to-t from-cream to-transparent z-10 pointer-events-none" />
       <div className="hidden md:block absolute top-0 left-1/3 w-48 h-full bg-linear-to-r from-cream to-transparent z-10 pointer-events-none" />
+
       <div className="relative z-20 max-w-7xl pointer-events-none">
         <div className="line-mask mb-6">
           <p className="hero-line section-label">Frontend Engineer</p>
@@ -93,7 +156,6 @@ export default function Hero() {
             from design systems to full-stack applications.
           </p>
           <div ref={metaRef} className="flex items-center gap-8">
-            {/* Re-enable pointer events on links so they're still clickable */}
             <a
               href="#projects"
               className="pointer-events-auto inline-flex items-center gap-3 text-xs tracking-widest uppercase font-mono text-ink hover:text-accent transition-colors duration-300"
@@ -111,7 +173,6 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Scroll indicator — re-enable pointer events so it's interactive if needed */}
       <div
         ref={scrollRef}
         className="absolute bottom-8 right-8 md:right-16 z-20 flex flex-col items-center gap-3 pointer-events-none"

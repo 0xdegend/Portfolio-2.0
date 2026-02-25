@@ -10,17 +10,21 @@
 }
 
 html {
-  scroll-behavior: auto; /* Lenis handles this */
+  scroll-behavior: smooth;
 }
 
 * {
   box-sizing: border-box;
+  /* outline: 1px solid red; */
 }
 
 /* Custom cursor */
 body {
   cursor: none;
-  background: var(--muted) !important;
+  /* ✅ Removed `!important` — it was overriding bg-cream on <main> and
+     causing a background mismatch with GSAP's injected pin-spacer divs,
+     which created a visual flash/jump on reverse scroll */
+  background: var(--cream);
 }
 
 .cursor {
@@ -108,4 +112,14 @@ body {
 /* Canvas wrapper */
 canvas {
   outline: none;
+}
+
+/* 3D scene hover cursor — toggled via classList, never inline style */
+html.cursor-pointer-3d .cursor {
+  transform: scale(2.5);
+  background: var(--accent);
+}
+html.cursor-pointer-3d .cursor-follower {
+  transform: scale(0.5);
+  border-color: var(--accent);
 }

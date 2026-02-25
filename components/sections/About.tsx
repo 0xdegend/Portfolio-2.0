@@ -5,6 +5,9 @@ import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 
+// ✅ No need to re-register here — done once in page.tsx
+// Kept for safety in case this component is used in isolation,
+// GSAP deduplicates registrations so this is harmless either way.
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const SLIDES = [
@@ -44,13 +47,14 @@ export default function About() {
   const yearRef = useRef<HTMLSpanElement>(null);
   const counterRef = useRef<HTMLSpanElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
+  const textColRef = useRef<HTMLDivElement>(null);
+  const shineRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
       const slides = gsap.utils.toArray<HTMLElement>(".slide-frame");
       const total = slides.length;
 
-      // ── Intro text animations ──────────────────────────────────────────────
       gsap.fromTo(
         ".about-headline",
         { opacity: 0, y: 50 },
@@ -88,7 +92,38 @@ export default function About() {
         },
       );
 
-      // ── Initial state — all cards hidden below, ready to deal in ────────────
+      gsap.fromTo(
+        stickyRef.current,
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1.1,
+          ease: "expo.out",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 80%",
+            once: true,
+          },
+        },
+      );
+
+      // ✅ Bug #3 fix: scrub: 1 (number) instead of scrub: true (boolean).
+      // Boolean scrub = zero smoothing, causes transform conflicts with
+      // onUpdate slide tweens on reverse scroll. A numeric scrub value
+      // lets GSAP use a single authoritative tween with a 1s lag,
+      // eliminating the competing-writes issue.
+      gsap.to(textColRef.current, {
+        y: -60,
+        ease: "none",
+        scrollTrigger: {
+          trigger: trackRef.current,
+          start: "top top",
+          end: () => `+=${(total - 1) * window.innerHeight}`,
+          scrub: 1,
+        },
+      });
+
       slides.forEach((s, i) => {
         gsap.set(s, {
           y: 160,
@@ -100,7 +135,6 @@ export default function About() {
         });
       });
 
-      // ── Entry shuffle — cards deal into the fan when section enters view ───
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top 75%",
@@ -116,7 +150,6 @@ export default function About() {
               rotation: restRotation,
               opacity: 1,
               duration: 0.65,
-              // Bottom cards deal in first so the top card lands last (on top)
               delay: (total - 1 - i) * 0.09,
               ease: "back.out(1.3)",
             });
@@ -124,8 +157,6 @@ export default function About() {
         },
       });
 
-      // hudIdx = which slide the HUD is currently showing.
-      // Switches at t >= 0.5 so caption/counter always match the visually dominant card.
       let hudIdx = 0;
 
       const st = ScrollTrigger.create({
@@ -133,30 +164,32 @@ export default function About() {
         start: "top top",
         end: () => `+=${(total - 1) * window.innerHeight}`,
         pin: stickyRef.current,
-        scrub: 0.9,
         onUpdate(self) {
           const progress = self.progress * (total - 1);
           const current = Math.floor(progress);
-          const t = progress - current; // 0→1 within each card transition
+          const t = progress - current;
 
-          // ── Card transforms ────────────────────────────────────────────────
-          // Track which card was last active so we can animate the incoming one
+          // Direction-aware timing: snappy on reverse, smooth on forward
+          const isReversing = self.direction === -1;
+          const dur = isReversing ? 0.1 : 0.3;
+          const ease = isReversing ? "power2.out" : "power3.out";
+
           slides.forEach((s, i) => {
             if (i < current) {
-              // Spent — ease off to the side gracefully
-              gsap.to(s, {
+              // ✅ Bug #4 fix: use gsap.set() for already-dismissed slides.
+              // These are fully off-screen — animating them with gsap.to()
+              // on reverse scroll creates queued tweens that fire after the
+              // slide has already snapped back, causing visible lag/hang.
+              // gsap.set() is instantaneous and has no tween queue.
+              gsap.set(s, {
                 scale: 0.75,
                 y: -50,
                 x: i % 2 === 0 ? -45 : 45,
                 rotation: i % 2 === 0 ? -10 : 10,
                 opacity: 0,
                 zIndex: i,
-                duration: 0.6,
-                ease: "power3.inOut",
-                overwrite: "auto",
               });
             } else if (i === current) {
-              // Active — ease up to full size with a gentle spring
               gsap.to(s, {
                 scale: 1,
                 y: 0,
@@ -164,12 +197,11 @@ export default function About() {
                 rotation: 0,
                 opacity: 1,
                 zIndex: total + 1,
-                duration: 0.6,
-                ease: "power3.out",
-                overwrite: "auto",
+                duration: dur,
+                ease,
+                overwrite: true,
               });
             } else {
-              // Waiting — ease into shuffled deck position
               const depth = i - current;
               const animated = depth - t;
               gsap.to(s, {
@@ -179,18 +211,13 @@ export default function About() {
                 rotation: (i % 2 === 0 ? 1 : -1) * Math.max(animated * 1.6, 0),
                 opacity: 1,
                 zIndex: total - depth + 1,
-                duration: 0.5,
-                ease: "power2.out",
-                overwrite: "auto",
+                duration: dur,
+                ease,
+                overwrite: true,
               });
             }
           });
 
-          // ── HUD sync ───────────────────────────────────────────────────────
-          // Switch at t >= 0.5 so HUD matches the visually dominant card.
-          // Edge case: scrub means self.progress asymptotically approaches 1.0
-          // but may never hit it exactly — so at >= 0.99 we hard-clamp to the
-          // last slide index, guaranteeing counter shows "04" not "03".
           const dominantIdx =
             self.progress >= 0.99
               ? total - 1
@@ -198,21 +225,31 @@ export default function About() {
                 ? current + 1
                 : current;
 
-          // Progress always tracks raw scroll position
           if (progressRef.current)
             progressRef.current.style.width = `${(self.progress * 100).toFixed(1)}%`;
 
           if (dominantIdx !== hudIdx) {
             hudIdx = dominantIdx;
-
-            // Counter snaps in sync with caption
+            if (shineRef.current) {
+              gsap.killTweensOf(shineRef.current);
+              gsap.fromTo(
+                shineRef.current,
+                { x: "-110%", opacity: 1 },
+                {
+                  x: "110%",
+                  opacity: 1,
+                  duration: 0.7,
+                  ease: "power2.inOut",
+                  //@ts-expect-error Typescript Error
+                  onComplete: () => gsap.set(shineRef.current, { opacity: 0 }),
+                },
+              );
+            }
             if (counterRef.current)
               counterRef.current.textContent = String(hudIdx + 1).padStart(
                 2,
                 "0",
               );
-
-            // Caption crossfade
             if (captionRef.current) {
               gsap.killTweensOf(captionRef.current);
               gsap.to(captionRef.current, {
@@ -231,8 +268,6 @@ export default function About() {
                 },
               });
             }
-
-            // Year crossfade — same timing as caption
             if (yearRef.current) {
               gsap.killTweensOf(yearRef.current);
               gsap.to(yearRef.current, {
@@ -257,10 +292,6 @@ export default function About() {
 
   return (
     <section ref={sectionRef} id="about" className="relative">
-      {/*
-        trackRef is the scroll budget — tall enough for all card transitions.
-        stickyRef (the visible layout) pins inside it for the full duration.
-      */}
       <div
         ref={trackRef}
         style={{ height: `calc(100vh + ${(SLIDES.length - 1) * 100}vh)` }}
@@ -268,27 +299,22 @@ export default function About() {
       >
         <div
           ref={stickyRef}
-          className="sticky top-0 h-screen w-full flex flex-col justify-center
-                     px-8 md:px-16 overflow-hidden"
+          className="sticky top-0 h-screen w-full flex flex-col justify-center px-8 md:px-16 overflow-hidden"
         >
-          {/* Section label */}
           <div className="flex items-center gap-6 mb-14 max-w-7xl mx-auto w-full">
             <span className="section-label">01 — About</span>
             <div className="flex-1 rule-accent" />
           </div>
-
-          {/* Two-column grid — text left, card stack right */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center max-w-7xl mx-auto w-full">
-            {/* ── Left: text content ──────────────────────────────────────── */}
-            <div>
+            <div ref={textColRef}>
               <div className="overflow-hidden mb-1">
                 <h2 className="about-headline font-display text-5xl md:text-6xl font-light leading-tight">
-                  Crafting
+                  About
                 </h2>
               </div>
               <div className="overflow-hidden mb-8">
                 <h2 className="about-headline font-display text-5xl md:text-6xl font-light leading-tight italic text-stone">
-                  with purpose.
+                  Me
                 </h2>
               </div>
 
@@ -315,9 +341,22 @@ export default function About() {
               </div>
             </div>
 
-            {/* ── Right: card stack ───────────────────────────────────────── */}
-            <div className="relative h-[480px] lg:h-[560px]">
-              {/* Cards — positioned relative to this container */}
+            <div className="relative h-120 lg:h-140">
+              <div
+                ref={shineRef}
+                className="absolute inset-4 z-999 rounded-2xl pointer-events-none overflow-hidden opacity-0"
+                style={{ isolation: "isolate" }}
+              >
+                <div
+                  className="absolute inset-0 -skew-x-12"
+                  style={{
+                    background:
+                      "linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%)",
+                    width: "60%",
+                    height: "100%",
+                  }}
+                />
+              </div>
               {SLIDES.map((slide, i) => (
                 <div
                   key={i}
@@ -331,16 +370,13 @@ export default function About() {
                     className="object-cover"
                     priority={i === 0}
                   />
-                  {/* Vignette */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent" />
-                  {/* Card index badge */}
+                  <div className="absolute inset-0 bg-linear-to-t from-ink/60 via-transparent to-transparent" />
                   <span className="absolute top-3 left-3 font-mono text-xs tracking-widest text-cream/40">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                 </div>
               ))}
 
-              {/* Caption + progress pinned to bottom of card area */}
               <div className="absolute bottom-0 left-4 right-4 z-50 pointer-events-none space-y-3 pb-5 px-4">
                 <div className="flex items-end justify-between">
                   <p
@@ -369,7 +405,6 @@ export default function About() {
                   </div>
                 </div>
 
-                {/* Progress bar */}
                 <div className="w-full h-px bg-cream/20">
                   <div
                     ref={progressRef}
@@ -379,7 +414,6 @@ export default function About() {
                 </div>
               </div>
 
-              {/* Scroll hint — fades naturally as user scrolls */}
               <div className="absolute -bottom-8 left-0 right-0 flex justify-center">
                 <span className="section-label text-stone/40">
                   scroll to explore
