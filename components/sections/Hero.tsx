@@ -116,7 +116,7 @@ export default function Hero() {
       id="hero"
       className="relative min-h-screen flex flex-col justify-end pb-20 px-8 md:px-16 overflow-hidden"
     >
-      <div className="absolute top-0 right-0 w-full md:w-[80%] h-full z-0 pointer-events-none">
+      <div className="absolute top-0 right-0 w-[80%] md:w-[80%] h-full z-0 pointer-events-none">
         <div ref={canvasWrapperRef} className="w-full h-full">
           <HeroScene />
         </div>
