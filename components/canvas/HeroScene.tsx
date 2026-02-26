@@ -1,12 +1,7 @@
 "use client";
-import { Suspense, useRef, useState, useMemo, useEffect } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import {
-  Environment,
-  Float,
-  MeshTransmissionMaterial,
-  OrbitControls,
-} from "@react-three/drei";
+import { Suspense, useRef } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Environment, PerformanceMonitor } from "@react-three/drei";
 import * as THREE from "three";
 import Ring from "./Ring";
 import SmallSphere from "./SmallSphere";
@@ -52,7 +47,7 @@ function RippleRings({ active }: { active: boolean }) {
           position={[1.8, 0, 0]}
           rotation={[Math.PI / 2, 0, 0]}
         >
-          {/* <torusGeometry args={[1, 0.012, 8, 64]} />
+          <torusGeometry args={[1, 0.012, 8, 64]} />
           <meshStandardMaterial
             color="#C9A96E"
             emissive="#C9A96E"
@@ -60,7 +55,7 @@ function RippleRings({ active }: { active: boolean }) {
             transparent
             opacity={0}
             depthWrite={false}
-          /> */}
+          />
         </mesh>
       ))}
     </>
@@ -72,15 +67,20 @@ export default function HeroScene() {
     <Canvas
       camera={{ position: [0, 0, 6], fov: 50 }}
       gl={{ antialias: true, alpha: true }}
-      style={{ background: "transparent" }}
+      style={{ pointerEvents: "none", background: "transparent" }}
+      dpr={[1, 1.5]}
+      performance={{ min: 0.5 }}
     >
       <ambientLight intensity={1.7} />
       <directionalLight position={[5, 5, 5]} intensity={1.5} />
       <pointLight position={[-3, -3, -3]} intensity={1} color="#C9A96E" />
       <Suspense fallback={null}>
-        <GlassKnot />
+        <PerformanceMonitor onIncline={() => {}} onDecline={() => {}}>
+          <GlassKnot />
+        </PerformanceMonitor>
         <SmallSphere />
         <Ring />
+        {/* <RippleRings active={true} /> */}
         <Environment preset="studio" />
       </Suspense>
       {/* <OrbitControls

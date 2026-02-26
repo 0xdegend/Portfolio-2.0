@@ -1,30 +1,18 @@
-import React, { useRef, useState, useEffect } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
+"use client";
+import React, { useRef, useState, useEffect, useMemo } from "react";
+import { useFrame } from "@react-three/fiber";
 import {
-  Environment,
   Float,
   MeshTransmissionMaterial,
-  OrbitControls,
+  PerformanceMonitor,
+  usePerformanceMonitor,
 } from "@react-three/drei";
 import * as THREE from "three";
 import KnotParticles from "./KnotParticles";
 
-function usePointerForce(active: boolean) {
-  const { size, camera } = useThree();
-  const force = useRef(new THREE.Vector2(0, 0));
-  const rawPointer = useRef(new THREE.Vector2(0, 0));
-
-  useFrame(({ pointer }) => {
-    if (!active) {
-      force.current.lerp(new THREE.Vector2(0, 0), 0.08);
-      return;
-    }
-    rawPointer.current.set(pointer.x, pointer.y);
-    force.current.lerp(rawPointer.current, 0.1);
-  });
-
-  return force;
-}
+// ─── Module-level constants — never allocated inside render / frame loops ──────
+const ZERO_VEC2 = new THREE.Vector2(0, 0);
+const _scratchVec2 = new THREE.Vector2();
 
 const HOVER_COLORS = [
   "#D4B483",
@@ -33,9 +21,27 @@ const HOVER_COLORS = [
   "#C4A882",
   "#D8BF9E",
   "#BFA070",
-];
+] as const;
 
-const GlassKnot = () => {
+const IDLE_COLOR = "#E8D5B0";
+const CLICK_COLOR = "#E8C060";
+
+// ─── Pointer force hook ────────────────────────────────────────────────────────
+function usePointerForce(active: boolean) {
+  const force = useRef(new THREE.Vector2(0, 0));
+
+  useFrame(({ pointer }) => {
+    if (!active) {
+      force.current.lerp(ZERO_VEC2, 0.08);
+      return;
+    }
+    _scratchVec2.set(pointer.x, pointer.y);
+    force.current.lerp(_scratchVec2, 0.1);
+  });
+
+  return force;
+}
+export default function GlassKnot() {
   const meshRef = useRef<THREE.Mesh>(null);
   const groupRef = useRef<THREE.Group>(null);
   const matRef = useRef<THREE.MeshPhysicalMaterial>(null);
@@ -44,8 +50,9 @@ const GlassKnot = () => {
   const [clicked, setClicked] = useState(false);
 
   const force = usePointerForce(hovered);
-  const currentColor = useRef(new THREE.Color("#E8D5B0"));
-  const targetColor = useRef(new THREE.Color("#E8D5B0"));
+
+  const currentColor = useRef(new THREE.Color(IDLE_COLOR));
+  const targetColor = useRef(new THREE.Color(IDLE_COLOR));
   const colorIndex = useRef(0);
 
   const lerpedProps = useRef({
@@ -53,6 +60,19 @@ const GlassKnot = () => {
     aberration: 0.06,
     distortion: 0.1,
   });
+
+  // Adaptive samples — safe now because <PerformanceMonitor> is an ancestor
+  const samplesRef = useRef(4);
+  usePerformanceMonitor({
+    onIncline: () => {
+      samplesRef.current = 4;
+    },
+    onDecline: () => {
+      samplesRef.current = 2;
+    },
+  });
+
+  // Click timer
   const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handleClick = () => {
     setClicked(true);
@@ -60,16 +80,30 @@ const GlassKnot = () => {
     clickTimer.current = setTimeout(() => setClicked(false), 3000);
   };
   useEffect(() => {
+    return () => {
+      if (clickTimer.current) clearTimeout(clickTimer.current);
+    };
+  }, []);
+
+  // Target color on hover / click state change
+  useEffect(() => {
     if (hovered) {
       colorIndex.current = (colorIndex.current + 1) % HOVER_COLORS.length;
       targetColor.current.set(HOVER_COLORS[colorIndex.current]);
     } else {
-      targetColor.current.set("#E8D5B0"); // idle cream
+      targetColor.current.set(IDLE_COLOR);
     }
   }, [hovered]);
+
   useEffect(() => {
-    if (clicked) targetColor.current.set("#E8C060");
+    if (clicked) targetColor.current.set(CLICK_COLOR);
   }, [clicked]);
+
+  // Memoized geometry args — prevents geometry rebuild on re-render
+  const knotArgs = useMemo<[number, number, number, number, number, number]>(
+    () => [1.2, 0.38, 200, 32, 6, 3],
+    [],
+  );
 
   useFrame((state) => {
     if (!meshRef.current || !groupRef.current || !matRef.current) return;
@@ -85,33 +119,56 @@ const GlassKnot = () => {
     groupRef.current.rotation.y +=
       (force.current.x * 0.35 - groupRef.current.rotation.y) * 0.08;
 
-    // Scale
+    // Dead-band scale lerp
     const targetScale = clicked ? 1.1 : hovered ? 1.06 : 1.0;
-    groupRef.current.scale.setScalar(
-      groupRef.current.scale.x +
-        (targetScale - groupRef.current.scale.x) * 0.06,
-    );
-    currentColor.current.lerp(targetColor.current, 0.022);
-    matRef.current.color.copy(currentColor.current);
-    const p = lerpedProps.current;
-    const speed = 0.04;
-    p.thickness +=
-      ((clicked ? 0.7 : hovered ? 0.5 : 0.3) - p.thickness) * speed;
-    p.aberration +=
-      ((clicked ? 0.18 : hovered ? 0.12 : 0.06) - p.aberration) * speed;
-    p.distortion +=
-      ((clicked ? 0.28 : hovered ? 0.18 : 0.1) - p.distortion) * speed;
+    const scaleDiff = targetScale - groupRef.current.scale.x;
+    if (Math.abs(scaleDiff) > 0.001) {
+      groupRef.current.scale.setScalar(
+        groupRef.current.scale.x + scaleDiff * 0.06,
+      );
+    }
 
-    // MeshTransmissionMaterial extends MeshPhysicalMaterial — cast to access custom props
-    const mat = matRef.current as THREE.MeshPhysicalMaterial & {
-      thickness: number;
-      chromaticAberration: number;
-      distortion: number;
-    };
-    mat.thickness = p.thickness;
-    mat.chromaticAberration = p.aberration;
-    mat.distortion = p.distortion;
+    // Dead-band color lerp
+    if (
+      Math.abs(currentColor.current.r - targetColor.current.r) > 0.001 ||
+      Math.abs(currentColor.current.g - targetColor.current.g) > 0.001
+    ) {
+      currentColor.current.lerp(targetColor.current, 0.022);
+      matRef.current.color.copy(currentColor.current);
+    }
+
+    // Dead-band material prop lerps
+    const p = lerpedProps.current;
+    const tgtThick = clicked ? 0.7 : hovered ? 0.5 : 0.3;
+    const tgtAberr = clicked ? 0.18 : hovered ? 0.12 : 0.06;
+    const tgtDist = clicked ? 0.28 : hovered ? 0.18 : 0.1;
+
+    const thickDiff = tgtThick - p.thickness;
+    const aberrDiff = tgtAberr - p.aberration;
+    const distDiff = tgtDist - p.distortion;
+
+    if (
+      Math.abs(thickDiff) > 0.001 ||
+      Math.abs(aberrDiff) > 0.001 ||
+      Math.abs(distDiff) > 0.001
+    ) {
+      p.thickness += thickDiff * 0.04;
+      p.aberration += aberrDiff * 0.04;
+      p.distortion += distDiff * 0.04;
+
+      const mat = matRef.current as THREE.MeshPhysicalMaterial & {
+        thickness: number;
+        chromaticAberration: number;
+        distortion: number;
+        samples: number;
+      };
+      mat.thickness = p.thickness;
+      mat.chromaticAberration = p.aberration;
+      mat.distortion = p.distortion;
+      mat.samples = samplesRef.current;
+    }
   });
+
   return (
     <>
       <Float speed={1.2} rotationIntensity={0.3} floatIntensity={0.4}>
@@ -130,13 +187,12 @@ const GlassKnot = () => {
             }}
             onClick={handleClick}
           >
-            <torusKnotGeometry args={[1.2, 0.38, 200, 32, 6, 3]} />
-
+            <torusKnotGeometry args={knotArgs} />
             <MeshTransmissionMaterial
-              // @ts-expect-error MeshTransmissionMaterial extends MeshPhysicalMaterial but types don't reflect custom props
+              // @ts-expect-error — MeshTransmissionMaterial has props not reflected in MeshPhysicalMaterial types
               ref={matRef as React.Ref<THREE.MeshPhysicalMaterial>}
               backside
-              samples={8}
+              samples={4}
               thickness={0.3}
               anisotropy={0.3}
               chromaticAberration={0.06}
@@ -145,15 +201,12 @@ const GlassKnot = () => {
               temporalDistortion={0.05}
               transmission={1}
               roughness={0.4}
-              color="#E8D5B0"
+              color={IDLE_COLOR}
             />
           </mesh>
         </group>
       </Float>
       <KnotParticles active={clicked} />
-      {/* <RippleRings active={clicked} /> */}
     </>
   );
-};
-
-export default GlassKnot;
+}

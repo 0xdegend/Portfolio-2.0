@@ -296,13 +296,13 @@ export default function Hero() {
       id="hero"
       className="relative min-h-screen flex flex-col justify-end px-8 md:px-16 overflow-hidden "
     >
-      <div className="absolute top-0 right-0 w-full md:w-[50%] h-[82%] z-999">
+      <div className="cursor-pointer-3d  absolute top-0 right-0 w-[60%] md:w-[50%] h-[80%] z-999">
         <div ref={canvasWrapRef} className="w-full h-full">
           <HeroScene />
         </div>
       </div>
-      <div className="absolute bottom-0 left-0 right-0 h-52 bg-linear-to-t from-cream to-transparent z-10 pointer-events-none " />
-      <div className="absolute top-0 left-0 w-[45%] h-full bg-linear-to-r from-cream via-cream/60 to-transparent z-10 pointer-events-none " />
+      <div className="absolute bottom-0 left-0 right-0 h-52 bg-linear-to-t from-cream to-transparent z-10 " />
+      <div className="absolute top-0 left-0 w-[45%] h-full bg-linear-to-r from-cream via-cream/60 to-transparent z-10 " />
       <div className="hero-badge opacity-0 absolute top-8 left-8 md:left-16 z-30 flex items-center gap-2.5">
         <span className="font-mono text-[0.6rem] text-stone/40 tracking-[0.25em] uppercase">
           ©<span ref={counterRef}>{new Date().getFullYear() - 7}</span>
