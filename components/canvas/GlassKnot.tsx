@@ -118,7 +118,8 @@ const GlassKnot = () => {
         <group ref={groupRef}>
           <mesh
             ref={meshRef}
-            position={[1.8, 0, 0]}
+            position={[0.5, -0.2, 0]}
+            scale={1.1}
             onPointerEnter={() => {
               setHovered(true);
               document.body.style.cursor = "pointer";

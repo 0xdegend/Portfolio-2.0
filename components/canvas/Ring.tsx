@@ -9,7 +9,7 @@ const Ring = () => {
     ref.current.rotation.z = state.clock.elapsedTime * 0.15;
   });
   return (
-    <mesh ref={ref} position={[3.2, 1.2, -1.5]}>
+    <mesh ref={ref} position={[-2, 1.2, -1.5]}>
       <torusGeometry args={[0.6, 0.03, 16, 80]} />
       <meshStandardMaterial color="#8C8580" roughness={0.5} />
     </mesh>
