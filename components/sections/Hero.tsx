@@ -118,7 +118,7 @@ export default function Hero() {
     >
       <div className="absolute top-0 right-0 w-full md:w-[80%] h-full z-0 pointer-events-none">
         <div ref={canvasWrapperRef} className="w-full h-full">
-          \<HeroScene />
+          <HeroScene />
         </div>
       </div>
 
