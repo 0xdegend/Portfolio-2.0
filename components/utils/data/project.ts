@@ -18,7 +18,7 @@ export const projects = [
     description:
       "High-performance storefront with server components, edge caching, and real-time inventory. 98 Lighthouse score across all metrics.",
     tech: ["Next.js", "Prisma", "Stripe", "Vercel"],
-    image: "/images/projects/design-system.jpg",
+    image: "/images/projects/e-commerce.jpg",
     link: "#",
   },
   {
