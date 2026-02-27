@@ -2,7 +2,7 @@ export function CursorBoxTailwind({
   initRef,
   initNumLabel,
   initArrow,
-  initImageRef, // new
+  initImageRef,
 }: {
   initRef: (el: HTMLDivElement | null) => void;
   initNumLabel: (el: HTMLSpanElement | null) => void;

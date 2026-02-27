@@ -40,8 +40,6 @@ function StatItem({ value, label }: { value: string; label: string }) {
     </div>
   );
 }
-
-// ─── Trait pill with scale + border accent ───────────────────────────────────
 function TraitPill({ label }: { label: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   const onEnter = () =>
@@ -67,13 +65,11 @@ function TraitPill({ label }: { label: string }) {
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
     >
-      <span className="w-1 h-1 rounded-full bg-accent/50 flex-shrink-0" />
+      <span className="w-1 h-1 rounded-full bg-accent/50 shrink-0" />
       {label}
     </span>
   );
 }
-
-// ─── Main component ───────────────────────────────────────────────────────────
 export default function About() {
   const sectionRef = useRef<HTMLElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
@@ -93,8 +89,6 @@ export default function About() {
   useGSAP(
     () => {
       const total = SLIDES.length;
-
-      // ── Headline char split entrance ─────────────────────────────────────
       if (h2Ref.current) {
         const split = new SplitText(h2Ref.current, { type: "chars" });
         gsap.fromTo(
@@ -116,8 +110,6 @@ export default function About() {
           },
         );
       }
-
-      // ── Staggered body / pills / stats reveal ─────────────────────────────
       gsap.fromTo(
         ".about-body",
         { opacity: 0, y: 22 },
@@ -166,8 +158,6 @@ export default function About() {
           },
         },
       );
-
-      // ── Section entrance lift ─────────────────────────────────────────────
       gsap.fromTo(
         stickyRef.current,
         { opacity: 0, y: 20 },
@@ -183,8 +173,6 @@ export default function About() {
           },
         },
       );
-
-      // ── Vertical accent line draw-in ──────────────────────────────────────
       gsap.fromTo(
         lineRef.current,
         { scaleY: 0, transformOrigin: "top center" },
@@ -199,8 +187,6 @@ export default function About() {
           },
         },
       );
-
-      // ── Text column parallax ──────────────────────────────────────────────
       gsap.to(textColRef.current, {
         y: -45,
         ease: "none",
@@ -211,16 +197,12 @@ export default function About() {
           scrub: 1,
         },
       });
-
-      // ── Initialise slides: all hidden except first ────────────────────────
       slideRefs.current.forEach((s, i) => {
         if (!s) return;
         gsap.set(s, { opacity: i === 0 ? 1 : 0, scale: i === 0 ? 1 : 1.05 });
       });
 
       let currentSlide = 0;
-
-      // Smooth text update helper
       const swapText = (el: HTMLElement | null, text: string) => {
         if (!el) return;
         gsap.to(el, {
@@ -238,14 +220,10 @@ export default function About() {
           },
         });
       };
-
-      // Crossfade to a target slide
       const crossfadeTo = (next: number) => {
         if (next === currentSlide) return;
         const prev = currentSlide;
         currentSlide = next;
-
-        // Outgoing slide: fade out + scale up slightly
         gsap.to(slideRefs.current[prev], {
           opacity: 0,
           scale: 1.06,
@@ -253,7 +231,6 @@ export default function About() {
           ease: "power2.inOut",
           overwrite: true,
         });
-        // Incoming slide: fade in + descale to natural
         gsap.fromTo(
           slideRefs.current[next],
           { opacity: 0, scale: 1.05 },
@@ -265,8 +242,6 @@ export default function About() {
             overwrite: true,
           },
         );
-
-        // Update slide dots
         document.querySelectorAll(".slide-dot").forEach((dot, i) => {
           gsap.to(dot, {
             backgroundColor:
@@ -276,8 +251,6 @@ export default function About() {
             ease: "power2.out",
           });
         });
-
-        // HUD text swaps
         if (counterRef.current)
           counterRef.current.textContent = String(next + 1).padStart(2, "0");
         swapText(captionRef.current, SLIDES[next].caption);
@@ -285,8 +258,6 @@ export default function About() {
         swapText(accentRef.current, SLIDES[next].accent);
         swapText(yearRef.current, SLIDES[next].year);
       };
-
-      // ── Main scroll driver ─────────────────────────────────────────────────
       const st = ScrollTrigger.create({
         trigger: trackRef.current,
         start: "top top",
@@ -297,8 +268,6 @@ export default function About() {
           const pct = (self.progress * 100).toFixed(2) + "%";
           if (progressRef.current) progressRef.current.style.width = pct;
           if (progressDot.current) progressDot.current.style.left = pct;
-
-          // Crossfade slide based on rounded progress
           const raw = self.progress * (total - 1);
           const next = Math.min(Math.round(raw), total - 1);
           crossfadeTo(next);
@@ -312,18 +281,15 @@ export default function About() {
 
   return (
     <section ref={sectionRef} id="about" className="relative">
-      {/* Scroll track */}
       <div
         ref={trackRef}
         style={{ height: `calc(100vh + ${(SLIDES.length - 1) * 100}vh)` }}
         className="relative"
       >
-        {/* Sticky frame */}
         <div
           ref={stickyRef}
           className="sticky top-0 h-screen w-full flex flex-col overflow-hidden"
         >
-          {/* Section label row */}
           <div className="flex items-center gap-6 px-8 md:px-16 pt-10 pb-5 max-w-7xl mx-auto w-full shrink-0">
             <span className="section-label">01 — About</span>
             <div className="flex-1 rule-accent" />
@@ -339,14 +305,11 @@ export default function About() {
               </span>
             </div>
           </div>
-
-          {/* Main 2-col grid */}
           <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-0 max-w-7xl mx-auto w-full px-8 md:px-16 pb-8 min-h-0">
             <div
               ref={textColRef}
               className="flex flex-col justify-center pr-0 lg:pr-14 py-2"
             >
-              {/* Vertical accent bar + labels */}
               <div className="hidden lg:flex items-stretch gap-5 mb-8">
                 <div
                   ref={lineRef}
@@ -358,8 +321,6 @@ export default function About() {
                   </span>
                 </div>
               </div>
-
-              {/* Headline */}
               <h2
                 ref={h2Ref}
                 className="font-display font-light leading-[0.88] tracking-tight text-ink mb-6"
@@ -380,15 +341,11 @@ export default function About() {
                 Currently open to new opportunities — full-time roles, long-term
                 contracts, or exciting side projects worth building together.
               </p>
-
-              {/* Trait pills */}
               <div className="traits-row flex flex-wrap gap-2 mb-10">
                 {TRAITS.map((t) => (
                   <TraitPill key={t} label={t} />
                 ))}
               </div>
-
-              {/* Stats */}
               <div className="stats-row grid grid-cols-3 gap-4 border-t border-muted pt-6">
                 {STATS.map((s) => (
                   <StatItem key={s.label} value={s.value} label={s.label} />
@@ -396,9 +353,7 @@ export default function About() {
               </div>
             </div>
             <div className="relative flex flex-col items-stretch py-2 min-h-0">
-              {/* Image frame — fills the column, images crossfade inside */}
               <div className="relative flex-1 rounded-2xl overflow-hidden min-h-75">
-                {/* Stacked slides */}
                 {SLIDES.map((slide, i) => (
                   <div
                     key={i}
@@ -415,15 +370,10 @@ export default function About() {
                       className="object-cover"
                       priority={i === 0}
                     />
-                    {/* Gradient overlays */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-ink/75 via-ink/5 to-transparent" />
-                    <div className="absolute inset-0 bg-gradient-to-b from-ink/25 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-linear-to-t from-ink/75 via-ink/5 to-transparent" />
+                    <div className="absolute inset-0 bg-linear-to-b from-ink/25 via-transparent to-transparent" />
                   </div>
                 ))}
-
-                {/* ── HUD overlays ──────────────────────────────────────── */}
-
-                {/* Top-left: tag */}
                 <div className="absolute top-4 left-5 z-10">
                   <span
                     ref={tagRef}
@@ -432,8 +382,6 @@ export default function About() {
                     {SLIDES[0].tag}
                   </span>
                 </div>
-
-                {/* Top-right: year */}
                 <div className="absolute top-4 right-5 z-10">
                   <span
                     ref={yearRef}
@@ -442,8 +390,6 @@ export default function About() {
                     {SLIDES[0].year}
                   </span>
                 </div>
-
-                {/* Bottom HUD */}
                 <div className="absolute bottom-0 left-0 right-0 z-10 p-5 pt-8">
                   <span
                     ref={accentRef}
@@ -457,8 +403,6 @@ export default function About() {
                   >
                     {SLIDES[0].caption}
                   </p>
-
-                  {/* Progress bar */}
                   <div className="w-full h-px bg-cream/12 relative mb-3">
                     <div
                       ref={progressRef}
@@ -475,8 +419,6 @@ export default function About() {
                       }}
                     />
                   </div>
-
-                  {/* Slide dots */}
                   <div className="flex items-center gap-1.5">
                     {SLIDES.map((_, i) => (
                       <div
@@ -494,8 +436,6 @@ export default function About() {
                   </div>
                 </div>
               </div>
-
-              {/* Scroll hint */}
               <div className="flex justify-center pt-3">
                 <span className="section-label text-stone/30">
                   scroll to explore

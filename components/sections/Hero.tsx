@@ -296,7 +296,7 @@ export default function Hero() {
       id="hero"
       className="relative min-h-screen flex flex-col justify-end px-8 md:px-16 overflow-hidden "
     >
-      <div className="cursor-pointer-3d  absolute top-0 right-0 w-[60%] md:w-[50%] h-[80%] z-999">
+      <div className="cursor-pointer-3d  absolute top-0 right-0 w-[60%] md:w-[50%] h-[75%] z-999">
         <div ref={canvasWrapRef} className="w-full h-full">
           <HeroScene />
         </div>
@@ -378,8 +378,6 @@ export default function Hero() {
           </div>
         </div>
       </div>
-
-      {/* Scroll indicator */}
       <div
         ref={scrollRef}
         className="absolute bottom-20 right-8 md:right-16 z-20 flex flex-col items-center gap-3 pointer-events-none"
@@ -398,13 +396,11 @@ export default function Hero() {
           />
         </div>
       </div>
-
-      {/* ── Marquee ticker strip ─────────────────────────────────────────────── */}
       <div className="marquee-strip opacity-0 absolute bottom-0 left-0 right-0 z-20 border-t border-muted/30 overflow-hidden pointer-events-none bg-cream/60 backdrop-blur-sm">
         <div className="flex whitespace-nowrap py-2.5">
           <div
             ref={marqueeRef}
-            className="flex gap-0 will-change-transform flex-shrink-0"
+            className="flex gap-0 will-change-transform shrink-0"
           >
             {Array.from({ length: 6 }, (_, i) => (
               <span
