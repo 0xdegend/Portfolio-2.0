@@ -1,30 +1,4 @@
 "use client";
-/**
- * Skills.tsx — "Machine Room" Awwwards-level implementation
- * ─────────────────────────────────────────────────────────────────────────────
- *
- * SIGNATURE INTERACTION: Accordion skill rows that expand to reveal an
- * R3F oscilloscope waveform canvas. Skill level = wave amplitude & frequency.
- *
- * LAYOUT: Full-width stacked list (not a 3-column grid). Each category block
- * has a large asymmetric label left + skill rows right — editorial, designed.
- *
- * ANIMATIONS:
- *   • Scroll: SplitText header stagger, category number count-up, rows clip-in
- *   • Row hover expand: height 52px → 130px (expo.out), waveform fades in
- *   • R3F waveform: sine wave, amplitude ∝ skill level, travels left-to-right
- *   • Percentage counter: 0 → level (once), stays on subsequent hovers
- *   • Scanline: 1px horizontal bar sweeps across hovered row (repeating)
- *   • Letter-spacing expansion on skill name
- *   • Neighbour rows dim to 0.45 opacity when a row is hovered
- *   • Left border accent flash on enter
- *
- * R3F CANVAS:
- *   • OrthographicCamera, frameloop="demand", invalidate on hover only
- *   • 300-vertex BufferGeometry line
- *   • Lazy-mounted (Canvas not in DOM until first hover of its row)
- *   • amplitude lerps 0↔target smoothly on enter/leave
- */
 
 import {
   useRef,
@@ -49,38 +23,39 @@ const skillGroups = [
     category: "Frontend",
     index: "01",
     skills: [
-      { name: "React / Next.js", level: 96 },
-      { name: "TypeScript", level: 92 },
-      { name: "CSS / Tailwind", level: 95 },
-      { name: "GSAP / Motion", level: 85 },
-      { name: "Three.js / R3F", level: 75 },
+      { name: "React / Next.js" },
+      { name: "TypeScript" },
+      { name: "CSS / Tailwind" },
+      { name: "GSAP / Motion" },
+      { name: "Three.js / R3F" },
     ],
   },
   {
     category: "Backend",
     index: "02",
     skills: [
-      { name: "Node.js / Bun", level: 88 },
-      { name: "PostgreSQL", level: 82 },
-      { name: "Prisma / Drizzle", level: 85 },
-      { name: "REST & tRPC APIs", level: 90 },
-      { name: "Redis", level: 72 },
+      { name: "Node.js / Bun" },
+      { name: "PostgreSQL" },
+      { name: "Prisma / Drizzle" },
+      { name: "REST & tRPC APIs" },
+      { name: "Redis" },
     ],
   },
   {
     category: "Tools & More",
     index: "03",
     skills: [
-      { name: "Git & CI/CD", level: 90 },
-      { name: "Docker", level: 75 },
-      { name: "Figma", level: 80 },
-      { name: "Vercel / AWS", level: 82 },
-      { name: "Testing (Vitest)", level: 78 },
+      { name: "Git & CI/CD" },
+      { name: "Docker" },
+      { name: "Figma" },
+      { name: "Vercel / AWS" },
+      { name: "Testing (Vitest)" },
     ],
   },
 ] as const;
 
-type SkillItem = { name: string; level: number };
+/* Updated type: no level property any more */
+type SkillItem = { name: string };
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const ACCENT = "#C9A87C";
@@ -88,12 +63,10 @@ const ROW_CLOSED = 52; // px
 const ROW_OPEN = 130; // px
 const WAVE_PTS = 300;
 
-// ─── R3F Waveform scene ───────────────────────────────────────────────────────
-/**
- * Renders a sine wave whose amplitude and frequency reflect the skill level.
- * `active` ref controls whether time advances (only animate while hovered).
- * `amplitudeTarget` lerps the wave in/out smoothly.
- */
+/* ---------------------------
+   WaveScene / WaveCanvas (unchanged)
+   --------------------------- */
+
 function WaveScene({
   level,
   activeRef,
@@ -101,44 +74,26 @@ function WaveScene({
   level: number;
   activeRef: React.RefObject<boolean>;
 }) {
-  /**
-   * CANONICAL R3F PATTERN — no manual Three.js object creation during render.
-   *
-   * Use lowercase JSX intrinsics: <line>, <bufferGeometry>, <lineBasicMaterial>
-   * R3F creates and owns the Three.js instances via its reconciler.
-   * We get refs to them via the `ref` prop — only read in useFrame (post-render).
-   *
-   * Previous attempts failed because:
-   *   useMemo   → R3F strict-mode proxies the value as read-only
-   *   if(!ref.current) during render → "cannot access ref during render"
-   *
-   * This approach avoids both: R3F owns the objects, refs only touched post-render.
-   */
   const { size, invalidate } = useThree();
 
-  // Refs to R3F-managed objects — populated by R3F after first render
   const geoRef = useRef<THREE.BufferGeometry>(null!);
   const matRef = useRef<THREE.LineBasicMaterial>(null!);
 
-  // Animation state — never read during render, only in useFrame / useEffect
   const timeRef = useRef(0);
   const ampRef = useRef(0);
   const ampTarget = useRef(0);
 
-  // Pure computed scalars — not Three.js objects, useMemo is safe here
   const freq = useMemo(() => 1.8 + (level / 100) * 3.5, [level]);
   const ampMax = useMemo(() => 0.1 + (level / 100) * 0.28, [level]);
 
-  // Wire up the position BufferAttribute after R3F mounts the geometry
   useEffect(() => {
     const geo = geoRef.current;
     if (!geo) return;
     const positions = new Float32Array(WAVE_PTS * 3);
     geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
     return () => geo.dispose();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
-  // Sync amplitude target whenever activeRef or ampMax changes
   useEffect(() => {
     ampTarget.current = activeRef.current ? ampMax : 0;
   }, [activeRef, ampMax]);
@@ -149,13 +104,10 @@ function WaveScene({
     const isActive = activeRef.current;
     if (!geo || !mat || !geo.attributes.position) return;
 
-    // Smooth amplitude lerp toward target
     ampRef.current += (ampTarget.current - ampRef.current) * 0.12;
 
-    // Advance wave phase — faster when row is hovered
     timeRef.current += delta * (isActive ? 0.8 + (level / 100) * 1.2 : 0.2);
 
-    // Write new vertex positions — safe in useFrame (never during render)
     const attr = geo.attributes.position as THREE.BufferAttribute;
     const posArr = attr.array as Float32Array;
     const halfH = size.height / 2;
@@ -172,7 +124,6 @@ function WaveScene({
     }
     attr.needsUpdate = true;
 
-    // Mutate material opacity — safe in useFrame
     mat.opacity = isActive
       ? 0.85 + ampRef.current * 0.5
       : Math.max(0, ampRef.current / ampMax) * 0.6;
@@ -180,8 +131,6 @@ function WaveScene({
     invalidate();
   });
 
-  // Lowercase intrinsics: R3F reconciler creates Three.Line, BufferGeometry,
-  // LineBasicMaterial — no manual instantiation needed at all.
   return (
     <line>
       <bufferGeometry ref={geoRef} />
@@ -195,7 +144,6 @@ function WaveScene({
   );
 }
 
-// Wrap with canvas — lazy mounted, demand frameloop
 function WaveCanvas({
   level,
   activeRef,
@@ -218,7 +166,11 @@ function WaveCanvas({
   );
 }
 
-// ─── Individual skill row ─────────────────────────────────────────────────────
+/* ------------------------------------------------------------------
+   SkillRow — UPDATED: removes percentage UI + counting logic.
+   WaveCanvas still mounts on hover, but uses a derived 'level'
+   based on rowIndex so you keep the visual pulse without percent UI.
+   ------------------------------------------------------------------ */
 function SkillRow({
   skill,
   rowIndex,
@@ -229,24 +181,20 @@ function SkillRow({
   skill: SkillItem;
   rowIndex: number;
   totalInGroup: number;
-  groupActiveRef: React.RefObject<string | null>; // which skill name is hovered in this group
+  groupActiveRef: React.RefObject<string | null>;
   onHoverChange: (name: string | null) => void;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const rowRef = useRef<HTMLDivElement>(null);
   const nameRef = useRef<HTMLSpanElement>(null);
-  const numRef = useRef<HTMLSpanElement>(null);
-  const pctRef = useRef<HTMLSpanElement>(null);
   const scanRef = useRef<HTMLDivElement>(null);
   const borderRef = useRef<HTMLDivElement>(null);
   const waveWrapRef = useRef<HTMLDivElement>(null);
 
   const [canvasMounted, setCanvasMounted] = useState(false);
   const waveActiveRef = useRef(false);
-  const countedRef = useRef(false);
   const scanTlRef = useRef<gsap.core.Timeline | null>(null);
 
-  // ── Scroll entrance ────────────────────────────────────────────────────────
   useGSAP(
     () => {
       gsap.fromTo(
@@ -270,7 +218,6 @@ function SkillRow({
     { scope: wrapRef },
   );
 
-  // ── Hover enter ───────────────────────────────────────────────────────────
   const handleEnter = useCallback(() => {
     const row = rowRef.current;
     const name = nameRef.current;
@@ -309,22 +256,6 @@ function SkillRow({
       });
     }
 
-    // Percentage counter (once only)
-    if (pctRef.current && !countedRef.current) {
-      countedRef.current = true;
-      const obj = { val: 0 };
-      gsap.to(obj, {
-        val: skill.level,
-        duration: 0.9,
-        ease: "power2.out",
-        delay: 0.05,
-        onUpdate: () => {
-          if (pctRef.current)
-            pctRef.current.textContent = `${Math.round(obj.val)}%`;
-        },
-      });
-    }
-
     // Scanline: repeating left-to-right sweep
     if (scan) {
       scanTlRef.current?.kill();
@@ -336,9 +267,8 @@ function SkillRow({
       ).set(scan, { left: "-4px", opacity: 0 });
       scanTlRef.current = tl;
     }
-  }, [skill.name, skill.level, onHoverChange]);
+  }, [skill.name, onHoverChange]);
 
-  // ── Hover leave ───────────────────────────────────────────────────────────
   const handleLeave = useCallback(() => {
     const row = rowRef.current;
     const name = nameRef.current;
@@ -370,16 +300,10 @@ function SkillRow({
     scanTlRef.current?.kill();
     scanTlRef.current = null;
     if (scanRef.current) gsap.set(scanRef.current, { opacity: 0 });
-
-    // Cleanup
-    return () => scanTlRef.current?.kill();
   }, [onHoverChange]);
 
-  // Unmount wave canvas a moment after leaving (saves GPU)
-  useEffect(() => {
-    if (!canvasMounted) return;
-    // no auto-unmount — keep mounted once created
-  }, [canvasMounted]);
+  // Derive a "level" for the waveform visuals so wave still responds
+  const waveLevel = Math.min(95, 60 + rowIndex * 6);
 
   const rowNumStr = String(rowIndex + 1).padStart(2, "0");
 
@@ -417,7 +341,6 @@ function SkillRow({
         <div className="relative z-10 flex items-center gap-5 w-full pt-3 pb-3 pl-4">
           {/* Row index */}
           <span
-            ref={numRef}
             className="font-mono text-[0.6rem] tracking-[0.2em] shrink-0"
             style={{ color: `${ACCENT}60`, minWidth: 24 }}
           >
@@ -433,14 +356,7 @@ function SkillRow({
             {skill.name}
           </span>
 
-          {/* Percentage */}
-          <span
-            ref={pctRef}
-            className="font-mono text-xs shrink-0"
-            style={{ color: ACCENT, minWidth: 36, textAlign: "right" }}
-          >
-            {skill.level}%
-          </span>
+          {/* NOTE: percentage removed — only skill text shown */}
         </div>
 
         {/* Waveform area — revealed on expand */}
@@ -450,24 +366,23 @@ function SkillRow({
           style={{ height: ROW_OPEN - ROW_CLOSED - 4 }}
         >
           {canvasMounted && (
-            <WaveCanvas level={skill.level} activeRef={waveActiveRef} />
+            <WaveCanvas level={waveLevel} activeRef={waveActiveRef} />
           )}
         </div>
 
-        {/* Warm bg glow on hover (CSS transition is fine for bg) */}
+        {/* Warm bg glow on hover */}
         <div
           className="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300"
           style={{
             background: `linear-gradient(90deg, ${ACCENT}08 0%, transparent 60%)`,
           }}
-          // toggled via classname trick: parent hovered state not needed; GSAP handles it
         />
       </div>
     </div>
   );
 }
 
-// ─── Skill group (category block) ─────────────────────────────────────────────
+/* SkillGroup: unchanged aside from type compatibility */
 function SkillGroup({ group }: { group: (typeof skillGroups)[number] }) {
   const groupRef = useRef<HTMLDivElement>(null);
   const catNumRef = useRef<HTMLSpanElement>(null);
@@ -480,10 +395,8 @@ function SkillGroup({ group }: { group: (typeof skillGroups)[number] }) {
     setActiveSkill(name);
   }, []);
 
-  // Scroll entrance — category number count-up + label slide
   useGSAP(
     () => {
-      // Category label slides from left
       gsap.fromTo(
         catLabelRef.current,
         { x: -28, opacity: 0 },
@@ -500,7 +413,6 @@ function SkillGroup({ group }: { group: (typeof skillGroups)[number] }) {
         },
       );
 
-      // Category number counts 00 → group.index
       const targetNum = parseInt(group.index, 10);
       const obj = { val: 0 };
       gsap.to(obj, {
@@ -526,7 +438,6 @@ function SkillGroup({ group }: { group: (typeof skillGroups)[number] }) {
 
   return (
     <div ref={groupRef} className="mb-20 last:mb-0">
-      {/* Category header */}
       <div ref={catLabelRef} className="flex items-baseline gap-4 mb-6 pl-4">
         <span
           ref={catNumRef}
@@ -546,13 +457,11 @@ function SkillGroup({ group }: { group: (typeof skillGroups)[number] }) {
         />
       </div>
 
-      {/* Skills list */}
       <div className="relative">
         {group.skills.map((skill, si) => (
           <div
             key={skill.name}
             style={{
-              // Dim non-hovered siblings — but only when something IS hovered
               opacity: activeSkill && activeSkill !== skill.name ? 0.38 : 1,
               transition: "opacity 0.3s ease",
             }}
@@ -566,24 +475,21 @@ function SkillGroup({ group }: { group: (typeof skillGroups)[number] }) {
             />
           </div>
         ))}
-        {/* Bottom border of group */}
         <div className="border-t border-white/[0.06]" />
       </div>
     </div>
   );
 }
 
-// ─── Main section ─────────────────────────────────────────────────────────────
+/* Main Skills section (unchanged) */
 export default function Skills() {
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
 
-  // Header split-text entrance
   useGSAP(
     () => {
       if (!headingRef.current) return;
 
-      // Header label
       gsap.fromTo(
         ".skills-header-label",
         { opacity: 0, x: -20 },
@@ -600,7 +506,6 @@ export default function Skills() {
         },
       );
 
-      // Heading words
       const split = new SplitText(headingRef.current, { type: "words" });
       gsap.fromTo(
         split.words,
@@ -621,7 +526,6 @@ export default function Skills() {
         },
       );
 
-      // Sub-copy fade
       gsap.fromTo(
         ".skills-sub",
         { opacity: 0, y: 12 },
@@ -649,7 +553,6 @@ export default function Skills() {
       className="py-32 px-8 md:px-16 bg-ink text-cream overflow-hidden"
     >
       <div className="max-w-7xl mx-auto">
-        {/* ── Section header ──────────────────────────────────────────── */}
         <div className="flex items-center gap-6 mb-20">
           <span className="skills-header-label section-label text-stone">
             03 — Skills
@@ -662,7 +565,6 @@ export default function Skills() {
           />
         </div>
 
-        {/* Heading + sub-copy — asymmetric layout */}
         <div className="flex flex-col md:flex-row md:items-end gap-8 justify-between mb-24">
           <h2
             ref={headingRef}
@@ -679,14 +581,12 @@ export default function Skills() {
           </p>
         </div>
 
-        {/* ── Skill groups ────────────────────────────────────────────── */}
         <div>
           {skillGroups.map((group) => (
             <SkillGroup key={group.category} group={group} />
           ))}
         </div>
 
-        {/* Decorative bottom rule */}
         <div
           className="mt-16 h-px w-full"
           style={{
