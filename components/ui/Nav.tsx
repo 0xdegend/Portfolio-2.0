@@ -157,7 +157,7 @@ export default function Nav() {
     >
       <a href="#" className="w-10 h-10 shrink-0">
         <Image
-          src="/images/my-bosu-pfp.png"
+          src="/images/my-bosu-pfp.jpg"
           alt="Logo"
           width={40}
           height={40}
