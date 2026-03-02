@@ -17,12 +17,8 @@ html {
   box-sizing: border-box;
 }
 
-/* Custom cursor */
 body {
   cursor: none;
-  /* ✅ Removed `!important` — it was overriding bg-cream on <main> and
-     causing a background mismatch with GSAP's injected pin-spacer divs,
-     which created a visual flash/jump on reverse scroll */
   background: var(--cream);
 }
 
@@ -54,7 +50,6 @@ body {
   opacity: 0.4;
 }
 
-/* Noise texture overlay */
 .noise::after {
   content: "";
   position: fixed;
@@ -65,13 +60,11 @@ body {
   opacity: 0.04;
 }
 
-/* Horizontal rule accent */
 .rule-accent {
   height: 1px;
   background: linear-gradient(to right, var(--accent), transparent);
 }
 
-/* Section label style */
 .section-label {
   font-family: "DM Mono", monospace;
   font-size: 0.65rem;
@@ -80,23 +73,19 @@ body {
   color: var(--stone);
 }
 
-/* Clip path for image reveals */
 .clip-reveal {
   clip-path: inset(0 100% 0 0);
 }
 
-/* GSAP will animate this */
 .will-animate {
   opacity: 0;
   transform: translateY(30px);
 }
 
-/* Split text lines */
 .line-mask {
   overflow: hidden;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar {
   width: 4px;
 }
@@ -108,12 +97,10 @@ body {
   border-radius: 2px;
 }
 
-/* Canvas wrapper */
 canvas {
   outline: none;
 }
 
-/* 3D scene hover cursor — toggled via classList, never inline style */
 html.cursor-pointer-3d .cursor {
   transform: scale(2.5);
   background: var(--accent);
