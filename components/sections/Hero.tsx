@@ -272,7 +272,7 @@ export default function Hero() {
     <section
       ref={containerRef}
       id="hero"
-      className="relative lg:min-h-screen min-h-[85vh] flex flex-col justify-center md:justify-end px-6 md:px-16 overflow-hidden"
+      className="relative min-h-screen flex flex-col justify-center md:justify-end px-6 md:px-16 overflow-hidden"
     >
       <div
         className="
