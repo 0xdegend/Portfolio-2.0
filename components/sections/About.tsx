@@ -333,12 +333,12 @@ export default function About() {
 
               <p className="about-body text-stone leading-relaxed mb-4 font-light text-sm md:text-base max-w-[36ch]">
                 I&apos;m a Frontend Engineer at the intersection of engineering
-                discipline and design sensibility — obsessed with performance,
+                discipline and design sensibility obsessed with performance,
                 accessibility, and the small details that make experiences
                 memorable.
               </p>
               <p className="about-body text-stone leading-relaxed mb-8 font-light text-sm md:text-base max-w-[36ch]">
-                Currently open to new opportunities — full-time roles, long-term
+                Currently open to new opportunities full-time roles, long-term
                 contracts, or exciting side projects worth building together.
               </p>
               <div className="traits-row flex flex-wrap gap-2 mb-10">

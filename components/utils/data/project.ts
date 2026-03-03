@@ -12,14 +12,22 @@ export const projects = [
   },
   {
     number: "02",
-    title: "E-Commerce Platform",
+    title: "Army Barracks",
     category: "Full-Stack",
-    year: "2024",
+    year: "2025",
     description:
-      "High-performance storefront with server components, edge caching, and real-time inventory. 98 Lighthouse score across all metrics.",
-    tech: ["Next.js", "Prisma", "Stripe", "Vercel"],
-    image: "/images/projects/e-commerce.jpg",
-    link: "#",
+      "A community-driven SocialFi web application built for the $ARMY token ecosystem on Solana. Army Barrack serves as the central hub for the $ARMY community originally launched within the BLAST ecosystem and later migrated to Solana as a fully community-led project.",
+    tech: [
+      "Next.js",
+      "Typescript",
+      "Tailwind CSS",
+      "Node.js",
+      "Rest Apis",
+      "Vercel",
+      "Solana SDK",
+    ],
+    image: "/images/projects/army-barracks.png",
+    link: "https://army-barrack-prod.vercel.app/",
   },
   {
     number: "03",

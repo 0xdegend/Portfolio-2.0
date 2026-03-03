@@ -1,7 +1,5 @@
 export function CursorBoxTailwind({
   initRef,
-  initNumLabel,
-  initArrow,
   initImageRef,
 }: {
   initRef: (el: HTMLDivElement | null) => void;
@@ -20,10 +18,6 @@ export function CursorBoxTailwind({
         willChange: "transform, opacity, clip-path",
       }}
     >
-      {/* Base glass / cream background */}
-      {/* <div className="absolute inset-0 overflow-hidden bg-[#f5f2ee] backdrop-blur-md" /> */}
-
-      {/* Content row */}
       <div className="relative z-10 flex items-center h-full px-0">
         {/* Number badge (left) */}
         {/* <div className="flex items-center justify-center h-full px-3 shrink-0">
@@ -40,7 +34,7 @@ export function CursorBoxTailwind({
             ref={initImageRef}
             src={"null"} // initially empty — hook will set src on show()
             alt="project preview"
-            className="w-50 h-25 object-cover"
+            className="w-55 h-25 object-cover"
             style={{
               display: "block",
               objectFit: "cover",

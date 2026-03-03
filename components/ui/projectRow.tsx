@@ -26,26 +26,19 @@ export function ProjectRow({
   const arrowRef = useRef<HTMLSpanElement | null>(null);
   const glowRef = useRef<HTMLDivElement | null>(null);
   const lineRef = useRef<HTMLDivElement | null>(null);
-
-  // quickTo handles (magnetic arrow + tilt)
   const qArrX = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
   const qArrY = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
   const qTiltX = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
   const qTiltY = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
 
-  // Respect reduced motion
   const prefersReducedMotion =
     typeof window !== "undefined" &&
     window.matchMedia &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  // Scroll / entrance animations (SplitText)
   useGSAP(
     () => {
       const row = rowRef.current;
       if (!row) return;
-
-      // Number slide-in
       gsap.fromTo(
         numRef.current,
         { x: -16, opacity: 0 },
@@ -62,8 +55,6 @@ export function ProjectRow({
           delay: index * 0.06,
         },
       );
-
-      // Title word stagger
       if (titleRef.current) {
         const split = new SplitText(titleRef.current, { type: "words" });
         gsap.fromTo(
@@ -85,8 +76,6 @@ export function ProjectRow({
           },
         );
       }
-
-      // Description fade, tech pills pop (keeps your previous behavior)
       gsap.fromTo(
         row.querySelector(".proj-desc"),
         { opacity: 0 },
@@ -102,7 +91,6 @@ export function ProjectRow({
           delay: index * 0.06 + 0.16,
         },
       );
-
       gsap.fromTo(
         row.querySelectorAll(".proj-tech"),
         { scale: 0.78, opacity: 0 },
@@ -123,8 +111,6 @@ export function ProjectRow({
     },
     { scope: rowRef },
   );
-
-  // Setup quickTo instances for arrow and tilt once
   useEffect(() => {
     if (!arrowRef.current || !rowRef.current) return;
     qArrX.current = gsap.quickTo(arrowRef.current, "x", {
@@ -135,7 +121,6 @@ export function ProjectRow({
       duration: 0.36,
       ease: "power2.out",
     });
-    // tilt on row (rotationX / rotationY gives subtle 3D feel)
     qTiltX.current = gsap.quickTo(rowRef.current, "rotationX", {
       duration: 0.45,
       ease: "power2.out",
@@ -144,36 +129,27 @@ export function ProjectRow({
       duration: 0.45,
       ease: "power2.out",
     });
-
-    // Ensure row preserves 3D visually
     if (rowRef.current) {
       rowRef.current.style.transformStyle = "preserve-3d";
       rowRef.current.style.willChange = "transform";
     }
 
     return () => {
-      // kill any active quickTos on unmount
       qArrX.current = null;
       qArrY.current = null;
       qTiltX.current = null;
       qTiltY.current = null;
     };
   }, []);
-
-  // Hover / focus enter
   const handleEnter = useCallback(() => {
-    // expose preview box
     onEnter(project.number, project.image);
 
     if (prefersReducedMotion) {
-      // subtle immediate styles for reduced motion users
       if (numRef.current) numRef.current.style.transform = "translateX(4px)";
       if (glowRef.current) glowRef.current.style.opacity = "1";
       if (lineRef.current) lineRef.current.style.transform = "scaleX(1)";
       return;
     }
-
-    // number nudge + color
     gsap.to(numRef.current, {
       x: 6,
       color: "var(--accent)",
@@ -181,33 +157,24 @@ export function ProjectRow({
       ease: "power2.out",
     });
 
-    // glow sweep
     gsap.fromTo(
       glowRef.current,
       { scaleX: 0, opacity: 1, transformOrigin: "left center" },
       { scaleX: 1, duration: 0.46, ease: "expo.out" },
     );
-
-    // underline sweep
     gsap.to(lineRef.current, { scaleX: 1, duration: 0.42, ease: "expo.out" });
-
-    // title tiny micro-lift
     gsap.to(titleRef.current, {
       y: -4,
       duration: 0.4,
       ease: "power2.out",
       overwrite: true,
     });
-
-    // arrow pop-in subtle scale
     gsap.fromTo(
       arrowRef.current,
       { scale: 0.9, opacity: 0.75 },
       { scale: 1, opacity: 1, duration: 0.28, ease: "back.out(2)" },
     );
   }, [onEnter, project.number, project.image, prefersReducedMotion]);
-
-  // Leave / blur
   const handleLeave = useCallback(() => {
     onLeave();
 
@@ -233,17 +200,11 @@ export function ProjectRow({
       duration: 0.5,
       ease: "elastic.out(1, 0.6)",
     });
-
-    // reset arrow quickTo
     qArrX.current?.(0);
     qArrY.current?.(0);
-
-    // reset tilt
     qTiltX.current?.(0);
     qTiltY.current?.(0);
   }, [onLeave, prefersReducedMotion]);
-
-  // Mouse move inside row: arrow magnetic + tilt
   const handleMouseMoveLocal = useCallback(
     (e: React.MouseEvent) => {
       if (prefersReducedMotion) return;
@@ -252,15 +213,10 @@ export function ProjectRow({
       if (!row) return;
 
       const rect = row.getBoundingClientRect();
-      // normalized -1..1
       const nx = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
       const ny = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
-
-      // tilt: small rotation amounts
-      qTiltX.current?.(-ny * 4); // tilt up/down
-      qTiltY.current?.(nx * 6); // tilt left/right
-
-      // arrow magnetic: if arrow present move small %
+      qTiltX.current?.(-ny * 4);
+      qTiltY.current?.(nx * 6);
       if (arrow) {
         const arRect = arrow.getBoundingClientRect();
         const cx = arRect.left + arRect.width / 2;
@@ -273,9 +229,6 @@ export function ProjectRow({
     },
     [prefersReducedMotion],
   );
-
-  // keyboard support: focus/blur on the row should behave like hover
-  // attach onFocus/onBlur to row container below
 
   return (
     <div className="relative">
@@ -291,7 +244,7 @@ export function ProjectRow({
           onMouseEnter={handleEnter}
           onMouseLeave={handleLeave}
           onMouseMove={handleMouseMoveLocal}
-          onFocus={handleEnter} // keyboard focus
+          onFocus={handleEnter}
           onBlur={handleLeave}
         >
           <div className="col-span-1 pt-1">
@@ -339,8 +292,6 @@ export function ProjectRow({
             <span className="proj-meta-item font-mono text-xs text-stone/40">
               {project.year}
             </span>
-
-            {/* arrow + warm glow + thin underline (for sweep) */}
             <div className="relative flex items-center">
               <div
                 ref={glowRef}
