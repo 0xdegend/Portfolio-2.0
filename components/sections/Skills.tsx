@@ -39,7 +39,7 @@ export default function Skills() {
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const canvasWrapRef = useRef<HTMLDivElement>(null);
-  const [activeTerminal, setActiveTerminal] = useState(-1);
+  const [activeTerminal, setActiveTerminal] = useState(0);
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleGroupHover = useCallback((idx: number | null) => {
@@ -110,16 +110,14 @@ export default function Skills() {
 
       gsap.fromTo(
         canvasWrapRef.current,
-        { opacity: 0, x: 48 },
+        { opacity: 0 }, // no x offset — no layout shift
         {
           opacity: 1,
-          x: 0,
-          duration: 1.1,
-          ease: "expo.out",
-          delay: 0.3,
+          duration: 0.9,
+          ease: "power2.out",
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: "top 70%",
+            start: "top 95%",
             once: true,
           },
         },
@@ -181,6 +179,7 @@ export default function Skills() {
             style={{
               height: "calc(100vh - 64px)",
               maxHeight: 700,
+              opacity: 0,
               boxShadow: `0 0 90px ${ACCENT}14, 0 0 0 1px rgba(255,255,255,0.05)`,
             }}
             aria-label="Interactive 3D terminal displaying live code for the active skill category"

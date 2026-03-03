@@ -9,11 +9,12 @@ export function TerminalCanvas({ activeTerminal }: { activeTerminal: number }) {
     <Canvas
       camera={{ fov: 42, near: 0.1, far: 100, position: [0, 0, 5] }}
       dpr={dpr}
-      frameloop="demand"
+      frameloop="always"
       gl={{
         antialias: true,
         alpha: false,
         toneMapping: THREE.ACESFilmicToneMapping,
+        powerPreference: "high-performance",
       }}
       shadows
       style={{ width: "100%", height: "100%", display: "block" }}
