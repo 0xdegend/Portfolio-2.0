@@ -274,14 +274,15 @@ export default function Hero() {
       id="hero"
       className="relative min-h-screen flex flex-col justify-end px-6 md:px-16 overflow-hidden"
     >
+      {/* ── Canvas ── */}
       <div
         className="
-        absolute
-        top-[8%] right-0
-        w-[50%] h-[40%]
-        md:top-0 md:w-[55%] md:h-[75%]
-        z-9999
-      "
+          absolute
+          top-0 right-0
+          w-[52%] h-[60%]
+          md:top-0 md:w-[55%] md:h-[75%]
+          z-[5]
+        "
         style={{ pointerEvents: "none" }}
       >
         <div
@@ -292,9 +293,17 @@ export default function Hero() {
           <HeroScene />
         </div>
       </div>
+
+      {/* ── Bottom fade ── */}
       <div className="absolute bottom-0 left-0 right-0 h-52 bg-linear-to-t from-cream to-transparent z-10" />
+
+      {/* ── Desktop left fade ── */}
       <div className="hidden md:block absolute top-0 left-0 w-[45%] h-full bg-linear-to-r from-cream via-cream/60 to-transparent z-10" />
-      <div className="md:hidden absolute top-0 right-0 w-[55%] h-[55%] bg-linear-to-l from-cream/20 via-transparent to-transparent z-6 pointer-events-none" />
+
+      {/* ── Mobile right fade ── */}
+      <div className="md:hidden absolute top-0 right-0 w-[55%] h-[65%] bg-linear-to-l from-cream/20 via-transparent to-transparent z-[6] pointer-events-none" />
+
+      {/* ── Copyright badge ── */}
       <div className="hero-badge opacity-0 absolute top-8 left-6 md:left-16 z-30 flex items-center gap-2.5">
         <span className="font-mono text-[0.6rem] text-stone/40 tracking-[0.25em] uppercase">
           ©<span ref={counterRef}>{new Date().getFullYear() - 7}</span>
@@ -304,16 +313,23 @@ export default function Hero() {
           Portfolio
         </span>
       </div>
-      <div className="relative z-20 max-w-7xl pb-12 md:pb-16">
+
+      {/* ── Main content ── */}
+      {/* On mobile: push content down so it sits in the lower ~40% of the screen,
+          letting the canvas occupy the top half beside the heading */}
+      <div className="relative z-20 max-w-7xl pb-12 md:pb-16 mt-[38vh] md:mt-0">
+        {/* Role label */}
         <div className="hero-role opacity-0 flex items-center gap-3 mb-4 md:mb-5 pointer-events-none">
           <span className="block w-6 h-px bg-accent shrink-0" />
           <span className="section-label tracking-[0.3em]">
             <span ref={roleRef}>{ROLES[0]}</span>
           </span>
         </div>
+
+        {/* Heading — on mobile it sits left while canvas floats top-right */}
         <h1
           ref={h1Ref}
-          className="font-display font-light text-[clamp(2.6rem,8vw,9.5rem)] leading-[0.92] tracking-tight text-ink mb-6 md:mb-7 pointer-events-auto cursor-default select-none w-[70%] md:w-full"
+          className="font-display font-light text-[clamp(2.6rem,8vw,9.5rem)] leading-[0.92] tracking-tight text-ink mb-6 md:mb-7 pointer-events-auto cursor-default select-none w-[58%] md:w-full"
           style={{ willChange: "transform" }}
         >
           <span className="block">Crafting</span>
@@ -323,6 +339,8 @@ export default function Hero() {
             experiences<span className="text-accent non-italic">.</span>
           </span>
         </h1>
+
+        {/* Bottom row */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 md:gap-6 border-t border-muted pt-5 md:pt-6">
           <p
             ref={subRef}
@@ -360,6 +378,8 @@ export default function Hero() {
           </div>
         </div>
       </div>
+
+      {/* ── Scroll indicator — desktop only ── */}
       <div
         ref={scrollRef}
         className="hidden md:flex absolute bottom-20 right-16 z-20 flex-col items-center gap-3 pointer-events-none"
@@ -378,6 +398,8 @@ export default function Hero() {
           />
         </div>
       </div>
+
+      {/* ── Marquee ── */}
       <div className="marquee-strip opacity-0 absolute bottom-0 left-0 right-0 z-20 border-t border-muted/30 overflow-hidden pointer-events-none bg-cream/60 backdrop-blur-sm">
         <div className="flex whitespace-nowrap py-2.5">
           <div
@@ -408,11 +430,11 @@ export default function Hero() {
       </div>
 
       <style>{`
-     @keyframes scrollLine {
-       0%   { top: -35%; }
-       100% { top: 135%; }
-     }
-   `}</style>
+        @keyframes scrollLine {
+          0%   { top: -35%; }
+          100% { top: 135%; }
+        }
+      `}</style>
     </section>
   );
 }
