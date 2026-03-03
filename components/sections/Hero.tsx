@@ -272,10 +272,17 @@ export default function Hero() {
     <section
       ref={containerRef}
       id="hero"
-      className="relative min-h-screen flex flex-col justify-end px-8 md:px-16 overflow-hidden "
+      className="relative min-h-screen flex flex-col justify-end px-6 md:px-16 overflow-hidden"
     >
+      {/* ── Canvas ── */}
       <div
-        className="absolute top-0 right-0 w-[60%] md:w-[50%] h-[75%] z-999"
+        className="
+        absolute
+        top-[8%] right-0
+        w-[50%] h-[40%]
+        md:top-0 md:w-[55%] md:h-[75%]
+        z-9999
+      "
         style={{ pointerEvents: "none" }}
       >
         <div
@@ -286,9 +293,18 @@ export default function Hero() {
           <HeroScene />
         </div>
       </div>
-      <div className="absolute bottom-0 left-0 right-0 h-52 bg-linear-to-t from-cream to-transparent z-10 " />
-      <div className="absolute top-0 left-0 w-[45%] h-full bg-linear-to-r from-cream via-cream/60 to-transparent z-10 " />
-      <div className="hero-badge opacity-0 absolute top-8 left-8 md:left-16 z-30 flex items-center gap-2.5">
+
+      {/* ── Bottom fade ── */}
+      <div className="absolute bottom-0 left-0 right-0 h-52 bg-linear-to-t from-cream to-transparent z-10" />
+
+      {/* ── Desktop left fade ── */}
+      <div className="hidden md:block absolute top-0 left-0 w-[45%] h-full bg-linear-to-r from-cream via-cream/60 to-transparent z-10" />
+
+      {/* ── Mobile right fade — blends canvas edge into bg ── */}
+      <div className="md:hidden absolute top-0 right-0 w-[55%] h-[55%] bg-linear-to-l from-cream/20 via-transparent to-transparent z-[6] pointer-events-none" />
+
+      {/* ── Copyright badge ── */}
+      <div className="hero-badge opacity-0 absolute top-8 left-6 md:left-16 z-30 flex items-center gap-2.5">
         <span className="font-mono text-[0.6rem] text-stone/40 tracking-[0.25em] uppercase">
           ©<span ref={counterRef}>{new Date().getFullYear() - 7}</span>
         </span>
@@ -298,26 +314,20 @@ export default function Hero() {
         </span>
       </div>
 
-      <div className="hero-badge opacity-0 absolute top-8 right-8 md:right-16 z-30 flex items-center gap-2 pointer-events-none">
-        <span className="relative flex h-1.5 w-1.5">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-70" />
-          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
-        </span>
-        <span className="font-mono text-[0.6rem] text-stone/50 tracking-[0.2em] uppercase">
-          Available for work
-        </span>
-      </div>
-
-      <div className="relative z-20 max-w-7xl pb-16">
-        <div className="hero-role opacity-0 flex items-center gap-3 mb-5 pointer-events-none">
+      {/* ── Main content ── */}
+      <div className="relative z-20 max-w-7xl pb-12 md:pb-16">
+        {/* Role label */}
+        <div className="hero-role opacity-0 flex items-center gap-3 mb-4 md:mb-5 pointer-events-none">
           <span className="block w-6 h-px bg-accent shrink-0" />
           <span className="section-label tracking-[0.3em]">
             <span ref={roleRef}>{ROLES[0]}</span>
           </span>
         </div>
+
+        {/* Heading — sits left, canvas floats right on mobile */}
         <h1
           ref={h1Ref}
-          className="font-display font-light text-[clamp(3.5rem,9vw,9.5rem)] leading-[0.92] tracking-tight text-ink mb-7 pointer-events-auto cursor-default select-none"
+          className="font-display font-light text-[clamp(2.6rem,8vw,9.5rem)] leading-[0.92] tracking-tight text-ink mb-6 md:mb-7 pointer-events-auto cursor-default select-none w-[70%] md:w-full"
           style={{ willChange: "transform" }}
         >
           <span className="block">Crafting</span>
@@ -327,45 +337,50 @@ export default function Hero() {
             experiences<span className="text-accent non-italic">.</span>
           </span>
         </h1>
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-t border-muted pt-6">
+
+        {/* Bottom row */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 md:gap-6 border-t border-muted pt-5 md:pt-6">
           <p
             ref={subRef}
-            className="text-stone font-light text-base md:text-lg max-w-sm leading-relaxed pointer-events-none"
+            className="text-stone font-light text-sm md:text-lg max-w-[60%] md:max-w-sm leading-relaxed pointer-events-none"
             style={{ opacity: 0 }}
           >
             Developer focused on AI & Blockchain — crafting clean interfaces
             with minimalist design, clear typography, and purposeful motion.
           </p>
+
           <div
             ref={metaRef}
-            className="flex items-center gap-6 pointer-events-auto"
+            className="flex items-center gap-4 md:gap-6 pointer-events-auto"
             style={{ opacity: 0 }}
           >
             <a
               href="#projects"
-              className="group relative inline-flex items-center gap-3 text-[0.65rem] tracking-[0.22em] uppercase font-mono text-ink border border-ink/15 px-5 py-3 overflow-hidden hover:border-ink transition-colors duration-500"
+              className="group relative inline-flex items-center gap-3 text-[0.62rem] md:text-[0.65rem] tracking-[0.22em] uppercase font-mono text-ink border border-ink/15 px-4 md:px-5 py-2.5 md:py-3 overflow-hidden hover:border-ink transition-colors duration-500"
             >
               <span className="absolute inset-0 bg-ink translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)]" />
               <span className="relative z-10 group-hover:text-cream transition-colors duration-200 delay-100">
                 View Work
               </span>
-              <span className="relative z-10 w-8 h-px bg-current inline-block group-hover:w-14 transition-all duration-500 group-hover:bg-cream" />
+              <span className="relative z-10 w-6 md:w-8 h-px bg-current inline-block group-hover:w-12 md:group-hover:w-14 transition-all duration-500 group-hover:bg-cream" />
             </a>
 
             <a
               href="#contact"
-              className="group inline-flex items-center gap-2 text-[0.65rem] tracking-[0.22em] uppercase font-mono text-stone/70 hover:text-ink transition-colors duration-300"
+              className="group inline-flex items-center gap-2 text-[0.62rem] md:text-[0.65rem] tracking-[0.22em] uppercase font-mono text-stone/70 hover:text-ink transition-colors duration-300"
             >
-              <span className="block w-0 h-px bg-accent group-hover:w-5 transition-all duration-400" />
+              <span className="block w-0 h-px bg-accent group-hover:w-5 transition-all duration-300" />
               Contact
-              <span className="block w-0 h-px bg-accent group-hover:w-5 transition-all duration-400 delay-75" />
+              <span className="block w-0 h-px bg-accent group-hover:w-5 transition-all duration-300 delay-75" />
             </a>
           </div>
         </div>
       </div>
+
+      {/* ── Scroll indicator — desktop only ── */}
       <div
         ref={scrollRef}
-        className="absolute bottom-20 right-8 md:right-16 z-20 flex flex-col items-center gap-3 pointer-events-none"
+        className="hidden md:flex absolute bottom-20 right-16 z-20 flex-col items-center gap-3 pointer-events-none"
         style={{ opacity: 0 }}
       >
         <span
@@ -381,6 +396,8 @@ export default function Hero() {
           />
         </div>
       </div>
+
+      {/* ── Marquee ── */}
       <div className="marquee-strip opacity-0 absolute bottom-0 left-0 right-0 z-20 border-t border-muted/30 overflow-hidden pointer-events-none bg-cream/60 backdrop-blur-sm">
         <div className="flex whitespace-nowrap py-2.5">
           <div
@@ -410,16 +427,12 @@ export default function Hero() {
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes scrollLine {
-          0% {
-            top: -35%;
-          }
-          100% {
-            top: 135%;
-          }
-        }
-      `}</style>
+      <style>{`
+     @keyframes scrollLine {
+       0%   { top: -35%; }
+       100% { top: 135%; }
+     }
+   `}</style>
     </section>
   );
 }

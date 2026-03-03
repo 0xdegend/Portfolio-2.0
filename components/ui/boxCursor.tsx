@@ -34,7 +34,7 @@ export function CursorBoxTailwind({
             ref={initImageRef}
             src={"null"} // initially empty — hook will set src on show()
             alt="project preview"
-            className="w-55 h-25 object-cover"
+            className="w-55 h-25 object-cover rounded-md"
             style={{
               display: "block",
               objectFit: "cover",
