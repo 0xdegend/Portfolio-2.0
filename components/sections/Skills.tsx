@@ -39,7 +39,7 @@ export default function Skills() {
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const canvasWrapRef = useRef<HTMLDivElement>(null);
-  const [activeTerminal, setActiveTerminal] = useState(1);
+  const [activeTerminal, setActiveTerminal] = useState(-1);
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleGroupHover = useCallback((idx: number | null) => {
@@ -128,6 +128,8 @@ export default function Skills() {
     { scope: sectionRef },
   );
 
+  const displayIndex = activeTerminal >= 0 ? activeTerminal : 1;
+
   return (
     <section
       ref={sectionRef}
@@ -183,14 +185,16 @@ export default function Skills() {
             }}
             aria-label="Interactive 3D terminal displaying live code for the active skill category"
           >
-            <TerminalCanvas activeTerminal={activeTerminal} />
+            <TerminalCanvas
+              activeTerminal={activeTerminal >= 0 ? activeTerminal : 1}
+            />
             <div className="absolute bottom-4 left-5 pointer-events-none">
               <span
                 className="font-mono text-[0.52rem] tracking-[0.22em] uppercase"
                 style={{ color: `${ACCENT}80` }}
               >
-                Terminal {activeTerminal + 1} ·{" "}
-                {skillGroups[activeTerminal].category}
+                Terminal {displayIndex + 1} ·{" "}
+                {skillGroups[displayIndex].category}
               </span>
             </div>
             {(

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useFrame, useThree, invalidate } from "@react-three/fiber";
+import { gsap } from "gsap";
 import {
   EffectComposer,
   Bloom,
@@ -7,12 +8,10 @@ import {
   Vignette,
 } from "@react-three/postprocessing";
 import * as THREE from "three";
-import { TerminalPlane, TerminalPlaneProps } from "../canvas/TerminalPlane";
+import { TerminalPlane } from "../canvas/TerminalPlane";
 
 const ACCENT = "#C9A87C";
-
 const TERMINAL_CODE = [
-  // Terminal A — Frontend
   `// components/Hero.tsx
 import React, { useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
@@ -37,7 +36,6 @@ export default function Hero() {
   );
 }`,
 
-  // Terminal B — Tools
   `#!/bin/bash
 # deploy.sh — production pipeline
 
@@ -61,10 +59,15 @@ aws ecs update-service \\
 
 echo "✓ Deployed."`,
 ];
+
+const CENTER_POSITION: [number, number, number] = [0, 0, 0];
+const CENTER_ROTATION: [number, number, number] = [0, 0, 0];
+
 export function SceneContent({ activeTerminal }: { activeTerminal: number }) {
   const { camera } = useThree();
   const mouseRef = useRef({ x: 0, y: 0 });
   const timeRef = useRef(0);
+  const camRef = useRef({ x: 0, y: 0, z: 5 });
 
   useEffect(() => {
     const fn = (e: MouseEvent) => {
@@ -76,39 +79,30 @@ export function SceneContent({ activeTerminal }: { activeTerminal: number }) {
     return () => window.removeEventListener("mousemove", fn);
   }, []);
 
+  useEffect(() => {
+    const targets = [
+      { x: -0.15, y: 0.05, z: 5 },
+      { x: 0.1, y: -0.05, z: 5 },
+    ];
+    gsap.killTweensOf(camRef.current);
+    gsap.to(camRef.current, {
+      ...targets[activeTerminal],
+      duration: 1.2,
+      ease: "expo.inOut",
+      onUpdate: () => invalidate(),
+    });
+  }, [activeTerminal]);
+
   useFrame((_, delta) => {
     timeRef.current += delta;
     const t = timeRef.current;
     camera.position.set(
-      Math.sin(t * 0.11) * 0.09 + mouseRef.current.x * 0.13,
-      -Math.sin(t * 0.08) * 0.045 - mouseRef.current.y * 0.08,
-      5 + Math.sin(t * 0.07) * 0.18,
+      camRef.current.x + Math.sin(t * 0.11) * 0.06 + mouseRef.current.x * 0.1,
+      camRef.current.y - Math.sin(t * 0.08) * 0.03 - mouseRef.current.y * 0.06,
+      camRef.current.z + Math.sin(t * 0.07) * 0.12,
     );
     camera.lookAt(0, 0, 0);
   });
-
-  const accentPos: [number, number, number][] = [
-    [-3.6, 0.25, -0.5],
-    [0, 0, 0.2],
-    [3.6, 0.25, -0.5],
-  ];
-
-  const terminals: TerminalPlaneProps[] = [
-    {
-      position: [-3.6, 0.25, -0.5],
-      rotation: [0, 0.28, 0],
-      codeText: TERMINAL_CODE[0],
-      startDelay: 200,
-      isActive: activeTerminal === 0,
-    },
-    {
-      position: [0, 0, 0.2],
-      rotation: [0, 0, 0],
-      codeText: TERMINAL_CODE[1],
-      startDelay: 900,
-      isActive: activeTerminal === 1,
-    },
-  ];
 
   return (
     <>
@@ -121,17 +115,20 @@ export function SceneContent({ activeTerminal }: { activeTerminal: number }) {
       />
       <pointLight color="#4466FF" intensity={0.9} position={[-5, 2, 3]} />
       <pointLight color="#FF6633" intensity={0.45} position={[0, -3, -3]} />
-      {/* Accent key light tracks active terminal */}
       <pointLight
         color={ACCENT}
-        intensity={0.7}
-        position={accentPos[activeTerminal]}
-        distance={7}
+        intensity={0.8}
+        position={[0, 2, 3]}
+        distance={8}
       />
-
-      {terminals.map((p, i) => (
-        <TerminalPlane key={i} {...p} />
-      ))}
+      <TerminalPlane
+        key={activeTerminal}
+        position={CENTER_POSITION}
+        rotation={CENTER_ROTATION}
+        codeText={TERMINAL_CODE[activeTerminal]}
+        startDelay={0}
+        isActive={true}
+      />
 
       <mesh position={[0, -1.45, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[20, 12]} />

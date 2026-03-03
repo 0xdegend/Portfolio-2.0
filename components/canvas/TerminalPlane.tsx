@@ -1,6 +1,7 @@
 import { useRef, useEffect } from "react";
 import * as THREE from "three";
 import { useFrame, invalidate } from "@react-three/fiber";
+
 const ACCENT_HEX = 0xc9a87c;
 const TEX_W = 1024;
 const TEX_H = 512;
@@ -83,7 +84,6 @@ function tokenizeLine(line: string): Token[] {
   let rest = line;
   while (rest.length) {
     let m: RegExpMatchArray | null;
-
     if ((m = rest.match(/^(\/\/.*)/))) {
       tokens.push({ type: "comment", text: m[1] });
       break;
@@ -139,20 +139,16 @@ function drawTerminal(
   cursor: boolean,
   active: boolean,
 ) {
-  // Background
   ctx.fillStyle = active ? "#0E1116" : "#080B10";
   ctx.fillRect(0, 0, w, h);
 
-  // Glow border
   ctx.strokeStyle = active ? `${ACCENT}55` : `${ACCENT}18`;
   ctx.lineWidth = 1.5;
   ctx.strokeRect(1, 1, w - 2, h - 2);
 
-  // Title bar
   ctx.fillStyle = active ? "#1A1F2C" : "#0F1318";
   ctx.fillRect(0, 0, w, 30);
 
-  // Traffic-light dots
   ["#FF5F57", "#FEBC2E", "#28C840"].forEach((c, i) => {
     ctx.beginPath();
     ctx.arc(PAD_X + i * 18, 15, 4.5, 0, Math.PI * 2);
@@ -165,14 +161,12 @@ function drawTerminal(
   ctx.textAlign = "left";
   ctx.fillText("◆  terminal.ts", PAD_X + 68, 20);
 
-  // Code
   ctx.font = `${FONT_SIZE}px monospace`;
   const lines = text.split("\n");
   let y = 30 + PAD_Y;
 
   for (let li = 0; li < lines.length; li++) {
     if (y > h - 12) break;
-    // Line number
     ctx.fillStyle = "#2E3748";
     ctx.fillText(String(li + 1).padStart(3, " "), PAD_X, y);
 
@@ -193,7 +187,6 @@ function drawTerminal(
     y += LINE_H;
   }
 
-  // Scanlines
   ctx.fillStyle = "rgba(0,0,0,0.035)";
   for (let sy = 30; sy < h; sy += 3) ctx.fillRect(0, sy, w, 1);
 }
@@ -203,7 +196,7 @@ class TypingEngine {
   private timer: ReturnType<typeof setTimeout> | null = null;
   private cursorTimer: ReturnType<typeof setInterval> | null = null;
   private cursorVisible = true;
-  public done = false;
+  private readonly LOOP_PAUSE = 1800;
 
   constructor(
     private code: string,
@@ -225,8 +218,11 @@ class TypingEngine {
 
   private typeNext() {
     if (this.visibleLen >= this.code.length) {
-      this.done = true;
-      this.onUpdate();
+      this.timer = setTimeout(() => {
+        this.visibleLen = 0;
+        this.onUpdate();
+        this.timer = setTimeout(() => this.typeNext(), 320);
+      }, this.LOOP_PAUSE);
       return;
     }
     const ch = this.code[this.visibleLen];
@@ -255,14 +251,32 @@ export function TerminalPlane({
   startDelay,
   isActive,
 }: TerminalPlaneProps) {
-  const meshRef = useRef<THREE.Mesh>(null!);
   const matRef = useRef<THREE.MeshStandardMaterial>(null!);
   const texRef = useRef<THREE.CanvasTexture | null>(null);
+  // ✅ These two were missing — caused "ctxRef is not defined" errors
+  const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
+  const engineRef = useRef<TypingEngine | null>(null);
   const activeRef = useRef(isActive);
   const emRef = useRef(0.08);
 
+  // ✅ Single useEffect for isActive — immediate redraw + activeRef sync
+  // (removed the old duplicate that only called invalidate())
   useEffect(() => {
     activeRef.current = isActive;
+    const ctx = ctxRef.current;
+    const tex = texRef.current;
+    const engine = engineRef.current;
+    if (!ctx || !tex || !engine) return;
+    drawTerminal(
+      ctx,
+      TEX_W,
+      TEX_H,
+      engine.getVisible(),
+      engine.isCursorVisible(),
+      isActive,
+    );
+    tex.needsUpdate = true;
+    invalidate();
   }, [isActive]);
 
   useEffect(() => {
@@ -270,6 +284,8 @@ export function TerminalPlane({
     canvas.width = TEX_W;
     canvas.height = TEX_H;
     const ctx = canvas.getContext("2d")!;
+    // ✅ Store ctx so the isActive effect can use it
+    ctxRef.current = ctx;
 
     const tex = new THREE.CanvasTexture(canvas);
     tex.minFilter = THREE.LinearFilter;
@@ -297,6 +313,8 @@ export function TerminalPlane({
       if (texRef.current) texRef.current.needsUpdate = true;
       invalidate();
     });
+    // ✅ Store engine so the isActive effect can call getVisible() / isCursorVisible()
+    engineRef.current = engine;
     engine.start(startDelay);
 
     return () => {
@@ -305,14 +323,6 @@ export function TerminalPlane({
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Redraw on active change
-  useEffect(() => {
-    const tex = texRef.current;
-    if (!tex) return;
-    // Trigger a cursor-cycle redraw on next engine tick (handled by engine's interval)
-    invalidate();
-  }, [isActive]);
-
   useFrame((_, delta) => {
     const target = isActive ? 0.38 : 0.07;
     emRef.current += (target - emRef.current) * Math.min(1, delta * 5);
@@ -320,7 +330,7 @@ export function TerminalPlane({
   });
 
   return (
-    <mesh ref={meshRef} position={position} rotation={rotation} castShadow>
+    <mesh position={position} rotation={rotation} castShadow>
       <planeGeometry args={[3.2, 2.0]} />
       <meshStandardMaterial
         ref={matRef}
