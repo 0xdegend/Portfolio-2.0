@@ -16,7 +16,7 @@ import Footer from "@/components/ui/Footer";
 
 export default function Home() {
   return (
-    <main className="noise min-h-screen bg-cream overflow-x-hidden">
+    <main className="noise bg-cream overflow-x-hidden">
       <Cursor />
       <Nav />
       <Hero />

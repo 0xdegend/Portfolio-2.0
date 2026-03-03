@@ -274,8 +274,15 @@ export default function Hero() {
       id="hero"
       className="relative min-h-screen flex flex-col justify-end px-8 md:px-16 overflow-hidden "
     >
-      <div className="absolute top-0 right-0 w-[60%] md:w-[50%] h-[75%] z-999">
-        <div ref={canvasWrapRef} className="w-full h-full">
+      <div
+        className="absolute top-0 right-0 w-[60%] md:w-[50%] h-[75%] z-999"
+        style={{ pointerEvents: "none" }}
+      >
+        <div
+          ref={canvasWrapRef}
+          className="w-full h-full"
+          style={{ pointerEvents: "auto" }}
+        >
           <HeroScene />
         </div>
       </div>

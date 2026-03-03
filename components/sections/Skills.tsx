@@ -183,6 +183,7 @@ export default function Skills() {
               boxShadow: `0 0 90px ${ACCENT}14, 0 0 0 1px rgba(255,255,255,0.05)`,
             }}
             aria-label="Interactive 3D terminal displaying live code for the active skill category"
+            onWheel={(e) => e.stopPropagation()}
           >
             <TerminalCanvas
               activeTerminal={activeTerminal >= 0 ? activeTerminal : 1}

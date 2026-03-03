@@ -1,15 +1,17 @@
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import * as THREE from "three";
 import { SceneContent } from "./SkillsScene";
+
 export function TerminalCanvas({ activeTerminal }: { activeTerminal: number }) {
   const dpr =
     typeof window !== "undefined" ? Math.min(1.5, window.devicePixelRatio) : 1;
+
   return (
     <Canvas
       camera={{ fov: 42, near: 0.1, far: 100, position: [0, 0, 5] }}
       dpr={dpr}
-      frameloop="always"
+      frameloop="demand" // ✅ back to demand — no continuous GPU burn
       gl={{
         antialias: true,
         alpha: false,
@@ -17,6 +19,7 @@ export function TerminalCanvas({ activeTerminal }: { activeTerminal: number }) {
         powerPreference: "high-performance",
       }}
       shadows
+      onWheel={(e) => e.stopPropagation()} // ✅ stop wheel hijack
       style={{ width: "100%", height: "100%", display: "block" }}
     >
       <color attach="background" args={["#06080D"]} />

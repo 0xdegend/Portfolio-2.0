@@ -21,7 +21,6 @@ body {
   cursor: none;
   background: var(--cream);
 }
-
 .cursor {
   width: 10px;
   height: 10px;
@@ -33,7 +32,9 @@ body {
   pointer-events: none;
   z-index: 9999;
   mix-blend-mode: multiply;
-  transition: transform 0.1s ease;
+
+  transform: translate(-100px, -100px);
+  will-change: transform;
 }
 
 .cursor-follower {
@@ -46,8 +47,9 @@ body {
   left: 0;
   pointer-events: none;
   z-index: 9998;
-  transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1);
   opacity: 0.4;
+  transform: translate(-100px, -100px);
+  will-change: transform;
 }
 
 .noise::after {
