@@ -279,8 +279,8 @@ export default function Hero() {
           absolute
           top-1/2 -translate-y-1/2 -right-15
           w-[55%] h-[45%]
-          md:top-0 md:translate-y-0 md:w-[55%] md:h-[75%]
-          z-9999
+          md:top-23 md:translate-y-0 md:w-[55%] md:h-[75%]
+          z-9999 
         "
         style={{ pointerEvents: "none" }}
       >
