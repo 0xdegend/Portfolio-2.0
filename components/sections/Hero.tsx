@@ -102,28 +102,6 @@ export default function Hero() {
   const scramble = useScramble();
   const [roleIdx, setRoleIdx] = useState(0);
   useEffect(() => {
-    let canvas: HTMLCanvasElement | null = null;
-    let tid: ReturnType<typeof setTimeout>;
-    const block = (e: WheelEvent) => e.stopImmediatePropagation();
-    const attach = () => {
-      const wrap = canvasWrapRef.current;
-      if (!wrap) return;
-      canvas = wrap.querySelector("canvas");
-      if (!canvas) {
-        tid = setTimeout(attach, 50);
-        return;
-      }
-      canvas.addEventListener("wheel", block, { capture: true, passive: true });
-      canvas.style.pointerEvents = "auto";
-      ScrollTrigger.refresh();
-    };
-    tid = setTimeout(attach, 50);
-    return () => {
-      clearTimeout(tid);
-      canvas?.removeEventListener("wheel", block, { capture: true });
-    };
-  }, []);
-  useEffect(() => {
     const onMove = (e: MouseEvent) => {
       const nx = (e.clientX / window.innerWidth - 0.5) * 2;
       const ny = (e.clientY / window.innerHeight - 0.5) * 2;
@@ -296,7 +274,7 @@ export default function Hero() {
       id="hero"
       className="relative min-h-screen flex flex-col justify-end px-8 md:px-16 overflow-hidden "
     >
-      <div className="cursor-pointer-3d  absolute top-0 right-0 w-[60%] md:w-[50%] h-[75%] z-999">
+      <div className="absolute top-0 right-0 w-[60%] md:w-[50%] h-[75%] z-999">
         <div ref={canvasWrapRef} className="w-full h-full">
           <HeroScene />
         </div>

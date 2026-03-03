@@ -67,9 +67,10 @@ export default function HeroScene() {
     <Canvas
       camera={{ position: [0, 0, 6], fov: 50 }}
       gl={{ antialias: true, alpha: true }}
-      style={{ pointerEvents: "none", background: "transparent" }}
+      style={{ background: "transparent" }}
       dpr={[1, 1.5]}
       performance={{ min: 0.5 }}
+      onWheel={(e) => e.stopPropagation()}
     >
       <ambientLight intensity={1.7} />
       <directionalLight position={[5, 5, 5]} intensity={1.5} />

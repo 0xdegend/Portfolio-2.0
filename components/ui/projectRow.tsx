@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useEffect, useCallback } from "react";
+import React, { useRef, useEffect, useCallback, useState } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import { SplitText } from "gsap/SplitText";
@@ -8,6 +8,8 @@ import { projects } from "../utils/data/project";
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
 type Project = (typeof projects)[number];
+
+const DESCRIPTION_CHAR_THRESHOLD = 120;
 
 export function ProjectRow({
   project,
@@ -26,15 +28,72 @@ export function ProjectRow({
   const arrowRef = useRef<HTMLSpanElement | null>(null);
   const glowRef = useRef<HTMLDivElement | null>(null);
   const lineRef = useRef<HTMLDivElement | null>(null);
+  const descRef = useRef<HTMLParagraphElement | null>(null);
+  const extraRef = useRef<HTMLSpanElement | null>(null);
+  const toggleRef = useRef<HTMLButtonElement | null>(null);
   const qArrX = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
   const qArrY = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
   const qTiltX = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
   const qTiltY = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
 
+  const [expanded, setExpanded] = useState(false);
+
+  const needsTruncation =
+    project.description.length > DESCRIPTION_CHAR_THRESHOLD;
+  const shortText = needsTruncation
+    ? project.description.slice(0, DESCRIPTION_CHAR_THRESHOLD).trimEnd()
+    : project.description;
+  const restText = needsTruncation
+    ? project.description.slice(DESCRIPTION_CHAR_THRESHOLD)
+    : "";
+
   const prefersReducedMotion =
     typeof window !== "undefined" &&
-    window.matchMedia &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+  const handleToggle = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const extra = extraRef.current;
+      const btn = toggleRef.current;
+      if (!extra || !btn) return;
+
+      if (!expanded) {
+        gsap.set(extra, { display: "inline" });
+        gsap.fromTo(
+          extra,
+          { opacity: 0, y: 6 },
+          { opacity: 1, y: 0, duration: 0.38, ease: "expo.out" },
+        );
+        gsap.fromTo(
+          btn,
+          { opacity: 1 },
+          { opacity: 0.7, duration: 0.15, yoyo: true, repeat: 1 },
+        );
+      } else {
+        gsap.to(extra, {
+          opacity: 0,
+          y: 6,
+          duration: 0.22,
+          ease: "power2.in",
+          //@ts-expect-error Typescript Error
+          onComplete: () => gsap.set(extra, { display: "none" }),
+        });
+        gsap.fromTo(
+          btn,
+          { opacity: 1 },
+          { opacity: 0.7, duration: 0.15, yoyo: true, repeat: 1 },
+        );
+      }
+
+      setExpanded((v) => !v);
+    },
+    [expanded],
+  );
+
+  // ── Scroll-in entrance ────────────────────────────────────────────────────
   useGSAP(
     () => {
       const row = rowRef.current;
@@ -47,11 +106,7 @@ export function ProjectRow({
           opacity: 1,
           duration: 0.7,
           ease: "power3.out",
-          scrollTrigger: {
-            trigger: row,
-            start: "top 88%",
-            once: true,
-          },
+          scrollTrigger: { trigger: row, start: "top 88%", once: true },
           delay: index * 0.06,
         },
       );
@@ -66,11 +121,7 @@ export function ProjectRow({
             duration: 0.72,
             stagger: 0.06,
             ease: "expo.out",
-            scrollTrigger: {
-              trigger: row,
-              start: "top 88%",
-              once: true,
-            },
+            scrollTrigger: { trigger: row, start: "top 88%", once: true },
             delay: index * 0.06 + 0.06,
             onComplete: () => split.revert(),
           },
@@ -83,11 +134,7 @@ export function ProjectRow({
           opacity: 1,
           duration: 0.65,
           ease: "power2.out",
-          scrollTrigger: {
-            trigger: row,
-            start: "top 86%",
-            once: true,
-          },
+          scrollTrigger: { trigger: row, start: "top 86%", once: true },
           delay: index * 0.06 + 0.16,
         },
       );
@@ -100,17 +147,15 @@ export function ProjectRow({
           duration: 0.45,
           stagger: 0.04,
           ease: "back.out(2.5)",
-          scrollTrigger: {
-            trigger: row,
-            start: "top 86%",
-            once: true,
-          },
+          scrollTrigger: { trigger: row, start: "top 86%", once: true },
           delay: index * 0.06 + 0.22,
         },
       );
     },
     { scope: rowRef },
   );
+
+  // ── Magnetic arrow + tilt setup ───────────────────────────────────────────
   useEffect(() => {
     if (!arrowRef.current || !rowRef.current) return;
     qArrX.current = gsap.quickTo(arrowRef.current, "x", {
@@ -133,7 +178,6 @@ export function ProjectRow({
       rowRef.current.style.transformStyle = "preserve-3d";
       rowRef.current.style.willChange = "transform";
     }
-
     return () => {
       qArrX.current = null;
       qArrY.current = null;
@@ -141,9 +185,9 @@ export function ProjectRow({
       qTiltY.current = null;
     };
   }, []);
+
   const handleEnter = useCallback(() => {
     onEnter(project.number, project.image);
-
     if (prefersReducedMotion) {
       if (numRef.current) numRef.current.style.transform = "translateX(4px)";
       if (glowRef.current) glowRef.current.style.opacity = "1";
@@ -156,7 +200,6 @@ export function ProjectRow({
       duration: 0.28,
       ease: "power2.out",
     });
-
     gsap.fromTo(
       glowRef.current,
       { scaleX: 0, opacity: 1, transformOrigin: "left center" },
@@ -175,26 +218,23 @@ export function ProjectRow({
       { scale: 1, opacity: 1, duration: 0.28, ease: "back.out(2)" },
     );
   }, [onEnter, project.number, project.image, prefersReducedMotion]);
+
   const handleLeave = useCallback(() => {
     onLeave();
-
     if (prefersReducedMotion) {
       if (numRef.current) numRef.current.style.transform = "";
       if (glowRef.current) glowRef.current.style.opacity = "";
       if (lineRef.current) lineRef.current.style.transform = "";
       return;
     }
-
     gsap.to(numRef.current, {
       x: 0,
       color: "",
       duration: 0.45,
       ease: "elastic.out(1, 0.5)",
     });
-
     gsap.to(glowRef.current, { opacity: 0, duration: 0.28, ease: "power2.in" });
     gsap.to(lineRef.current, { scaleX: 0, duration: 0.32, ease: "power2.in" });
-
     gsap.to(titleRef.current, {
       y: 0,
       duration: 0.5,
@@ -205,13 +245,13 @@ export function ProjectRow({
     qTiltX.current?.(0);
     qTiltY.current?.(0);
   }, [onLeave, prefersReducedMotion]);
+
   const handleMouseMoveLocal = useCallback(
     (e: React.MouseEvent) => {
       if (prefersReducedMotion) return;
       const row = rowRef.current;
       const arrow = arrowRef.current;
       if (!row) return;
-
       const rect = row.getBoundingClientRect();
       const nx = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
       const ny = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
@@ -247,6 +287,7 @@ export function ProjectRow({
           onFocus={handleEnter}
           onBlur={handleLeave}
         >
+          {/* Number */}
           <div className="col-span-1 pt-1">
             <span
               ref={numRef}
@@ -257,6 +298,7 @@ export function ProjectRow({
             </span>
           </div>
 
+          {/* Title + description */}
           <div className="col-span-12 md:col-span-6">
             <div className="overflow-hidden mb-3">
               <h3
@@ -267,11 +309,59 @@ export function ProjectRow({
                 {project.title}
               </h3>
             </div>
-            <p className="proj-desc text-stone text-sm leading-relaxed font-light max-w-md">
-              {project.description}
+
+            <p
+              ref={descRef}
+              className="proj-desc text-stone text-sm leading-relaxed font-light max-w-md"
+            >
+              {needsTruncation ? (
+                <>
+                  {/* Short portion — always visible */}
+                  <span>{shortText}</span>
+
+                  {/* Rest — always in DOM, GSAP shows/hides it */}
+                  <span ref={extraRef} style={{ display: "none" }}>
+                    {restText}
+                  </span>
+
+                  {/* Ellipsis — visible only when collapsed */}
+                  {!expanded && <span className="text-stone/50">…</span>}
+
+                  {/* Toggle */}
+                  <button
+                    ref={toggleRef}
+                    onClick={handleToggle}
+                    className="ml-1.5 inline-flex items-center gap-1 font-mono text-[0.65rem] tracking-widest uppercase"
+                    style={{
+                      color: "var(--accent, #C9A87C)",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      padding: "0 2px",
+                      verticalAlign: "middle",
+                    }}
+                    aria-expanded={expanded}
+                  >
+                    <span
+                      style={{
+                        display: "inline-block",
+                        transition:
+                          "transform 0.35s cubic-bezier(0.34,1.56,0.64,1)",
+                        transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+                      }}
+                    >
+                      ↓
+                    </span>
+                    {expanded ? "less" : "more"}
+                  </button>
+                </>
+              ) : (
+                project.description
+              )}
             </p>
           </div>
 
+          {/* Category + tech */}
           <div className="col-span-12 md:col-span-3 flex flex-col gap-2">
             <span className="proj-meta-item section-label text-stone/60">
               {project.category}
@@ -288,6 +378,7 @@ export function ProjectRow({
             </div>
           </div>
 
+          {/* Year + arrow */}
           <div className="col-span-12 md:col-span-2 flex md:flex-col md:items-end gap-4 md:gap-2 justify-between items-center">
             <span className="proj-meta-item font-mono text-xs text-stone/40">
               {project.year}
