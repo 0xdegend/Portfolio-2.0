@@ -222,7 +222,7 @@ export default function Nav() {
     <>
       <nav
         ref={navRef}
-        className={`hidden md:flex fixed top-5 left-1/2 -translate-x-1/2 z-[9999] px-3 py-2
+        className={`hidden md:flex fixed top-5 left-1/2 -translate-x-1/2 z-9999 px-3 py-2
           items-center rounded-full transition-colors duration-500 ${
             scrolled
               ? "bg-cream/80 backdrop-blur-md border border-muted"
@@ -271,7 +271,7 @@ export default function Nav() {
           Résumé
         </a>
       </nav>
-      <div className="md:hidden w-[80%] mx-auto fixed top-0 left-0 right-0 z-[9999] px-5 pt-4">
+      <div className="md:hidden w-[80%] mx-auto fixed top-0 left-0 right-0 z-99999 px-5 pt-4">
         <div
           ref={mobilePillRef}
           className={`overflow-hidden rounded-4xl border border-muted transition-colors duration-500 ${
