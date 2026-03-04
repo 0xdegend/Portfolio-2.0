@@ -428,7 +428,7 @@ export default function About() {
                     }}
                   />
                 </div>
-                <div className="flex items-center gap-1.5">
+                {/* <div className="flex items-center gap-1.5">
                   {SLIDES.map((_, i) => (
                     <div
                       key={i}
@@ -442,7 +442,7 @@ export default function About() {
                       }}
                     />
                   ))}
-                </div>
+                </div> */}
               </div>
             </div>
 
@@ -590,7 +590,7 @@ export default function About() {
                       }}
                     />
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  {/* <div className="flex items-center gap-1.5">
                     {SLIDES.map((_, i) => (
                       <div
                         key={i}
@@ -604,7 +604,7 @@ export default function About() {
                         }}
                       />
                     ))}
-                  </div>
+                  </div> */}
                 </div>
               </div>
               <div className="flex justify-center pt-3">
