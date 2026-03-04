@@ -287,7 +287,6 @@ export function ProjectRow({
           onFocus={handleEnter}
           onBlur={handleLeave}
         >
-          {/* Number */}
           <div className="col-span-1 pt-1">
             <span
               ref={numRef}
@@ -297,8 +296,6 @@ export function ProjectRow({
               {project.number}
             </span>
           </div>
-
-          {/* Title + description */}
           <div className="col-span-12 md:col-span-6">
             <div className="overflow-hidden mb-3">
               <h3
@@ -309,25 +306,17 @@ export function ProjectRow({
                 {project.title}
               </h3>
             </div>
-
             <p
               ref={descRef}
               className="proj-desc text-stone text-sm leading-relaxed font-light max-w-md"
             >
               {needsTruncation ? (
                 <>
-                  {/* Short portion — always visible */}
                   <span>{shortText}</span>
-
-                  {/* Rest — always in DOM, GSAP shows/hides it */}
                   <span ref={extraRef} style={{ display: "none" }}>
                     {restText}
                   </span>
-
-                  {/* Ellipsis — visible only when collapsed */}
                   {!expanded && <span className="text-stone/50">…</span>}
-
-                  {/* Toggle */}
                   <button
                     ref={toggleRef}
                     onClick={handleToggle}

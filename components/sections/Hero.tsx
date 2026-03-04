@@ -272,15 +272,17 @@ export default function Hero() {
     <section
       ref={containerRef}
       id="hero"
-      className="relative min-h-screen flex flex-col justify-center md:justify-end px-6 md:px-16 overflow-hidden"
+      className="relative lg:min-h-screen min-h-[70vh] flex flex-col justify-start md:justify-end px-6 md:px-16 overflow-hidden"
     >
       <div
         className="
           absolute
-          top-1/2 -translate-y-1/2 -right-15
-          w-[55%] h-[45%]
-          md:top-23 md:translate-y-0 md:w-[55%] md:h-[75%]
+          top-1/2 -translate-y-1/2 -right-20
+          w-[65%] h-[60%]
+          lg:right-2
+          md:top-23 md:translate-y-0 md:w-[55%] md:h-[64%]
           z-9999 
+         
         "
         style={{ pointerEvents: "none" }}
       >
@@ -295,7 +297,7 @@ export default function Hero() {
       <div className="absolute bottom-0 left-0 right-0 h-52 bg-linear-to-t from-cream to-transparent z-10" />
       <div className="hidden md:block absolute top-0 left-0 w-[45%] h-full bg-linear-to-r from-cream via-cream/60 to-transparent z-10" />
       <div className="md:hidden absolute top-0 right-0 w-[20%] h-full bg-linear-to-l from-cream/30 to-transparent z-6 pointer-events-none" />
-      <div className="hero-badge opacity-0 absolute top-8 left-6 md:left-16 z-30 flex items-center gap-2.5">
+      <div className="hero-badge opacity-0 absolute lg:top-8 top-20 left-6 md:left-16 z-30 flex items-center gap-2.5">
         <span className="font-mono text-[0.6rem] text-stone/40 tracking-[0.25em] uppercase">
           ©<span ref={counterRef}>{new Date().getFullYear() - 7}</span>
         </span>
@@ -304,16 +306,16 @@ export default function Hero() {
           Portfolio
         </span>
       </div>
-      <div className="relative z-20 max-w-7xl pb-12 md:pb-16">
+      <div className="relative z-20 max-w-7xl lg:mt-0 mt-40 pb-12 md:pb-16">
         <div className="hero-role opacity-0 flex items-center gap-3 mb-4 md:mb-5 pointer-events-none">
-          <span className="block w-6 h-px bg-accent shrink-0" />
+          <span className="block w-6 h-px bg-[#c9a96e] shrink-0" />
           <span className="section-label tracking-[0.3em]">
             <span ref={roleRef}>{ROLES[0]}</span>
           </span>
         </div>
         <h1
           ref={h1Ref}
-          className="font-display font-light text-[clamp(2.6rem,8vw,9.5rem)] leading-[0.92] tracking-tight text-ink mb-6 md:mb-7 pointer-events-auto cursor-default select-none w-[62%] md:w-full"
+          className="font-display font-light text-[clamp(2.6rem,8vw,9.5rem)] leading-[0.92] tracking-tight text-ink mb-6 md:mb-7 pointer-events-auto cursor-default select-none w-[64%] md:w-full"
           style={{ willChange: "transform" }}
         >
           <span className="block">Crafting</span>
@@ -331,8 +333,8 @@ export default function Hero() {
             className="text-stone font-light text-sm md:text-lg max-w-[60%] md:max-w-sm leading-relaxed pointer-events-none"
             style={{ opacity: 0 }}
           >
-            Developer focused on AI & Blockchain — crafting clean interfaces
-            with minimalist design, clear typography, and purposeful motion.
+            Developer focused on AI & Blockchain crafting clean interfaces with
+            minimalist design, clear typography, and purposeful motion.
           </p>
 
           <div
