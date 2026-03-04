@@ -319,10 +319,10 @@ export default function About() {
             <em className="text-stone">Me.</em>
           </h2>
           <p className="about-body text-stone leading-relaxed font-light text-sm">
-            I&apos;m a Frontend Engineer at the intersection of engineering
-            discipline and design sensibility obsessed with performance,
-            accessibility, and the small details that make experiences
-            memorable.
+            I&apos;m a Frontend Engineer with a strong interest in AI, focused
+            on creating clean, thoughtful interfaces. I care about minimalist
+            design, clear typography, and intuitive animations that enhance the
+            user experience.
           </p>
           <p className="about-body text-stone leading-relaxed font-light text-sm">
             Currently open to new opportunities full-time roles, long-term
@@ -503,10 +503,10 @@ export default function About() {
                 <em className="text-stone">Me.</em>
               </h2>
               <p className="about-body text-stone leading-relaxed mb-4 font-light text-sm md:text-base max-w-[36ch]">
-                I&apos;m a Frontend Engineer at the intersection of engineering
-                discipline and design sensibility obsessed with performance,
-                accessibility, and the small details that make experiences
-                memorable.
+                I&apos;m a Frontend Engineer with a strong interest in AI,
+                focused on creating clean, thoughtful interfaces. I care about
+                minimalist design, clear typography, and intuitive animations
+                that enhance the user experience.
               </p>
               <p className="about-body text-stone leading-relaxed mb-8 font-light text-sm md:text-base max-w-[36ch]">
                 Currently open to new opportunities full-time roles, long-term

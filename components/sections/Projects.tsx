@@ -60,7 +60,7 @@ export default function Projects() {
     <section
       ref={sectionRef}
       id="projects"
-      className="relative overflow-visible py-32 px-8 md:px-16 max-w-7xl mx-auto"
+      className="relative overflow-visible lg:py-32 py-5 px-8 md:px-16 max-w-7xl mx-auto"
     >
       <CursorBoxTailwind
         initRef={initFollower}
