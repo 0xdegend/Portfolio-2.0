@@ -185,9 +185,9 @@ export default function Skills() {
             aria-label="Interactive 3D terminal displaying live code for the active skill category"
             onWheel={(e) => e.stopPropagation()}
           >
-            <TerminalCanvas
+            {/* <TerminalCanvas
               activeTerminal={activeTerminal >= 0 ? activeTerminal : 1}
-            />
+            /> */}
             <div className="absolute bottom-4 left-5 pointer-events-none">
               <span
                 className="font-mono text-[0.52rem] tracking-[0.22em] uppercase"

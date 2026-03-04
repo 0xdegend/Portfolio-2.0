@@ -286,13 +286,13 @@ export default function Hero() {
         "
         style={{ pointerEvents: "none" }}
       >
-        <div
+        {/* <div
           ref={canvasWrapRef}
           className="w-full h-full"
           style={{ pointerEvents: "auto" }}
         >
           <HeroScene />
-        </div>
+        </div> */}
       </div>
       <div className="absolute bottom-0 left-0 right-0 h-52 bg-linear-to-t from-cream to-transparent z-10" />
       <div className="hidden md:block absolute top-0 left-0 w-[45%] h-full bg-linear-to-r from-cream via-cream/60 to-transparent z-10" />
