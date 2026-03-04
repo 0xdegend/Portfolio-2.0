@@ -415,12 +415,12 @@ export default function About() {
                 <div className="w-full h-px bg-cream/12 relative mb-3">
                   <div
                     ref={mProgressRef}
-                    className="absolute top-0 left-0 h-full bg-accent"
+                    className="absolute top-0 left-0 h-full bg-[#c9a96e]"
                     style={{ width: "0%", transition: "none" }}
                   />
                   <div
                     ref={mProgressDot}
-                    className="absolute top-1/2 w-1.5 h-1.5 rounded-full bg-accent"
+                    className="absolute top-1/2 w-1.5 h-1.5 rounded-full bg-[#c9a96e]"
                     style={{
                       left: "0%",
                       transform: "translate(-50%,-50%)",
@@ -577,12 +577,12 @@ export default function About() {
                   <div className="w-full h-px bg-cream/12 relative mb-3">
                     <div
                       ref={progressRef}
-                      className="absolute top-0 left-0 h-full bg-accent"
+                      className="absolute top-0 left-0 h-full bg-[#c9a96e]"
                       style={{ width: "0%", transition: "none" }}
                     />
                     <div
                       ref={progressDot}
-                      className="absolute top-1/2 w-1.5 h-1.5 rounded-full bg-accent"
+                      className="absolute top-1/2 w-1.5 h-1.5 rounded-full bg-[#c9a96e]"
                       style={{
                         left: "0%",
                         transform: "translate(-50%, -50%)",
