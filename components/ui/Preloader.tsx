@@ -3,12 +3,10 @@ import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 gsap.registerPlugin();
 
-// ── Shatter tile config ───────────────────────────────────────────────────
 const COLS = 8;
 const ROWS = 6;
 const TOTAL = COLS * ROWS;
 
-// ── Noise canvas ──────────────────────────────────────────────────────────
 function useNoise(canvasRef: React.RefObject<HTMLCanvasElement>) {
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -66,44 +64,32 @@ export default function Preloader({
   const [mounted, setMounted] = useState(false);
 
   useNoise(noiseRef as React.RefObject<HTMLCanvasElement>);
-
-  // ── Entrance ─────────────────────────────────────────────────────────
   useEffect(() => {
     setMounted(true);
     const tl = gsap.timeline();
-
-    // Fade whole wrap in
     tl.fromTo(
       wrapRef.current,
       { opacity: 0 },
       { opacity: 1, duration: 0.5, ease: "power2.out" },
     );
-
-    // Counter slides up
     tl.fromTo(
       counterRef.current,
       { y: 20, opacity: 0 },
       { y: 0, opacity: 1, duration: 0.7, ease: "expo.out" },
       0.2,
     );
-
-    // Label fades in with stagger chars feel (just opacity + slight y)
     tl.fromTo(
       labelRef.current,
       { y: 8, opacity: 0 },
       { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" },
       0.35,
     );
-
-    // Bar track expands from center
     tl.fromTo(
       barTrackRef.current,
       { scaleX: 0, opacity: 0 },
       { scaleX: 1, opacity: 1, duration: 0.9, ease: "expo.out" },
       0.4,
     );
-
-    // Status blinks in
     tl.fromTo(
       statusRef.current,
       { opacity: 0 },
@@ -115,10 +101,8 @@ export default function Preloader({
       tl.kill();
     };
   }, []);
-
-  // ── Progress driver ───────────────────────────────────────────────────
   useEffect(() => {
-    const CIRCUMFERENCE = 2 * Math.PI * 54; // r=54 on SVG circle
+    const CIRCUMFERENCE = 2 * Math.PI * 54;
 
     const updateDOM = (value: number) => {
       const rounded = Math.round(value);
@@ -130,7 +114,6 @@ export default function Preloader({
         const offset = CIRCUMFERENCE - (value / 100) * CIRCUMFERENCE;
         circleRef.current.style.strokeDashoffset = String(offset);
       }
-      // Pulse status text between two messages
       if (statusRef.current) {
         statusRef.current.textContent =
           value < 40
@@ -175,8 +158,6 @@ export default function Preloader({
     return () => gsap.ticker.remove(tick);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [externalProgress]);
-
-  // ── Glitch shatter exit ───────────────────────────────────────────────
   const triggerExit = () => {
     if (doneRef.current) return;
     doneRef.current = true;
@@ -190,8 +171,6 @@ export default function Preloader({
         onComplete?.();
       },
     });
-
-    // Glitch flicker
     tl.to(
       wrapRef.current,
       {
@@ -203,8 +182,6 @@ export default function Preloader({
       },
       0,
     );
-
-    // Center content snaps out
     tl.to(
       [
         counterRef.current,
@@ -222,8 +199,6 @@ export default function Preloader({
       },
       0.1,
     );
-
-    // Tiles shatter
     tiles.forEach((tile) => {
       const dir = Math.random() > 0.5 ? 1 : -1;
       tl.to(
@@ -248,17 +223,14 @@ export default function Preloader({
   return (
     <div
       ref={wrapRef}
-      className="fixed inset-0 z-[9999] overflow-hidden flex flex-col items-center justify-center"
+      className="fixed inset-0 z-9999 overflow-hidden flex flex-col items-center justify-center"
       style={{ background: "#09090b", opacity: 0 }}
     >
-      {/* Grain */}
       <canvas
         ref={noiseRef as React.RefObject<HTMLCanvasElement>}
         className="absolute inset-0 pointer-events-none"
         style={{ mixBlendMode: "overlay", opacity: 0.5 }}
       />
-
-      {/* Shatter tiles */}
       <div ref={tilesRef} className="absolute inset-0 pointer-events-none">
         {Array.from({ length: TOTAL }, (_, i) => {
           const col = i % COLS;
@@ -279,8 +251,6 @@ export default function Preloader({
           );
         })}
       </div>
-
-      {/* ── Corner marks ── */}
       {(
         [
           "top-5 left-5",
@@ -301,14 +271,11 @@ export default function Preloader({
         </div>
       ))}
 
-      {/* ── Core UI ── */}
       <div className="relative z-10 flex flex-col items-center gap-8">
-        {/* SVG arc ring + counter in center */}
         <div
           className="relative flex items-center justify-center"
           style={{ width: 140, height: 140 }}
         >
-          {/* Rotating dashed ring (ambient) */}
           <svg
             className="absolute inset-0 animate-[spin_12s_linear_infinite]"
             viewBox="0 0 128 128"
@@ -325,13 +292,11 @@ export default function Preloader({
             />
           </svg>
 
-          {/* Progress arc */}
           <svg
             className="absolute inset-0 -rotate-90"
             viewBox="0 0 128 128"
             fill="none"
           >
-            {/* Track */}
             <circle
               cx="64"
               cy="64"
@@ -340,7 +305,7 @@ export default function Preloader({
               strokeWidth="1"
               fill="none"
             />
-            {/* Fill */}
+
             <circle
               ref={circleRef}
               cx="64"
@@ -358,8 +323,6 @@ export default function Preloader({
               }}
             />
           </svg>
-
-          {/* Counter */}
           <div className="flex flex-col items-center gap-0.5">
             <div
               ref={counterRef}
@@ -376,8 +339,6 @@ export default function Preloader({
             </span>
           </div>
         </div>
-
-        {/* Label */}
         <span
           ref={labelRef}
           className="font-mono text-[0.58rem] tracking-[0.5em] uppercase"
@@ -385,8 +346,6 @@ export default function Preloader({
         >
           ✦ &nbsp; Initialising &nbsp; ✦
         </span>
-
-        {/* Thin progress bar */}
         <div
           ref={barTrackRef}
           className="relative overflow-visible origin-center"
@@ -413,8 +372,6 @@ export default function Preloader({
             }}
           />
         </div>
-
-        {/* Dynamic status */}
         <span
           ref={statusRef}
           className="font-mono text-[0.52rem] tracking-[0.25em] uppercase"
@@ -423,8 +380,6 @@ export default function Preloader({
           Initialising renderer…
         </span>
       </div>
-
-      {/* Bottom meta */}
       <div
         className="absolute bottom-6 left-0 right-0 flex items-center justify-between px-7 font-mono text-[0.5rem] tracking-[0.2em] uppercase"
         style={{ color: "#ffffff15" }}
