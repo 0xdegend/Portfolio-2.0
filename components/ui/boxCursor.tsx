@@ -15,7 +15,7 @@ export function CursorBoxTailwind({
     <div
       ref={initRef}
       aria-hidden
-      className="fixed left-0 top-0 pointer-events-none z-[9999]"
+      className="projects-cursor fixed left-0 top-0 pointer-events-none z-9999"
       style={{
         transform: "translate3d(-9999px,-9999px,0)",
         opacity: 0,
@@ -23,7 +23,6 @@ export function CursorBoxTailwind({
         perspective: "600px",
       }}
     >
-      {/* Outer card — perspective container */}
       <div
         ref={innerRef}
         data-cursor-inner

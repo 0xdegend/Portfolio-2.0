@@ -280,9 +280,9 @@ export default function Hero({ onSceneReady }: HeroProps) {
     >
       <div
         className="
-          absolute
-          top-1/2 -translate-y-1/2 -right-20
-          w-[65%] h-[60%]
+          absolute 
+          top-1/2 -translate-y-1/2 -right-25
+          w-[60%] h-[60%]
           lg:right-2
           md:top-23 md:translate-y-0 md:w-[55%] md:h-[64%] z-9999"
         style={{ pointerEvents: "none" }}
@@ -316,7 +316,7 @@ export default function Hero({ onSceneReady }: HeroProps) {
         </div>
         <h1
           ref={h1Ref}
-          className="font-display font-light text-[clamp(2.6rem,8vw,9.5rem)] leading-[0.92] tracking-tight text-ink mb-6 md:mb-7 pointer-events-auto cursor-default select-none w-[64%] md:w-full"
+          className="font-display font-light text-[clamp(2.6rem,8vw,9.5rem)] leading-[0.92] tracking-tight text-ink mb-6 md:mb-7 pointer-events-auto cursor-default select-none w-[70%] md:w-full"
           style={{ willChange: "transform" }}
         >
           <span className="block">Crafting</span>

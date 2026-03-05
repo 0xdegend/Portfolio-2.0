@@ -111,3 +111,13 @@ html.cursor-pointer-3d .cursor-follower {
   transform: scale(0.5);
   border-color: var(--accent);
 }
+
+@media (max-width: 768px) {
+  .cursor-follower,
+  .cursor {
+    display: none;
+  }
+  .projects-cursor {
+    display: none;
+  }
+}

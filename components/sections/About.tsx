@@ -362,7 +362,7 @@ export default function About() {
                 </span>
               </div>
             </div>
-            <div className="relative flex-1 rounded-2xl overflow-hidden">
+            <div className="relative flex-1 rounded-2xl overflow-hidden mt-7">
               {SLIDES.map((slide, i) => (
                 <div
                   key={i}
@@ -531,7 +531,7 @@ export default function About() {
                     ref={(el) => {
                       slideRefs.current[i] = el;
                     }}
-                    className="absolute inset-0"
+                    className="absolute  inset-0"
                     style={{ willChange: "opacity, transform" }}
                   >
                     <Image

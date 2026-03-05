@@ -41,7 +41,7 @@ export default function HeroScene({ onReady }: HeroSceneProps) {
           depth: true,
         }}
         style={{ background: "transparent" }}
-        dpr={isMobile ? [0.8, 1] : [1, 1.5]} // mobile pixel fill cut
+        dpr={isMobile ? [0.8, 1] : [1, 1.5]}
         performance={{ min: 0.5 }}
         onWheel={(e) => e.stopPropagation()}
         onCreated={() => onReady?.()}
@@ -54,8 +54,8 @@ export default function HeroScene({ onReady }: HeroSceneProps) {
           <PerformanceMonitor onIncline={() => {}} onDecline={() => {}}>
             <GlassKnot />
           </PerformanceMonitor>
-          <SmallSphere />
-          <Ring />
+          {isMobile ? <></> : <SmallSphere />}
+          {isMobile ? <></> : <Ring />}
           <Environment preset="studio" />
         </Suspense>
       </Canvas>
