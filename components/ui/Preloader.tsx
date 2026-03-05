@@ -1,11 +1,10 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
-gsap.registerPlugin();
+import { useGSAP } from "@gsap/react";
+gsap.registerPlugin(useGSAP);
 
-const COLS = 8;
-const ROWS = 6;
-const TOTAL = COLS * ROWS;
+const CIRCUMFERENCE = 2 * Math.PI * 54;
 
 function useNoise(canvasRef: React.RefObject<HTMLCanvasElement>) {
   useEffect(() => {
@@ -49,7 +48,6 @@ export default function Preloader({
   progress: externalProgress,
 }: PreloaderProps) {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const tilesRef = useRef<HTMLDivElement>(null);
   const noiseRef = useRef<HTMLCanvasElement>(null);
   const counterRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLSpanElement>(null);
@@ -58,69 +56,72 @@ export default function Preloader({
   const barDotRef = useRef<HTMLDivElement>(null);
   const circleRef = useRef<SVGCircleElement>(null);
   const statusRef = useRef<HTMLSpanElement>(null);
+  const curtainTopRef = useRef<HTMLDivElement>(null);
+  const curtainBotRef = useRef<HTMLDivElement>(null);
+  const lineRef = useRef<HTMLDivElement>(null);
+  const uiRef = useRef<HTMLDivElement>(null);
 
   const pctRef = useRef(0);
   const doneRef = useRef(false);
-  const [mounted, setMounted] = useState(false);
+  const onCompleteRef = useRef(onComplete);
 
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
   useNoise(noiseRef as React.RefObject<HTMLCanvasElement>);
+  useGSAP(
+    () => {
+      const tl = gsap.timeline();
+      tl.fromTo(
+        wrapRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.3, ease: "power2.out" },
+      );
+      tl.fromTo(
+        counterRef.current,
+        { y: 16, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5, ease: "expo.out" },
+        0.12,
+      );
+      tl.fromTo(
+        labelRef.current,
+        { y: 6, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.4, ease: "power3.out" },
+        0.22,
+      );
+      tl.fromTo(
+        barTrackRef.current,
+        { scaleX: 0, opacity: 0 },
+        { scaleX: 1, opacity: 1, duration: 0.65, ease: "expo.out" },
+        0.28,
+      );
+      tl.fromTo(
+        statusRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.3 },
+        0.45,
+      );
+    },
+    { scope: wrapRef },
+  );
   useEffect(() => {
-    setMounted(true);
-    const tl = gsap.timeline();
-    tl.fromTo(
-      wrapRef.current,
-      { opacity: 0 },
-      { opacity: 1, duration: 0.5, ease: "power2.out" },
-    );
-    tl.fromTo(
-      counterRef.current,
-      { y: 20, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.7, ease: "expo.out" },
-      0.2,
-    );
-    tl.fromTo(
-      labelRef.current,
-      { y: 8, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" },
-      0.35,
-    );
-    tl.fromTo(
-      barTrackRef.current,
-      { scaleX: 0, opacity: 0 },
-      { scaleX: 1, opacity: 1, duration: 0.9, ease: "expo.out" },
-      0.4,
-    );
-    tl.fromTo(
-      statusRef.current,
-      { opacity: 0 },
-      { opacity: 1, duration: 0.4, ease: "power2.out" },
-      0.7,
-    );
-
-    return () => {
-      tl.kill();
-    };
-  }, []);
-  useEffect(() => {
-    const CIRCUMFERENCE = 2 * Math.PI * 54;
-
-    const updateDOM = (value: number) => {
-      const rounded = Math.round(value);
+    const updateDOM = (v: number) => {
+      const r = Math.round(v);
       if (counterRef.current)
-        counterRef.current.textContent = String(rounded).padStart(2, "0");
-      if (barFillRef.current) barFillRef.current.style.width = `${value}%`;
-      if (barDotRef.current) barDotRef.current.style.left = `${value}%`;
-      if (circleRef.current) {
-        const offset = CIRCUMFERENCE - (value / 100) * CIRCUMFERENCE;
-        circleRef.current.style.strokeDashoffset = String(offset);
-      }
+        counterRef.current.textContent = String(r).padStart(2, "0");
+      if (barFillRef.current) barFillRef.current.style.width = `${v}%`;
+      if (barDotRef.current) barDotRef.current.style.left = `${v}%`;
+      if (circleRef.current)
+        circleRef.current.style.strokeDashoffset = String(
+          CIRCUMFERENCE - (v / 100) * CIRCUMFERENCE,
+        );
       if (statusRef.current) {
         statusRef.current.textContent =
-          value < 40
+          v < 40
             ? "Initialising renderer…"
-            : value < 75
+            : v < 75
               ? "Loading 3D assets…"
-              : value < 95
+              : v < 95
                 ? "Compiling shaders…"
                 : "Almost ready…";
       }
@@ -129,13 +130,13 @@ export default function Preloader({
     if (externalProgress !== undefined) {
       gsap.to(pctRef, {
         current: externalProgress,
-        duration: 0.5,
+        duration: 0.4,
         ease: "power2.out",
         onUpdate() {
           updateDOM(pctRef.current);
         },
         onComplete() {
-          if (externalProgress >= 100) triggerExit();
+          if (externalProgress >= 99) triggerExit();
         },
       });
       return;
@@ -144,11 +145,11 @@ export default function Preloader({
     const obj = { v: 0 };
     const tick = () => {
       if (doneRef.current) return;
-      obj.v += Math.random() * (obj.v < 60 ? 3.5 : obj.v < 85 ? 1.5 : 0.5);
-      if (obj.v >= 100) {
-        obj.v = 100;
+      obj.v += Math.random() * (obj.v < 50 ? 5.5 : obj.v < 80 ? 2.5 : 0.7);
+      if (obj.v >= 99) {
+        obj.v = 99;
         gsap.ticker.remove(tick);
-        updateDOM(100);
+        updateDOM(99);
         triggerExit();
         return;
       }
@@ -161,96 +162,107 @@ export default function Preloader({
   const triggerExit = () => {
     if (doneRef.current) return;
     doneRef.current = true;
+    if (counterRef.current) counterRef.current.textContent = "100";
+    if (circleRef.current) circleRef.current.style.strokeDashoffset = "0";
+    if (barFillRef.current) barFillRef.current.style.width = "100%";
+    if (barDotRef.current) barDotRef.current.style.left = "100%";
+    if (statusRef.current) statusRef.current.textContent = "Ready.";
 
-    const tiles = tilesRef.current?.querySelectorAll<HTMLDivElement>(".shard");
-    if (!tiles) return;
+    const vh = window.innerHeight;
 
     const tl = gsap.timeline({
       onComplete: () => {
         gsap.set(wrapRef.current, { display: "none" });
-        onComplete?.();
+        onCompleteRef.current?.();
       },
     });
-    tl.to(
-      wrapRef.current,
+    tl.fromTo(
+      lineRef.current,
+      { scaleX: 0, opacity: 1 },
       {
-        filter: "hue-rotate(90deg) saturate(3)",
-        duration: 0.06,
-        repeat: 5,
-        yoyo: true,
-        ease: "none",
+        scaleX: 1,
+        duration: 0.3,
+        ease: "expo.out",
+        transformOrigin: "center center",
       },
       0,
     );
     tl.to(
-      [
-        counterRef.current,
-        labelRef.current,
-        barTrackRef.current,
-        statusRef.current,
-      ],
+      uiRef.current,
       {
         opacity: 0,
-        y: -10,
-        skewX: 8,
+        y: -6,
         duration: 0.2,
-        ease: "power3.in",
-        stagger: 0.03,
+        ease: "power2.in",
       },
       0.1,
     );
-    tiles.forEach((tile) => {
-      const dir = Math.random() > 0.5 ? 1 : -1;
-      tl.to(
-        tile,
-        {
-          x: (Math.random() - 0.5) * window.innerWidth * 0.9,
-          y: (Math.random() - 0.5) * window.innerHeight * 0.9,
-          rotation: (Math.random() - 0.5) * 360,
-          scale: Math.random() * 0.5 + 0.1,
-          skewX: dir * (Math.random() * 28 + 8),
-          opacity: 0,
-          duration: 0.55 + Math.random() * 0.4,
-          ease: "expo.in",
-        },
-        0.15 + Math.random() * 0.1,
-      );
-    });
+    tl.to(
+      curtainTopRef.current,
+      {
+        y: -vh,
+        duration: 0.75,
+        ease: "expo.inOut",
+      },
+      0.22,
+    );
+    tl.to(
+      curtainBotRef.current,
+      {
+        y: vh,
+        duration: 0.75,
+        ease: "expo.inOut",
+      },
+      0.22,
+    );
+    tl.to(lineRef.current, { opacity: 0, duration: 0.15 }, 0.35);
+    tl.to(noiseRef.current, { opacity: 0, duration: 0.3 }, 0.4);
   };
-
-  const CIRCUMFERENCE = 2 * Math.PI * 54;
 
   return (
     <div
       ref={wrapRef}
-      className="fixed inset-0 z-9999 overflow-hidden flex flex-col items-center justify-center"
-      style={{ background: "#09090b", opacity: 0 }}
+      className="fixed inset-0 overflow-hidden"
+      style={{ background: "transparent", opacity: 0, zIndex: 99999 }}
     >
       <canvas
         ref={noiseRef as React.RefObject<HTMLCanvasElement>}
         className="absolute inset-0 pointer-events-none"
-        style={{ mixBlendMode: "overlay", opacity: 0.5 }}
+        style={{ mixBlendMode: "overlay", opacity: 0.5, zIndex: 1 }}
       />
-      <div ref={tilesRef} className="absolute inset-0 pointer-events-none">
-        {Array.from({ length: TOTAL }, (_, i) => {
-          const col = i % COLS;
-          const row = Math.floor(i / COLS);
-          return (
-            <div
-              key={i}
-              className="shard absolute"
-              style={{
-                left: `${(col / COLS) * 100}%`,
-                top: `${(row / ROWS) * 100}%`,
-                width: `${100 / COLS}%`,
-                height: `${100 / ROWS}%`,
-                background: "#09090b",
-                willChange: "transform, opacity",
-              }}
-            />
-          );
-        })}
-      </div>
+      <div
+        ref={curtainTopRef}
+        className="absolute left-0 right-0 top-0 flex flex-col items-center justify-end pb-0"
+        style={{
+          height: "50vh",
+          background: "#09090b",
+          zIndex: 10,
+          boxShadow: "0 4px 40px 0 rgba(0,0,0,0.7)",
+        }}
+      />
+      <div
+        ref={curtainBotRef}
+        className="absolute left-0 right-0 bottom-0"
+        style={{
+          height: "50vh",
+          background: "#09090b",
+          zIndex: 10,
+          boxShadow: "0 -4px 40px 0 rgba(0,0,0,0.0)",
+        }}
+      />
+      <div
+        ref={lineRef}
+        className="absolute left-0 right-0 pointer-events-none"
+        style={{
+          top: "50vh",
+          height: 1,
+          background:
+            "linear-gradient(90deg, transparent, #C9A87C, transparent)",
+          zIndex: 15,
+          opacity: 0,
+          transform: "scaleX(0)",
+        }}
+      />
       {(
         [
           "top-5 left-5",
@@ -259,7 +271,11 @@ export default function Preloader({
           "bottom-5 right-5",
         ] as const
       ).map((pos, i) => (
-        <div key={i} className={`absolute ${pos} w-3 h-3 pointer-events-none`}>
+        <div
+          key={i}
+          className={`absolute ${pos} w-3 h-3 pointer-events-none`}
+          style={{ zIndex: 20 }}
+        >
           <div
             className="absolute top-0 left-0 w-full h-px"
             style={{ background: "#C9A87C30" }}
@@ -270,8 +286,11 @@ export default function Preloader({
           />
         </div>
       ))}
-
-      <div className="relative z-10 flex flex-col items-center gap-8">
+      <div
+        ref={uiRef}
+        className="absolute inset-0 flex flex-col items-center justify-center gap-8"
+        style={{ zIndex: 20 }}
+      >
         <div
           className="relative flex items-center justify-center"
           style={{ width: 140, height: 140 }}
@@ -291,7 +310,6 @@ export default function Preloader({
               strokeOpacity="0.2"
             />
           </svg>
-
           <svg
             className="absolute inset-0 -rotate-90"
             viewBox="0 0 128 128"
@@ -305,7 +323,6 @@ export default function Preloader({
               strokeWidth="1"
               fill="none"
             />
-
             <circle
               ref={circleRef}
               cx="64"
@@ -339,6 +356,7 @@ export default function Preloader({
             </span>
           </div>
         </div>
+
         <span
           ref={labelRef}
           className="font-mono text-[0.58rem] tracking-[0.5em] uppercase"
@@ -346,6 +364,7 @@ export default function Preloader({
         >
           ✦ &nbsp; Initialising &nbsp; ✦
         </span>
+
         <div
           ref={barTrackRef}
           className="relative overflow-visible origin-center"
@@ -356,7 +375,7 @@ export default function Preloader({
             className="absolute top-0 left-0 h-full"
             style={{
               width: "0%",
-              background: "linear-gradient(90deg, #C9A87C50, #C9A87C)",
+              background: "linear-gradient(90deg,#C9A87C50,#C9A87C)",
               boxShadow: "0 0 6px #C9A87C",
               transition: "width 0.05s linear",
             }}
@@ -366,12 +385,13 @@ export default function Preloader({
             className="absolute top-1/2 w-1 h-1 rounded-full"
             style={{
               left: "0%",
-              transform: "translate(-50%, -50%)",
+              transform: "translate(-50%,-50%)",
               background: "#C9A87C",
               boxShadow: "0 0 5px #C9A87C",
             }}
           />
         </div>
+
         <span
           ref={statusRef}
           className="font-mono text-[0.52rem] tracking-[0.25em] uppercase"
@@ -379,13 +399,13 @@ export default function Preloader({
         >
           Initialising renderer…
         </span>
-      </div>
-      <div
-        className="absolute bottom-6 left-0 right-0 flex items-center justify-between px-7 font-mono text-[0.5rem] tracking-[0.2em] uppercase"
-        style={{ color: "#ffffff15" }}
-      >
-        <span>Portfolio — 2025</span>
-        <span>AI · Blockchain · Web3</span>
+        <div
+          className="absolute bottom-6 left-0 right-0 flex items-center justify-between px-7 font-mono text-[0.5rem] tracking-[0.2em] uppercase"
+          style={{ color: "#C9A87C" }}
+        >
+          <span>Portfolio — {new Date().getFullYear()}</span>
+          <span>AI · Blockchain · Web3</span>
+        </div>
       </div>
     </div>
   );

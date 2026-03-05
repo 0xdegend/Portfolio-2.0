@@ -10,7 +10,7 @@ import {
 import * as THREE from "three";
 import KnotParticles from "./KnotParticles";
 
-// ─── Module-level constants — never allocated inside render / frame loops ──────
+// ─── Module-level constants ────────────────────────────────────────────────────
 const ZERO_VEC2 = new THREE.Vector2(0, 0);
 const _scratchVec2 = new THREE.Vector2();
 
@@ -26,10 +26,11 @@ const HOVER_COLORS = [
 const IDLE_COLOR = "#E8D5B0";
 const CLICK_COLOR = "#E8C060";
 
+const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
 // ─── Pointer force hook ────────────────────────────────────────────────────────
 function usePointerForce(active: boolean) {
   const force = useRef(new THREE.Vector2(0, 0));
-
   useFrame(({ pointer }) => {
     if (!active) {
       force.current.lerp(ZERO_VEC2, 0.08);
@@ -38,9 +39,9 @@ function usePointerForce(active: boolean) {
     _scratchVec2.set(pointer.x, pointer.y);
     force.current.lerp(_scratchVec2, 0.1);
   });
-
   return force;
 }
+
 export default function GlassKnot() {
   const meshRef = useRef<THREE.Mesh>(null);
   const groupRef = useRef<THREE.Group>(null);
@@ -61,14 +62,15 @@ export default function GlassKnot() {
     distortion: 0.1,
   });
 
-  // Adaptive samples — safe now because <PerformanceMonitor> is an ancestor
-  const samplesRef = useRef(4);
+  // Adaptive samples via PerformanceMonitor —
+  // starts lower on mobile, drops further if GPU struggles
+  const samplesRef = useRef(isMobile ? 2 : 4);
   usePerformanceMonitor({
     onIncline: () => {
-      samplesRef.current = 4;
+      samplesRef.current = isMobile ? 2 : 4;
     },
     onDecline: () => {
-      samplesRef.current = 2;
+      samplesRef.current = isMobile ? 1 : 2;
     },
   });
 
@@ -79,13 +81,14 @@ export default function GlassKnot() {
     if (clickTimer.current) clearTimeout(clickTimer.current);
     clickTimer.current = setTimeout(() => setClicked(false), 3000);
   };
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       if (clickTimer.current) clearTimeout(clickTimer.current);
-    };
-  }, []);
+    },
+    [],
+  );
 
-  // Target color on hover / click state change
+  // Target color on state change
   useEffect(() => {
     if (hovered) {
       colorIndex.current = (colorIndex.current + 1) % HOVER_COLORS.length;
@@ -99,7 +102,7 @@ export default function GlassKnot() {
     if (clicked) targetColor.current.set(CLICK_COLOR);
   }, [clicked]);
 
-  // Memoized geometry args — prevents geometry rebuild on re-render
+  // Geometry — same quality on all devices, memoised
   const knotArgs = useMemo<[number, number, number, number, number, number]>(
     () => [1.2, 0.38, 200, 32, 6, 3],
     [],
@@ -109,26 +112,21 @@ export default function GlassKnot() {
     if (!meshRef.current || !groupRef.current || !matRef.current) return;
     const t = state.clock.elapsedTime;
 
-    // Base rotation
     meshRef.current.rotation.x = t * 0.08;
     meshRef.current.rotation.y = t * 0.12;
 
-    // Pointer tilt
     groupRef.current.rotation.x +=
       (-force.current.y * 0.35 - groupRef.current.rotation.x) * 0.08;
     groupRef.current.rotation.y +=
       (force.current.x * 0.35 - groupRef.current.rotation.y) * 0.08;
 
-    // Dead-band scale lerp
     const targetScale = clicked ? 1.1 : hovered ? 1.06 : 1.0;
     const scaleDiff = targetScale - groupRef.current.scale.x;
-    if (Math.abs(scaleDiff) > 0.001) {
+    if (Math.abs(scaleDiff) > 0.001)
       groupRef.current.scale.setScalar(
         groupRef.current.scale.x + scaleDiff * 0.06,
       );
-    }
 
-    // Dead-band color lerp
     if (
       Math.abs(currentColor.current.r - targetColor.current.r) > 0.001 ||
       Math.abs(currentColor.current.g - targetColor.current.g) > 0.001
@@ -137,7 +135,6 @@ export default function GlassKnot() {
       matRef.current.color.copy(currentColor.current);
     }
 
-    // Dead-band material prop lerps
     const p = lerpedProps.current;
     const tgtThick = clicked ? 0.7 : hovered ? 0.5 : 0.3;
     const tgtAberr = clicked ? 0.18 : hovered ? 0.12 : 0.06;
@@ -189,16 +186,17 @@ export default function GlassKnot() {
           >
             <torusKnotGeometry args={knotArgs} />
             <MeshTransmissionMaterial
-              // @ts-expect-error — MeshTransmissionMaterial has props not reflected in MeshPhysicalMaterial types
+              // @ts-expect-error — MeshTransmissionMaterial has props not in MeshPhysicalMaterial types
               ref={matRef as React.Ref<THREE.MeshPhysicalMaterial>}
               backside
-              samples={4}
+              samples={isMobile ? 2 : 4} // key saving: halves refraction passes on mobile
+              resolution={isMobile ? 256 : 512} // halves transmission FBO size on mobile
               thickness={0.3}
               anisotropy={0.3}
               chromaticAberration={0.06}
               distortion={0.1}
               distortionScale={0.3}
-              temporalDistortion={0.05}
+              temporalDistortion={isMobile ? 0 : 0.05} // skip temporal jitter on mobile
               transmission={1}
               roughness={0.4}
               color={IDLE_COLOR}
