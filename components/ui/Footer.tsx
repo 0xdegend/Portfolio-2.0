@@ -3,10 +3,10 @@ export default function Footer() {
   return (
     <footer className="border-t border-muted px-8 md:px-16 py-10 flex flex-col md:flex-row items-center justify-between gap-4 max-w-7xl mx-auto">
       <span className="font-mono text-xs text-stone/50">
-        © {year} Your Name. All rights reserved.
+        © {year} 0xdegend.
       </span>
       <span className="font-mono text-xs text-stone/40">
-        Built with Next.js · Tailwind · GSAP · Three.js
+        All rights reserved.
       </span>
     </footer>
   );

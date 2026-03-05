@@ -1,174 +1,454 @@
 "use client";
-import { useRef, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SplitText } from "gsap/SplitText";
+import ParticleTextScene from "../ui/ParticleText";
 
-gsap.registerPlugin(ScrollTrigger, useGSAP);
+gsap.registerPlugin(ScrollTrigger, useGSAP, SplitText);
+
+const EMAIL = "0xdegend@gmail.com";
+const SOCIALS = [
+  { label: "GitHub", href: "https://github.com/0xdegend", index: "01" },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/olagboye-seyi/",
+    index: "02",
+  },
+  { label: "X / Twitter", href: "https://x.com/0xdegend", index: "03" },
+];
+
+function CtaBtn() {
+  const [hot, setHot] = useState(false);
+  const fillRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    gsap.to(fillRef.current, {
+      scaleX: hot ? 1 : 0,
+      duration: 0.5,
+      ease: hot ? "expo.out" : "expo.in",
+      transformOrigin: hot ? "left center" : "right center",
+    });
+  }, [hot]);
+
+  return (
+    <a
+      href={`mailto:${EMAIL}`}
+      className="relative inline-flex items-center gap-5 px-9 py-4 overflow-hidden"
+      style={{
+        border: "1px solid rgba(201,168,124,0.32)",
+        cursor: "pointer",
+        textDecoration: "none",
+      }}
+      onMouseEnter={() => setHot(true)}
+      onMouseLeave={() => setHot(false)}
+    >
+      <span
+        ref={fillRef}
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: "#C9A87C", transform: "scaleX(0)" }}
+      />
+      <span className="relative flex items-center gap-7">
+        <span
+          className="font-mono text-[0.62rem] tracking-[0.44em] uppercase"
+          style={{
+            color: hot ? "#09090b" : "#f5f0e8",
+            transition: "color .18s",
+          }}
+        >
+          Send me a Mail
+        </span>
+        <svg
+          width="22"
+          height="9"
+          viewBox="0 0 22 9"
+          fill="none"
+          style={{
+            color: hot ? "#09090b" : "#C9A87C",
+            transition: "color .18s, transform .45s",
+            transform: hot ? "translateX(5px)" : "translateX(0)",
+          }}
+        >
+          <path
+            d="M0 4.5h20M16 1l5 3.5-5 3.5"
+            stroke="currentColor"
+            strokeWidth="1"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </span>
+    </a>
+  );
+}
+
+function Ticker() {
+  const WORDS = [
+    "Available for work ✦",
+    "Open to collabs ✦",
+    "Let's build together ✦",
+    "Reach out anytime ✦",
+  ];
+  const items = [...WORDS, ...WORDS, ...WORDS, ...WORDS];
+  return (
+    <div
+      className="overflow-hidden"
+      style={{
+        borderTop: "1px solid rgba(201,168,124,0.07)",
+        borderBottom: "1px solid rgba(201,168,124,0.07)",
+        padding: "9px 0",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          gap: "3.5rem",
+          whiteSpace: "nowrap",
+          animation: "ticker 22s linear infinite",
+        }}
+      >
+        {items.map((w, i) => (
+          <span
+            key={i}
+            className="font-mono text-[0.48rem] tracking-[0.42em] uppercase"
+            style={{ color: "rgba(201,168,124,0.22)", flexShrink: 0 }}
+          >
+            {w}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function Contact() {
   const sectionRef = useRef<HTMLElement>(null);
-  const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
+  const h2Ref = useRef<HTMLHeadingElement>(null);
+  const badgeRef = useRef<HTMLDivElement>(null);
+  const subRef = useRef<HTMLParagraphElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+  const emailRef = useRef<HTMLDivElement>(null);
+  const socRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
+  const [copied, setCopied] = useState(false);
+
+  const copyEmail = async () => {
+    await navigator.clipboard.writeText(EMAIL);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2200);
+  };
 
   useGSAP(
     () => {
-      gsap.fromTo(
-        ".contact-el",
-        { opacity: 0, y: 30 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.9,
-          stagger: 0.1,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 70%",
-          },
-        },
-      );
+      if (h2Ref.current) {
+        const split = new SplitText(h2Ref.current, { type: "lines,words" });
+        gsap.set(split.words, { opacity: 0, yPercent: 115, rotateX: -38 });
+        ScrollTrigger.create({
+          trigger: sectionRef.current,
+          start: "top 68%",
+          once: true,
+          onEnter: () =>
+            gsap.to(split.words, {
+              opacity: 1,
+              yPercent: 0,
+              rotateX: 0,
+              duration: 1.05,
+              stagger: 0.055,
+              ease: "expo.out",
+              onComplete: () => split.revert(),
+            }),
+        });
+      }
+
+      const els = [
+        badgeRef.current,
+        subRef.current,
+        ctaRef.current,
+        emailRef.current,
+        socRef.current,
+      ];
+      gsap.set(els, { opacity: 0, y: 26 });
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top 58%",
+        once: true,
+        onEnter: () =>
+          gsap.to(els, {
+            opacity: 1,
+            y: 0,
+            duration: 0.82,
+            stagger: 0.085,
+            ease: "power3.out",
+          }),
+      });
+
+      gsap.set(footerRef.current, { opacity: 0 });
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top 44%",
+        once: true,
+        onEnter: () =>
+          gsap.to(footerRef.current, { opacity: 1, duration: 0.7 }),
+      });
     },
     { scope: sectionRef },
   );
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus("sending");
-    // TODO: Replace with your form endpoint (e.g. Resend, Formspree, or a Next.js API route)
-    await new Promise((r) => setTimeout(r, 1200));
-    setStatus("sent");
-  };
 
   return (
     <section
       ref={sectionRef}
       id="contact"
-      className="py-32 px-8 md:px-16 max-w-7xl mx-auto"
+      className="relative flex flex-col overflow-hidden"
+      style={{ background: "#09090b" }}
     >
-      {/* Header */}
-      <div className="flex items-center gap-6 mb-20">
-        <span className="section-label">04 — Contact</span>
-        <div className="flex-1 rule-accent" />
+      {/* ── Decorative layers (non-interactive, behind everything) ── */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{ zIndex: 0 }}
+      >
+        {/* Radial glow */}
+        <div
+          style={{
+            position: "absolute",
+            top: "30%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "min(700px, 90vw)",
+            height: "min(400px, 50vw)",
+            background:
+              "radial-gradient(ellipse, rgba(201,168,124,0.06) 0%, transparent 70%)",
+          }}
+        />
+        {/* Grain overlay */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            opacity: 0.28,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Cfilter id='g'%3E%3CfeTurbulence baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.06'/%3E%3C/svg%3E")`,
+            backgroundSize: "160px",
+          }}
+        />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-32">
-        {/* Left — CTA text */}
-        <div>
-          <h2 className="contact-el font-display text-5xl md:text-6xl font-light leading-tight mb-8">
-            Let&apos;s build something{" "}
-            <em className="text-stone">worth remembering</em>
-            <span className="text-accent">.</span>
-          </h2>
-          <p className="contact-el text-stone font-light leading-relaxed mb-10">
-            I&apos;m currently open to new projects and full-time opportunities.
-            Whether it&apos;s a quick chat or a full brief, drop me a message
-            and I&apos;ll get back to you within 24 hours.
-          </p>
+      {/* ── Section label row ── */}
+      <div
+        className="relative flex items-center gap-5 px-8 md:px-16 pt-5"
+        style={{ zIndex: 10 }}
+      >
+        <span
+          className="font-mono text-[0.5rem] tracking-[0.38em] uppercase"
+          style={{ color: "rgba(201,168,124,0.38)" }}
+        >
+          04 — Contact
+        </span>
+        <div
+          className="flex-1 h-px"
+          style={{
+            background:
+              "linear-gradient(90deg,rgba(201,168,124,0.18),transparent)",
+          }}
+        />
+        <span
+          className="font-mono text-[0.48rem] tracking-[0.3em] uppercase"
+          style={{ color: "rgba(201,168,124,0.18)" }}
+        >
+          {new Date().getFullYear()}
+        </span>
+      </div>
 
-          {/* Social links */}
-          <div className="contact-el flex flex-col gap-3">
-            {[
-              { label: "GitHub", href: "https://github.com/yourusername" },
-              { label: "LinkedIn", href: "https://linkedin.com/in/yourname" },
-              { label: "Twitter / X", href: "https://twitter.com/yourhandle" },
-              {
-                label: "hello@yoursite.com",
-                href: "mailto:hello@yoursite.com",
-              },
-            ].map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-center gap-3 text-sm text-stone hover:text-ink transition-colors duration-300"
-              >
-                <span className="w-8 h-px bg-stone/30 group-hover:w-12 group-hover:bg-accent transition-all duration-300" />
-                {link.label}
-              </a>
-            ))}
-          </div>
+      <div className="relative mt-2" style={{ zIndex: 10 }}>
+        <Ticker />
+      </div>
+
+      <div
+        className="relative flex flex-col items-center justify-center text-center px-6 md:px-16 pb-6"
+        style={{ zIndex: 10 }}
+      >
+        <div
+          ref={badgeRef}
+          className="flex items-center gap-2.5 mb-4 px-4 py-2"
+          style={{
+            border: "1px solid rgba(201,168,124,0.16)",
+            background: "rgba(201,168,124,0.04)",
+          }}
+        >
+          <span
+            className="w-1.5 h-1.5 rounded-full"
+            style={{
+              background: "#4ade80",
+              boxShadow: "0 0 7px #4ade80",
+              animation: "blink 2s ease-in-out infinite",
+            }}
+          />
+          <span
+            className="font-mono text-[0.51rem] tracking-[0.34em] uppercase"
+            style={{ color: "rgba(201,168,124,0.65)" }}
+          >
+            Available for new projects
+          </span>
         </div>
 
-        {/* Right — Form */}
-        <div className="contact-el">
-          {status === "sent" ? (
-            <div className="h-full flex flex-col items-start justify-center">
-              <div className="font-display text-4xl font-light mb-3">
-                Message sent<span className="text-accent">.</span>
-              </div>
-              <p className="text-stone font-light">
-                I&apos;ll be in touch soon — thank you.
-              </p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-              {[
-                {
-                  id: "name",
-                  label: "Your name",
-                  type: "text",
-                  value: form.name,
-                },
-                {
-                  id: "email",
-                  label: "Email address",
-                  type: "email",
-                  value: form.email,
-                },
-              ].map((field) => (
-                <div key={field.id} className="relative">
-                  <input
-                    id={field.id}
-                    type={field.type}
-                    value={field.value}
-                    onChange={(e) =>
-                      setForm({ ...form, [field.id]: e.target.value })
-                    }
-                    required
-                    placeholder=" "
-                    className="peer w-full bg-transparent border-b border-muted py-3 text-ink font-light outline-none focus:border-accent transition-colors duration-300 placeholder-transparent"
+        <h2
+          ref={h2Ref}
+          className="font-display font-light tracking-tight mb-3"
+          style={{
+            fontSize: "clamp(2.2rem,5.5vw,6rem)",
+            lineHeight: 0.87,
+            color: "#f5f0e8",
+            perspective: "900px",
+          }}
+        >
+          Have something
+          <br />
+          <em style={{ color: "#C9A87C" }}>worth&nbsp;building</em>
+          <span style={{ color: "#C9A87C" }}>?</span>
+        </h2>
+
+        <p
+          ref={subRef}
+          className="font-light leading-relaxed mb-4 max-w-[42ch]"
+          style={{
+            color: "rgba(255,255,255,0.32)",
+            fontSize: "clamp(0.85rem,1.35vw,1.05rem)",
+          }}
+        >
+          I&apos;m open to full-time roles, freelance projects, and interesting
+          collaborations. Drop me a message I reply within&nbsp;24&nbsp;hours.
+        </p>
+
+        <div ref={ctaRef} className="mb-4">
+          <CtaBtn />
+        </div>
+
+        <div ref={emailRef} className="flex items-center gap-3.5 mb-4">
+          <span
+            className="font-mono text-[0.54rem] tracking-[0.28em] uppercase"
+            style={{ color: "rgba(255,255,255,0.16)" }}
+          >
+            {EMAIL}
+          </span>
+          <button
+            onClick={copyEmail}
+            className="flex items-center gap-1.5 font-mono text-[0.48rem] tracking-[0.26em] uppercase"
+            style={{
+              color: copied ? "#4ade80" : "rgba(201,168,124,0.4)",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              transition: "color .2s",
+            }}
+          >
+            {copied ? (
+              <>
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                  <path
+                    d="M1.5 5l2.5 2.5 5-5"
+                    stroke="currentColor"
+                    strokeWidth="1.3"
+                    strokeLinecap="round"
                   />
-                  <label
-                    htmlFor={field.id}
-                    className="absolute top-3 left-0 text-stone text-sm transition-all duration-300 peer-focus:-top-4 peer-focus:text-xs peer-focus:text-accent peer-not-placeholder-shown:-top-4 peer-not-placeholder-shown:text-xs pointer-events-none"
-                  >
-                    {field.label}
-                  </label>
-                </div>
-              ))}
-              <div className="relative">
-                <textarea
-                  id="message"
-                  rows={4}
-                  value={form.message}
-                  onChange={(e) =>
-                    setForm({ ...form, message: e.target.value })
-                  }
-                  required
-                  placeholder=" "
-                  className="peer w-full bg-transparent border-b border-muted py-3 text-ink font-light outline-none focus:border-accent transition-colors duration-300 resize-none placeholder-transparent"
-                />
-                <label
-                  htmlFor="message"
-                  className="absolute top-3 left-0 text-stone text-sm transition-all duration-300 peer-focus:-top-4 peer-focus:text-xs peer-focus:text-accent peer-not-placeholder-shown:-top-4 peer-not-placeholder-shown:text-xs pointer-events-none"
-                >
-                  Your message
-                </label>
-              </div>
+                </svg>
+                Copied!
+              </>
+            ) : (
+              <>
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                  <rect
+                    x="3"
+                    y="1"
+                    width="6"
+                    height="7"
+                    rx="0.8"
+                    stroke="currentColor"
+                    strokeWidth="0.9"
+                  />
+                  <path
+                    d="M7 1V0.5H1.5a1 1 0 00-1 1V8h1"
+                    stroke="currentColor"
+                    strokeWidth="0.9"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                Copy
+              </>
+            )}
+          </button>
+        </div>
 
-              <button
-                type="submit"
-                disabled={status === "sending"}
-                className="self-start mt-2 border border-ink px-8 py-3 text-xs tracking-widest uppercase font-mono hover:bg-ink hover:text-cream transition-all duration-300 disabled:opacity-40"
+        <div ref={socRef} className="flex items-end gap-10 md:gap-14">
+          {SOCIALS.map((s) => (
+            <a
+              key={s.label}
+              href={s.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex flex-col items-center gap-1.5"
+            >
+              <span
+                className="font-mono text-[0.42rem] tracking-[0.3em]"
+                style={{ color: "rgba(201,168,124,0.2)" }}
               >
-                {status === "sending" ? "Sending…" : "Send Message"}
-              </button>
-            </form>
-          )}
+                {s.index}
+              </span>
+              <span
+                className="font-mono text-[0.54rem] tracking-[0.24em] uppercase transition-colors duration-300"
+                style={{ color: "rgba(255,255,255,0.2)" }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.color = "#C9A87C";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.color =
+                    "rgba(255,255,255,0.2)";
+                }}
+              >
+                {s.label}
+              </span>
+              <span
+                className="h-px w-0 group-hover:w-full transition-all duration-500 ease-out"
+                style={{ background: "rgba(201,168,124,0.38)" }}
+              />
+            </a>
+          ))}
+        </div>
+
+        <div
+          className="relative w-full"
+          style={{
+            zIndex: 10,
+            height: "clamp(60px, 10vw, 120px)",
+            marginTop: "clamp(8px, 1.5vw, 20px)",
+            marginBottom: "clamp(4px, 1vw, 12px)",
+          }}
+        >
+          <ParticleTextScene
+            text="0xdegend"
+            particleCount={600}
+            color="#C9A87C"
+            accentColor="#FFE4B0"
+            className="w-full h-full"
+          />
         </div>
       </div>
+
+      <div
+        ref={footerRef}
+        className="relative flex flex-col sm:flex-row items-center justify-between gap-3 px-8 md:px-16 py-5"
+        style={{ zIndex: 10, borderTop: "1px solid rgba(255,255,255,0.04)" }}
+      >
+        <span
+          className="font-mono text-[0.46rem] tracking-[0.32em] uppercase"
+          style={{ color: "rgba(201,168,124,0.18)" }}
+        >
+          Crafting elegant digital experiences
+        </span>
+      </div>
+
+      <style>{`
+        @keyframes ticker { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+        @keyframes blink  { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.45;transform:scale(.78)} }
+      `}</style>
     </section>
   );
 }
