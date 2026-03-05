@@ -1,46 +1,65 @@
 "use client";
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 
-/**
- * Tracks N named "tasks" (e.g. each 3D scene) and a simulated
- * background progress that holds below 90% until all tasks resolve.
- *
- * Usage:
- *   const { progress, registerTask } = usePreloader(["heroScene", "skillScene"]);
- *   // In HeroScene:  useEffect(() => { registerTask("heroScene") }, [])
- */
 export function usePreloader(taskNames: string[]) {
   const completed = useRef<Set<string>>(new Set());
   const [progress, setProgress] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const simVal = useRef(0);
+  const released = useRef(false); // true once ceiling is lifted to 100
 
-  // Start simulated crawl immediately — holds below 90 until tasks done
+  // Lift the 89% ceiling — called when all tasks done OR timeout fires
+  const release = useCallback(() => {
+    if (released.current) return;
+    released.current = true;
+  }, []);
+
   const startSim = useCallback(() => {
     if (timerRef.current) return;
+
+    // Safety timeout — if tasks never fire (e.g. mobile WebGL slow / hidden canvas)
+    // release the ceiling after 6s so the user is never stuck
+    const safetyTimeout = setTimeout(() => release(), 6000);
+
     timerRef.current = setInterval(() => {
       const allDone = completed.current.size >= taskNames.length;
-      const ceil = allDone ? 100 : 89;
+      if (allDone) release();
+
+      const ceil = released.current ? 100 : 89;
       simVal.current +=
         Math.random() *
-        (simVal.current < 60 ? 4 : simVal.current < 80 ? 1.5 : 0.4);
+        (simVal.current < 60
+          ? 4
+          : simVal.current < 80
+            ? 1.5
+            : simVal.current < ceil - 2
+              ? 0.4
+              : 0.05); // crawl near ceiling so it doesn't freeze visually
       simVal.current = Math.min(simVal.current, ceil);
 
       setProgress(Math.round(simVal.current));
 
       if (simVal.current >= 100 && timerRef.current) {
         clearInterval(timerRef.current);
+        clearTimeout(safetyTimeout);
         timerRef.current = null;
       }
     }, 60);
-  }, [taskNames.length]);
 
-  // Call this once inside each 3D scene when it's ready
-  const registerTask = useCallback((name: string) => {
-    completed.current.add(name);
-    // Once all tasks are done, release the 90% ceiling
-    // The interval will now crawl to 100
-  }, []);
+    return () => {
+      clearInterval(timerRef.current!);
+      clearTimeout(safetyTimeout);
+    };
+  }, [taskNames.length, release]);
+
+  const registerTask = useCallback(
+    (name: string) => {
+      completed.current.add(name);
+      // If all tasks now done, release immediately
+      if (completed.current.size >= taskNames.length) release();
+    },
+    [taskNames.length, release],
+  );
 
   return { progress, registerTask, startSim };
 }
