@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-
+import { usePreloader } from "@/app/utils/hooks/usePreloader";
 export const metadata: Metadata = {
   title: "Olagboye Seyi — Frontend Engineer",
   description:

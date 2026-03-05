@@ -4,7 +4,7 @@ import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import { SplitText } from "gsap/SplitText";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { projects } from "../utils/data/project";
+import { projects } from "../../app/utils/data/project";
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
 type Project = (typeof projects)[number];

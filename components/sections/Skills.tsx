@@ -9,6 +9,9 @@ import { SkillGroup } from "../ui/SkillsGroup";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP, SplitText);
 
+interface SkillsProps {
+  onSceneReady?: () => void;
+}
 const ACCENT = "#C9A87C";
 
 const skillGroups = [
@@ -35,7 +38,7 @@ const skillGroups = [
     ],
   },
 ] as const;
-export default function Skills() {
+export default function Skills({ onSceneReady }: SkillsProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const canvasWrapRef = useRef<HTMLDivElement>(null);
@@ -185,9 +188,10 @@ export default function Skills() {
             aria-label="Interactive 3D terminal displaying live code for the active skill category"
             onWheel={(e) => e.stopPropagation()}
           >
-            {/* <TerminalCanvas
+            <TerminalCanvas
               activeTerminal={activeTerminal >= 0 ? activeTerminal : 1}
-            /> */}
+              onCreated={() => onSceneReady?.()}
+            />
             <div className="absolute bottom-4 left-5 pointer-events-none">
               <span
                 className="font-mono text-[0.52rem] tracking-[0.22em] uppercase"

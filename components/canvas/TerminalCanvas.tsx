@@ -3,7 +3,14 @@ import { Canvas } from "@react-three/fiber";
 import * as THREE from "three";
 import { SceneContent } from "./SkillsScene";
 
-export function TerminalCanvas({ activeTerminal }: { activeTerminal: number }) {
+interface TerminalCanvasProps {
+  activeTerminal: number;
+  onCreated?: () => void; // ← add this
+}
+export function TerminalCanvas({
+  activeTerminal,
+  onCreated,
+}: TerminalCanvasProps) {
   const dpr =
     typeof window !== "undefined" ? Math.min(1.5, window.devicePixelRatio) : 1;
 
@@ -11,7 +18,7 @@ export function TerminalCanvas({ activeTerminal }: { activeTerminal: number }) {
     <Canvas
       camera={{ fov: 42, near: 0.1, far: 100, position: [0, 0, 5] }}
       dpr={dpr}
-      frameloop="demand" // ✅ back to demand — no continuous GPU burn
+      frameloop="demand"
       gl={{
         antialias: true,
         alpha: false,
@@ -21,6 +28,7 @@ export function TerminalCanvas({ activeTerminal }: { activeTerminal: number }) {
       shadows
       onWheel={(e) => e.stopPropagation()} // ✅ stop wheel hijack
       style={{ width: "100%", height: "100%", display: "block" }}
+      onCreated={() => onCreated?.()}
     >
       <color attach="background" args={["#06080D"]} />
       <Suspense fallback={null}>

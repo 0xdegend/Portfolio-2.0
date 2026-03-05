@@ -5,10 +5,10 @@ import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
-import { projects } from "../utils/data/project";
+import { projects } from "../../app/utils/data/project";
 import { CursorBoxTailwind } from "../ui/boxCursor";
 import { ProjectRow } from "../ui/projectRow";
-import { useCursorFollower_rAF } from "../utils/hooks/useCursorFollower";
+import { useCursorFollower_rAF } from "../../app/utils/hooks/useCursorFollower";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP, SplitText);
 

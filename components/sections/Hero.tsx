@@ -8,6 +8,10 @@ import dynamic from "next/dynamic";
 
 gsap.registerPlugin(useGSAP, SplitText);
 
+interface HeroProps {
+  onSceneReady?: () => void;
+}
+
 const HeroScene = dynamic(() => import("@/components/canvas/HeroScene"), {
   ssr: false,
   loading: () => <div className="w-full h-full" />,
@@ -87,7 +91,7 @@ const ROLES = [
   "AI & Blockchain Engineer",
 ];
 
-export default function Hero() {
+export default function Hero({ onSceneReady }: HeroProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const subRef = useRef<HTMLParagraphElement>(null);
   const metaRef = useRef<HTMLDivElement>(null);
@@ -286,13 +290,13 @@ export default function Hero() {
         "
         style={{ pointerEvents: "none" }}
       >
-        {/* <div
+        <div
           ref={canvasWrapRef}
           className="w-full h-full"
           style={{ pointerEvents: "auto" }}
         >
-          <HeroScene />
-        </div> */}
+          <HeroScene onReady={onSceneReady} />
+        </div>
       </div>
       <div className="absolute bottom-0 left-0 right-0 h-52 bg-linear-to-t from-cream to-transparent z-10" />
       <div className="hidden md:block absolute top-0 left-0 w-[45%] h-full bg-linear-to-r from-cream via-cream/60 to-transparent z-10" />

@@ -1,5 +1,5 @@
 "use client";
-import { Suspense, useRef } from "react";
+import { Suspense, useRef, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Environment, PerformanceMonitor } from "@react-three/drei";
 import * as THREE from "three";
@@ -13,6 +13,10 @@ const RING_INITIAL = [
   { progress: 0.33, opacity: 0 },
   { progress: 0.66, opacity: 0 },
 ];
+
+interface HeroSceneProps {
+  onReady?: () => void;
+}
 
 function RippleRings({ active }: { active: boolean }) {
   // Mutable animation state lives in a ref — never read during render
@@ -62,7 +66,16 @@ function RippleRings({ active }: { active: boolean }) {
   );
 }
 
-export default function HeroScene() {
+export default function HeroScene({ onReady }: HeroSceneProps) {
+  const canvasRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // access the R3F internal root to pause/resume
+      },
+      { threshold: 0 },
+    );
+  }, []);
   return (
     <Canvas
       camera={{ position: [0, 0, 6], fov: 50 }}
@@ -71,6 +84,9 @@ export default function HeroScene() {
       dpr={[1, 1.5]}
       performance={{ min: 0.5 }}
       onWheel={(e) => e.stopPropagation()}
+      //@ts-expect-error Typescript Error
+      ref={canvasRef}
+      onCreated={() => onReady?.()}
     >
       <ambientLight intensity={1.7} />
       <directionalLight position={[5, 5, 5]} intensity={1.5} />
