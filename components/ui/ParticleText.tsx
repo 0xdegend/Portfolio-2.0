@@ -5,6 +5,7 @@ import {
   useMemo,
   useState,
   useCallback,
+  useSyncExternalStore,
   type FC,
 } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
@@ -34,9 +35,10 @@ const T_RETURN = 2.6;
 const T_HOVER = 1.2;
 const T_RIPPLE_OUT = 0.5;
 const T_RIPPLE_RET = 2.0;
-const NUDGE_R = 0.9; // world units — radius of influence
-const NUDGE_FORCE = 0.18; // max displacement in world units
+const NUDGE_R = 0.9;
+const NUDGE_FORCE = 0.18;
 const NUDGE_SPRING = 0.12;
+
 function sampleGlyphPositions(
   text: string,
   count: number,
@@ -87,12 +89,12 @@ function sampleGlyphPositions(
 
 function buildEnvMap(renderer: THREE.WebGLRenderer): THREE.Texture {
   const faceColors: number[][] = [
-    [0.82, 0.7, 0.42], // +X warm gold
-    [0.1, 0.1, 0.18], // -X dark navy
-    [0.95, 0.88, 0.72], // +Y bright ceiling (key light side)
-    [0.06, 0.05, 0.08], // -Y dark floor
-    [0.55, 0.45, 0.25], // +Z mid warm
-    [0.14, 0.18, 0.35], // -Z cool blue
+    [0.82, 0.7, 0.42],
+    [0.1, 0.1, 0.18],
+    [0.95, 0.88, 0.72],
+    [0.06, 0.05, 0.08],
+    [0.55, 0.45, 0.25],
+    [0.14, 0.18, 0.35],
   ];
 
   const SIZE = 64;
@@ -119,7 +121,6 @@ function buildEnvMap(renderer: THREE.WebGLRenderer): THREE.Texture {
       cvs.height = SIZE;
       const ctx2 = cvs.getContext("2d")!;
       const id = ctx2.createImageData(SIZE, SIZE);
-
       //@ts-expect-error Typescript
       id.data.set(t.image.data);
       ctx2.putImageData(id, 0, 0);
@@ -134,6 +135,7 @@ function buildEnvMap(renderer: THREE.WebGLRenderer): THREE.Texture {
   cubeTexture.dispose();
   return result;
 }
+
 interface SceneProps extends Required<Omit<ParticleTextProps, "className">> {
   hoverRef: { current: boolean };
   clickRef: { current: number };
@@ -175,19 +177,20 @@ const ParticleScene: FC<SceneProps> = ({
   const mesh = useMemo(() => {
     const m = new THREE.InstancedMesh(geometry, material, particleCount);
     m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-    // Initialise all to identity so they render from frame 0
     const dummy = new THREE.Object3D();
     for (let i = 0; i < particleCount; i++) {
-      dummy.position.set(0, 0, -100); // hide behind camera initially
+      dummy.position.set(0, 0, -100);
       dummy.updateMatrix();
       m.setMatrixAt(i, dummy.matrix);
     }
     return m;
   }, [geometry, material, particleCount]);
+
   const { tx: restX, ty: restY } = useMemo(
     () => sampleGlyphPositions(text, particleCount),
     [text, particleCount],
   );
+
   const scatterX = useMemo(() => {
     const a = new Float32Array(particleCount);
     for (let i = 0; i < particleCount; i++)
@@ -201,6 +204,7 @@ const ParticleScene: FC<SceneProps> = ({
       a[i] = (Math.random() - 0.5) * (SCENE_H - 0.3);
     return a;
   }, [particleCount]);
+
   const baseX = useRef(new Float32Array(particleCount));
   const baseY = useRef(new Float32Array(particleCount));
   const nudgeX = useRef(new Float32Array(particleCount));
@@ -256,6 +260,7 @@ const ParticleScene: FC<SceneProps> = ({
     );
     return () => clearTimeout(id);
   }, [text, particleCount]);
+
   const doScatter = useCallback(() => {
     animating.current = true;
     gsapCtx.current?.kill();
@@ -283,6 +288,7 @@ const ParticleScene: FC<SceneProps> = ({
       (T_HOVER + 0.4) * 1000,
     );
   }, [particleCount, scatterX, scatterY]);
+
   const doReturn = useCallback(() => {
     animating.current = true;
     gsapCtx.current?.kill();
@@ -360,7 +366,6 @@ const ParticleScene: FC<SceneProps> = ({
   }, [camera, ndcRef, particleCount]);
 
   useFrame(() => {
-    // Poll signals
     const hovering = hoverRef.current;
     if (hovering !== prevHover.current) {
       prevHover.current = hovering;
@@ -388,7 +393,6 @@ const ParticleScene: FC<SceneProps> = ({
           const push = (1 - dist / NUDGE_R) * NUDGE_FORCE;
           const targetNx = (dx / dist) * push;
           const targetNy = (dy / dist) * push;
-          // Lerp toward target nudge
           nudgeX.current[i] += (targetNx - nudgeX.current[i]) * 0.18;
           nudgeY.current[i] += (targetNy - nudgeY.current[i]) * 0.18;
         } else {
@@ -399,6 +403,7 @@ const ParticleScene: FC<SceneProps> = ({
         nudgeX.current[i] *= 1 - NUDGE_SPRING;
         nudgeY.current[i] *= 1 - NUDGE_SPRING;
       }
+
       const fx = Math.max(
         -HALF_W + 0.1,
         Math.min(HALF_W - 0.1, baseX.current[i] + nudgeX.current[i]),
@@ -414,6 +419,7 @@ const ParticleScene: FC<SceneProps> = ({
       _scl.current.set(s, s, s);
       _mtx.current.compose(_pos.current, _quat.current, _scl.current);
       mesh.setMatrixAt(i, _mtx.current);
+
       const cdist = Math.hypot(curW.x - fx, curW.y - fy);
       const ct = Math.max(0, 1 - cdist / (SCENE_W * 0.3));
       _col.current.set(color);
@@ -428,9 +434,7 @@ const ParticleScene: FC<SceneProps> = ({
 
   return (
     <>
-      {}
       <ambientLight color="#c8a86a" intensity={1.2} />
-
       <directionalLight color="#ffd580" intensity={5.0} position={[4, 6, 4]} />
       <directionalLight
         color="#4466bb"
@@ -449,14 +453,12 @@ const ParticleScene: FC<SceneProps> = ({
         decay={2}
         position={[0, 3, 3]}
       />
-
       <primitive object={mesh} scale={1.5} />
     </>
   );
 };
 
 function hasWebGL(): boolean {
-  if (typeof window === "undefined") return false;
   try {
     const c = document.createElement("canvas");
     return !!(
@@ -467,6 +469,7 @@ function hasWebGL(): boolean {
     return false;
   }
 }
+
 const Fallback: FC<{ text: string; color: string }> = ({ text, color }) => (
   <svg
     width="100%"
@@ -500,7 +503,16 @@ const ParticleTextScene: FC<ParticleTextProps> = ({
   className,
 }) => {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const [webgl] = useState(() => hasWebGL());
+
+  // ── Hydration-safe client detection via useSyncExternalStore ─────────────
+  // Third arg (() => false) = server snapshot → renders null on SSR.
+  // Second arg (() => true) = client snapshot → renders content after hydration.
+  // No useState, no useEffect, no setState warning, no hydration mismatch.
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
   const hoverRef = useRef(false);
   const clickRef = useRef(0);
@@ -523,6 +535,12 @@ const ParticleTextScene: FC<ParticleTextProps> = ({
   const onClick = useCallback(() => {
     clickRef.current += 1;
   }, []);
+
+  // Server and initial client render both return null — no mismatch
+  if (!mounted) return null;
+
+  // Safe to call here: only ever reaches this point on the client
+  const webgl = hasWebGL();
 
   if (!webgl) {
     return (

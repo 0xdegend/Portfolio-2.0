@@ -20,10 +20,13 @@ export default function Nav() {
   const mobileLinksRef = useRef<HTMLDivElement>(null);
   const bar1Ref = useRef<HTMLSpanElement>(null);
   const bar2Ref = useRef<HTMLSpanElement>(null);
+
   const initialized = useRef(false);
   const [scrolled, setScrolled] = useState(false);
+  const [pinned, setPinned] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const isAnimating = useRef(false);
+
   useEffect(() => {
     const nav = navRef.current;
     const links = linksRef.current;
@@ -45,11 +48,17 @@ export default function Nav() {
       );
     });
   }, []);
+
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
+    const onScroll = () => {
+      const isScrolled = window.scrollY > 60;
+      setScrolled(isScrolled);
+      if (!isScrolled) setPinned(false);
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
   useEffect(() => {
     if (!initialized.current) return;
     const nav = navRef.current;
@@ -59,10 +68,14 @@ export default function Nav() {
     if (!nav || !links || !cta || !badge) return;
     if (window.innerWidth < 768) return;
 
+    // If pinned, don't collapse — user clicked badge to keep full nav open
+    if (scrolled && pinned) return;
+
     gsap.killTweensOf([nav, links, cta, badge]);
     const fromW = nav.getBoundingClientRect().width;
 
     if (scrolled) {
+      // ── Collapse to compact badge ────────────────────────────────────────
       links.style.display = "none";
       cta.style.display = "none";
       badge.style.display = "flex";
@@ -78,6 +91,7 @@ export default function Nav() {
       cta.style.display = "inline-flex";
       badge.style.display = "none";
       badge.style.visibility = "";
+
       gsap.to([links, cta], {
         autoAlpha: 0,
         y: -8,
@@ -96,8 +110,16 @@ export default function Nav() {
           );
         },
       });
-      gsap.to(nav, { width: targetW, duration: 0.5, ease: "power3.inOut" });
+      // left + xPercent keep the pill centred as width shrinks
+      gsap.to(nav, {
+        width: targetW,
+        left: "50%",
+        xPercent: -50,
+        duration: 0.5,
+        ease: "power3.inOut",
+      });
     } else {
+      // ── Expand back to full nav ──────────────────────────────────────────
       badge.style.display = "none";
       links.style.display = "flex";
       links.style.visibility = "hidden";
@@ -112,6 +134,7 @@ export default function Nav() {
       links.style.visibility = "";
       cta.style.display = "none";
       cta.style.visibility = "";
+
       gsap.to(badge, {
         autoAlpha: 0,
         y: -8,
@@ -130,9 +153,70 @@ export default function Nav() {
           );
         },
       });
-      gsap.to(nav, { width: targetW, duration: 0.5, ease: "power3.inOut" });
+      // left + xPercent keep the pill centred as width grows back
+      gsap.to(nav, {
+        width: targetW,
+        left: "50%",
+        xPercent: -50,
+        duration: 0.5,
+        ease: "power3.inOut",
+      });
     }
-  }, [scrolled]);
+  }, [scrolled, pinned]);
+
+  // ── Badge click: pin full nav open while scrolled ─────────────────────────
+  const handleBadgeClick = useCallback(() => {
+    const nav = navRef.current;
+    const links = linksRef.current;
+    const cta = ctaRef.current;
+    const badge = statusRef.current;
+    if (!nav || !links || !cta || !badge) return;
+
+    setPinned(true);
+
+    const fromW = nav.getBoundingClientRect().width;
+    badge.style.display = "none";
+    links.style.display = "flex";
+    links.style.visibility = "hidden";
+    cta.style.display = "inline-flex";
+    cta.style.visibility = "hidden";
+    nav.style.width = "max-content";
+    nav.style.justifyContent = "space-between";
+    nav.style.gap = "1.25rem";
+    const targetW = nav.getBoundingClientRect().width;
+    nav.style.width = `${fromW}px`;
+    links.style.display = "none";
+    links.style.visibility = "";
+    cta.style.display = "none";
+    cta.style.visibility = "";
+
+    gsap.to(badge, {
+      autoAlpha: 0,
+      y: -8,
+      duration: 0.2,
+      ease: "power2.in",
+      onComplete: () => {
+        badge.style.display = "none";
+        nav.style.justifyContent = "space-between";
+        nav.style.gap = "1.25rem";
+        links.style.display = "flex";
+        cta.style.display = "inline-flex";
+        gsap.fromTo(
+          [links, cta],
+          { autoAlpha: 0, y: 8 },
+          { autoAlpha: 1, y: 0, duration: 0.28, ease: "power2.out" },
+        );
+      },
+    });
+    gsap.to(nav, {
+      width: targetW,
+      left: "50%",
+      xPercent: -50,
+      duration: 0.45,
+      ease: "power3.inOut",
+    });
+  }, []);
+
   const toggleMenu = useCallback(() => {
     if (isAnimating.current) return;
     isAnimating.current = true;
@@ -190,7 +274,6 @@ export default function Nav() {
         duration: 0.18,
         ease: "power2.in",
       });
-
       gsap.to(linksEl, {
         height: 0,
         duration: 0.38,
@@ -208,6 +291,7 @@ export default function Nav() {
   const handleLinkClick = useCallback(() => {
     if (menuOpen) toggleMenu();
   }, [menuOpen, toggleMenu]);
+
   useEffect(() => {
     if (!menuOpen) return;
     const handler = (e: MouseEvent) => {
@@ -251,7 +335,14 @@ export default function Nav() {
             </li>
           ))}
         </ul>
-        <div ref={statusRef} className="hidden items-center gap-2 shrink-0">
+        <div
+          ref={statusRef}
+          className="hidden items-center gap-2 shrink-0 cursor-pointer select-none px-2 py-1 rounded-full transition-all duration-200 hover:bg-ink/8 active:scale-95"
+          onClick={handleBadgeClick}
+          role="button"
+          aria-label="Expand navigation"
+          title="Click to show full menu"
+        >
           <span className="font-mono text-xs tracking-widest text-ink/70 uppercase whitespace-nowrap">
             Available for Work
           </span>
@@ -259,6 +350,21 @@ export default function Nav() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
           </span>
+          <svg
+            width="10"
+            height="10"
+            viewBox="0 0 10 10"
+            fill="none"
+            className="opacity-30 ml-0.5"
+          >
+            <path
+              d="M2 4l3 3 3-3"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </div>
         <a
           ref={ctaRef}
@@ -271,6 +377,8 @@ export default function Nav() {
           Résumé
         </a>
       </nav>
+
+      {/* ── Mobile nav ── */}
       <div className="md:hidden w-[80%] mx-auto fixed top-0 left-0 right-0 z-99999 px-5 pt-4">
         <div
           ref={mobilePillRef}
@@ -290,7 +398,6 @@ export default function Nav() {
                 className="rounded-full"
               />
             </a>
-
             <div className="flex items-center gap-1.5">
               <span className="relative flex h-1.5 w-1.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
@@ -300,7 +407,6 @@ export default function Nav() {
                 Available
               </span>
             </div>
-
             <button
               onClick={toggleMenu}
               className="w-9 h-9 flex items-center justify-center rounded-full border border-muted/60 bg-ink/5 hover:bg-ink/10 transition-colors duration-200 relative shrink-0"
@@ -336,7 +442,6 @@ export default function Nav() {
             style={{ height: 0, overflow: "hidden" }}
           >
             <div className="h-px bg-muted/60 mb-2" />
-
             <ul className="flex flex-col">
               {NAV_LINKS.map((link, i) => (
                 <li key={link.label}>
@@ -355,7 +460,6 @@ export default function Nav() {
                 </li>
               ))}
             </ul>
-
             <a
               href="/resume.pdf"
               target="_blank"
