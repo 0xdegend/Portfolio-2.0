@@ -4,8 +4,6 @@ import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 gsap.registerPlugin(useGSAP);
 
-const CIRCUMFERENCE = 2 * Math.PI * 54;
-
 function useNoise(canvasRef: React.RefObject<HTMLCanvasElement>) {
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -38,6 +36,65 @@ function useNoise(canvasRef: React.RefObject<HTMLCanvasElement>) {
   }, [canvasRef]);
 }
 
+function BouncingBoxes() {
+  const box1 = useRef<HTMLDivElement>(null);
+  const box2 = useRef<HTMLDivElement>(null);
+  const box3 = useRef<HTMLDivElement>(null);
+  const box4 = useRef<HTMLDivElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      const boxes = [box1.current, box2.current, box3.current, box4.current];
+      const TRAVEL = 38;
+      const DURATION = 0.38;
+      const GAP_BETWEEN = 0.12;
+      const tl = gsap.timeline({ repeat: -1 });
+      boxes.forEach((box, i) => {
+        tl.to(
+          box,
+          {
+            x: TRAVEL,
+            duration: DURATION,
+            ease: "power2.inOut",
+          },
+          i * GAP_BETWEEN,
+        );
+      });
+      tl.to({}, { duration: 0.18 });
+      boxes.forEach((box, i) => {
+        tl.to(
+          box,
+          {
+            x: 0,
+            duration: DURATION,
+            ease: "power2.inOut",
+          },
+          `>-${(boxes.length - 1 - i) * GAP_BETWEEN}`,
+        );
+      });
+      tl.to({}, { duration: 0.18 });
+    },
+    { scope: wrapRef },
+  );
+
+  const boxClass = "w-2 h-2 border border-[#C9A87C] will-change-transform";
+  const boxStyle = { background: "transparent" } as React.CSSProperties;
+
+  return (
+    <div
+      ref={wrapRef}
+      className="flex items-center gap-2"
+      style={{ width: 38 + 4 * 8 + 3 * 8 }} // travel + boxes + gaps
+    >
+      <div ref={box1} className={boxClass} style={boxStyle} />
+      <div ref={box2} className={boxClass} style={boxStyle} />
+      <div ref={box3} className={boxClass} style={boxStyle} />
+      <div ref={box4} className={boxClass} style={boxStyle} />
+    </div>
+  );
+}
+
 interface PreloaderProps {
   onComplete?: () => void;
   progress?: number;
@@ -54,7 +111,6 @@ export default function Preloader({
   const barTrackRef = useRef<HTMLDivElement>(null);
   const barFillRef = useRef<HTMLDivElement>(null);
   const barDotRef = useRef<HTMLDivElement>(null);
-  const circleRef = useRef<SVGCircleElement>(null);
   const statusRef = useRef<HTMLSpanElement>(null);
   const curtainTopRef = useRef<HTMLDivElement>(null);
   const curtainBotRef = useRef<HTMLDivElement>(null);
@@ -68,7 +124,10 @@ export default function Preloader({
   useEffect(() => {
     onCompleteRef.current = onComplete;
   }, [onComplete]);
+
   useNoise(noiseRef as React.RefObject<HTMLCanvasElement>);
+
+  // ─── Entrance animation ───────────────────────────────────────────────────
   useGSAP(
     () => {
       const tl = gsap.timeline();
@@ -104,6 +163,8 @@ export default function Preloader({
     },
     { scope: wrapRef },
   );
+
+  // ─── Progress tick ────────────────────────────────────────────────────────
   useEffect(() => {
     const updateDOM = (v: number) => {
       const r = Math.round(v);
@@ -111,10 +172,6 @@ export default function Preloader({
         counterRef.current.textContent = String(r).padStart(2, "0");
       if (barFillRef.current) barFillRef.current.style.width = `${v}%`;
       if (barDotRef.current) barDotRef.current.style.left = `${v}%`;
-      if (circleRef.current)
-        circleRef.current.style.strokeDashoffset = String(
-          CIRCUMFERENCE - (v / 100) * CIRCUMFERENCE,
-        );
       if (statusRef.current) {
         statusRef.current.textContent =
           v < 40
@@ -159,17 +216,17 @@ export default function Preloader({
     return () => gsap.ticker.remove(tick);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [externalProgress]);
+
+  // ─── Exit sequence ────────────────────────────────────────────────────────
   const triggerExit = () => {
     if (doneRef.current) return;
     doneRef.current = true;
     if (counterRef.current) counterRef.current.textContent = "100";
-    if (circleRef.current) circleRef.current.style.strokeDashoffset = "0";
     if (barFillRef.current) barFillRef.current.style.width = "100%";
     if (barDotRef.current) barDotRef.current.style.left = "100%";
     if (statusRef.current) statusRef.current.textContent = "Ready.";
 
     const vh = window.innerHeight;
-
     const tl = gsap.timeline({
       onComplete: () => {
         gsap.set(wrapRef.current, { display: "none" });
@@ -189,30 +246,17 @@ export default function Preloader({
     );
     tl.to(
       uiRef.current,
-      {
-        opacity: 0,
-        y: -6,
-        duration: 0.2,
-        ease: "power2.in",
-      },
+      { opacity: 0, y: -6, duration: 0.2, ease: "power2.in" },
       0.1,
     );
     tl.to(
       curtainTopRef.current,
-      {
-        y: -vh,
-        duration: 0.75,
-        ease: "expo.inOut",
-      },
+      { y: -vh, duration: 0.75, ease: "expo.inOut" },
       0.22,
     );
     tl.to(
       curtainBotRef.current,
-      {
-        y: vh,
-        duration: 0.75,
-        ease: "expo.inOut",
-      },
+      { y: vh, duration: 0.75, ease: "expo.inOut" },
       0.22,
     );
     tl.to(lineRef.current, { opacity: 0, duration: 0.15 }, 0.35);
@@ -225,14 +269,17 @@ export default function Preloader({
       className="fixed inset-0 overflow-hidden"
       style={{ background: "transparent", opacity: 0, zIndex: 99999 }}
     >
+      {/* Noise overlay */}
       <canvas
         ref={noiseRef as React.RefObject<HTMLCanvasElement>}
         className="absolute inset-0 pointer-events-none"
         style={{ mixBlendMode: "overlay", opacity: 0.5, zIndex: 1 }}
       />
+
+      {/* Curtains */}
       <div
         ref={curtainTopRef}
-        className="absolute left-0 right-0 top-0 flex flex-col items-center justify-end pb-0"
+        className="absolute left-0 right-0 top-0"
         style={{
           height: "50vh",
           background: "#09090b",
@@ -243,13 +290,10 @@ export default function Preloader({
       <div
         ref={curtainBotRef}
         className="absolute left-0 right-0 bottom-0"
-        style={{
-          height: "50vh",
-          background: "#09090b",
-          zIndex: 10,
-          boxShadow: "0 -4px 40px 0 rgba(0,0,0,0.0)",
-        }}
+        style={{ height: "50vh", background: "#09090b", zIndex: 10 }}
       />
+
+      {/* Reveal line */}
       <div
         ref={lineRef}
         className="absolute left-0 right-0 pointer-events-none"
@@ -263,6 +307,8 @@ export default function Preloader({
           transform: "scaleX(0)",
         }}
       />
+
+      {/* Corner brackets */}
       {(
         [
           "top-5 left-5",
@@ -286,77 +332,23 @@ export default function Preloader({
           />
         </div>
       ))}
+
+      {/* Main UI */}
       <div
         ref={uiRef}
         className="absolute inset-0 flex flex-col items-center justify-center gap-8"
         style={{ zIndex: 20 }}
       >
-        <div
-          className="relative flex items-center justify-center"
-          style={{ width: 140, height: 140 }}
-        >
-          <svg
-            className="absolute inset-0 animate-[spin_12s_linear_infinite]"
-            viewBox="0 0 128 128"
-            fill="none"
+        <div className="flex flex-col items-center gap-5">
+          {/* Loading label above boxes */}
+          <span
+            className="font-mono text-[0.5rem] tracking-[0.35em] uppercase"
+            style={{ color: "#C9A87C50" }}
           >
-            <circle
-              cx="64"
-              cy="64"
-              r="60"
-              stroke="#C9A87C"
-              strokeWidth="0.5"
-              strokeDasharray="4 10"
-              strokeOpacity="0.2"
-            />
-          </svg>
-          <svg
-            className="absolute inset-0 -rotate-90"
-            viewBox="0 0 128 128"
-            fill="none"
-          >
-            <circle
-              cx="64"
-              cy="64"
-              r="54"
-              stroke="#ffffff08"
-              strokeWidth="1"
-              fill="none"
-            />
-            <circle
-              ref={circleRef}
-              cx="64"
-              cy="64"
-              r="54"
-              stroke="#C9A87C"
-              strokeWidth="1.5"
-              fill="none"
-              strokeLinecap="round"
-              style={{
-                strokeDasharray: CIRCUMFERENCE,
-                strokeDashoffset: CIRCUMFERENCE,
-                filter: "drop-shadow(0 0 4px #C9A87C)",
-                transition: "stroke-dashoffset 0.05s linear",
-              }}
-            />
-          </svg>
-          <div className="flex flex-col items-center gap-0.5">
-            <div
-              ref={counterRef}
-              className="font-mono tabular-nums font-light"
-              style={{ fontSize: "2.8rem", color: "#f5f0e8", lineHeight: 1 }}
-            >
-              00
-            </div>
-            <span
-              className="font-mono text-[0.55rem] tracking-[0.3em] uppercase"
-              style={{ color: "#C9A87C80" }}
-            >
-              %
-            </span>
-          </div>
+            Loading
+          </span>
+          <BouncingBoxes />
         </div>
-
         <span
           ref={labelRef}
           className="font-mono text-[0.58rem] tracking-[0.5em] uppercase"
@@ -364,7 +356,6 @@ export default function Preloader({
         >
           ✦ &nbsp; Initialising &nbsp; ✦
         </span>
-
         <div
           ref={barTrackRef}
           className="relative overflow-visible origin-center"
@@ -391,7 +382,6 @@ export default function Preloader({
             }}
           />
         </div>
-
         <span
           ref={statusRef}
           className="font-mono text-[0.52rem] tracking-[0.25em] uppercase"
