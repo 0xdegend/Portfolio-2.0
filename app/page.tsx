@@ -19,6 +19,7 @@ export default function Home() {
   const TASKS = ["heroScene", "skillScene"];
   const { progress, registerTask, startSim } = usePreloader(TASKS);
   const [ready, setReady] = useState(false);
+  const [heroReady, setHeroReady] = useState(false);
 
   useEffect(() => {
     startSim();
@@ -28,13 +29,20 @@ export default function Home() {
     <main className="noise bg-cream overflow-x-hidden">
       <>
         {!ready && (
-          <Preloader progress={progress} onComplete={() => setReady(true)} />
+          <Preloader
+            progress={progress}
+            onComplete={() => {
+              setHeroReady(true);
+              setReady(true);
+            }}
+          />
         )}
 
-        {/* Sections are mounted immediately so 3D scenes can load in background */}
         <div style={{ visibility: ready ? "visible" : "hidden" }}>
-          {/* Pass registerTask down to each scene */}
-          <Hero onSceneReady={() => registerTask("heroScene")} />
+          <Hero
+            ready={heroReady}
+            onSceneReady={() => registerTask("heroScene")}
+          />
           <Cursor />
           <Nav />
           <About />

@@ -10,6 +10,7 @@ gsap.registerPlugin(useGSAP, SplitText);
 
 interface HeroProps {
   onSceneReady?: () => void;
+  ready?: boolean;
 }
 
 const HeroScene = dynamic(() => import("@/components/canvas/HeroScene"), {
@@ -91,7 +92,7 @@ const ROLES = [
   "AI & Blockchain Engineer",
 ];
 
-export default function Hero({ onSceneReady }: HeroProps) {
+export default function Hero({ onSceneReady, ready = false }: HeroProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const subRef = useRef<HTMLParagraphElement>(null);
   const metaRef = useRef<HTMLDivElement>(null);
@@ -105,6 +106,8 @@ export default function Hero({ onSceneReady }: HeroProps) {
   const contactRef = useMagnetic(0.5, 100);
   const scramble = useScramble();
   const [roleIdx, setRoleIdx] = useState(0);
+
+  // Parallax on mouse — fine to run always, it only moves an element that's hidden
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
       const nx = (e.clientX / window.innerWidth - 0.5) * 2;
@@ -122,7 +125,9 @@ export default function Hero({ onSceneReady }: HeroProps) {
     return () => window.removeEventListener("mousemove", onMove);
   }, []);
 
+  // Role scramble — only start after preloader is done
   useEffect(() => {
+    if (!ready) return;
     const id = setInterval(() => {
       const el = roleRef.current;
       if (!el) return;
@@ -133,8 +138,11 @@ export default function Hero({ onSceneReady }: HeroProps) {
       });
     }, 3200);
     return () => clearInterval(id);
-  }, [scramble]);
+  }, [ready, scramble]);
+
+  // Year counter — only start after preloader is done
   useEffect(() => {
+    if (!ready) return;
     const el = counterRef.current;
     if (!el) return;
     const year = new Date().getFullYear();
@@ -142,21 +150,27 @@ export default function Hero({ onSceneReady }: HeroProps) {
     gsap.to(obj, {
       val: year,
       duration: 2.4,
-      delay: 1.6,
+      delay: 0.2, // small offset after reveal, was 1.6 (preloader covered that wait)
       ease: "power2.out",
       onUpdate: () => {
         el.textContent = String(Math.round(obj.val));
       },
     });
-  }, []);
+  }, [ready]);
 
+  // Marquee — only start after preloader is done
   useEffect(() => {
+    if (!ready) return;
     const el = marqueeRef.current;
     if (!el) return;
     gsap.to(el, { x: "-50%", duration: 22, ease: "none", repeat: -1 });
-  }, []);
+  }, [ready]);
+
+  // Main entrance timeline — gated on ready
   useGSAP(
     () => {
+      if (!ready) return; // ← gate: do nothing until preloader completes
+
       const h1 = h1Ref.current;
       if (!h1) return;
 
@@ -246,6 +260,7 @@ export default function Hero({ onSceneReady }: HeroProps) {
           { opacity: 1, y: 0, duration: 0.7 },
           "-=0.5",
         );
+
       split.chars.forEach((char) => {
         char.addEventListener("mouseenter", () => {
           gsap.to(char, {
@@ -269,7 +284,7 @@ export default function Hero({ onSceneReady }: HeroProps) {
 
       return () => split.revert();
     },
-    { scope: containerRef },
+    { scope: containerRef, dependencies: [ready] }, // ← re-runs when ready flips to true
   );
 
   return (
@@ -298,6 +313,8 @@ export default function Hero({ onSceneReady }: HeroProps) {
       <div className="absolute bottom-0 left-0 right-0 h-52 bg-linear-to-t from-cream to-transparent z-10" />
       <div className="hidden md:block absolute top-0 left-0 w-[45%] h-full bg-linear-to-r from-cream via-cream/60 to-transparent z-10" />
       <div className="md:hidden absolute top-0 right-0 w-[20%] h-full bg-linear-to-l from-cream/30 to-transparent z-6 pointer-events-none" />
+
+      {/* Badge — starts hidden via opacity-0 class, GSAP animates it in */}
       <div className="hero-badge opacity-0 absolute lg:top-8 top-20 left-6 md:left-16 z-30 flex items-center gap-2.5">
         <span className="font-mono text-[0.6rem] text-stone/40 tracking-[0.25em] uppercase">
           ©<span ref={counterRef}>{new Date().getFullYear() - 7}</span>
@@ -307,6 +324,7 @@ export default function Hero({ onSceneReady }: HeroProps) {
           Portfolio
         </span>
       </div>
+
       <div className="relative z-20 max-w-7xl lg:mt-0 mt-40 pb-12 md:pb-16">
         <div className="hero-role opacity-0 flex items-center gap-3 mb-4 md:mb-5 pointer-events-none">
           <span className="block w-6 h-px bg-[#c9a96e] shrink-0" />
@@ -327,12 +345,11 @@ export default function Hero({ onSceneReady }: HeroProps) {
           </span>
         </h1>
 
-        {/* Bottom row */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 md:gap-6 border-t border-muted pt-5 md:pt-6">
+          {/* opacity-0 class keeps it hidden; inline style removed — GSAP owns opacity */}
           <p
             ref={subRef}
-            className="text-stone font-light text-sm md:text-lg max-w-[60%] md:max-w-sm leading-relaxed pointer-events-none"
-            style={{ opacity: 0 }}
+            className="text-stone font-light text-sm md:text-lg max-w-[60%] md:max-w-sm leading-relaxed pointer-events-none opacity-0"
           >
             Developer focused on AI & Blockchain crafting clean interfaces with
             minimalist design, clear typography, and purposeful motion.
@@ -340,8 +357,7 @@ export default function Hero({ onSceneReady }: HeroProps) {
 
           <div
             ref={metaRef}
-            className="flex items-center gap-4 md:gap-6 pointer-events-auto"
-            style={{ opacity: 0 }}
+            className="flex items-center gap-4 md:gap-6 pointer-events-auto opacity-0"
           >
             <a
               href="#projects"
@@ -365,6 +381,7 @@ export default function Hero({ onSceneReady }: HeroProps) {
           </div>
         </div>
       </div>
+
       <div
         ref={scrollRef}
         className="hidden md:flex absolute bottom-20 right-16 z-20 flex-col items-center gap-3 pointer-events-none"
