@@ -1,5 +1,12 @@
 import { useRef } from "react";
-export function StatItem({ value, label }: { value: string; label: string }) {
+
+interface statItemProps {
+  label: string;
+  value: string;
+  className?: string;
+}
+
+export function StatItem({ value, label, className }: statItemProps) {
   const ref = useRef<HTMLDivElement>(null);
   const onEnter = () => {
     gsap.to(ref.current, { y: -5, duration: 0.22, ease: "power2.out" });
@@ -25,7 +32,7 @@ export function StatItem({ value, label }: { value: string; label: string }) {
       <div className="sv font-display text-4xl md:text-5xl font-light text-ink mb-1">
         {value}
       </div>
-      <div className="section-label text-stone/70">{label}</div>
+      <div className={`section-label text-stone/70 ${className}`}>{label}</div>
     </div>
   );
 }

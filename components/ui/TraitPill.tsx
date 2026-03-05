@@ -1,6 +1,10 @@
 import { useRef } from "react";
 
-export function TraitPill({ label }: { label: string }) {
+interface traitPillProps {
+  label?: string;
+  className?: string;
+}
+export function TraitPill({ label, className }: traitPillProps) {
   const ref = useRef<HTMLSpanElement>(null);
   const onEnter = () =>
     gsap.to(ref.current, {
@@ -25,7 +29,9 @@ export function TraitPill({ label }: { label: string }) {
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
     >
-      <span className="w-1 h-1 rounded-full bg-accent/50 shrink-0" />
+      <span
+        className={`w-1 h-1 rounded-full bg-accent/50 shrink-0 ${className}`}
+      />
       {label}
     </span>
   );
