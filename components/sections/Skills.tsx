@@ -61,7 +61,6 @@ export default function Skills({ onSceneReady }: SkillsProps) {
 
   useGSAP(
     () => {
-      // ── Entrance animations ─────────────────────────────────────────────
       gsap.fromTo(
         ".skills-header-label",
         { opacity: 0, x: -20 },
@@ -135,9 +134,9 @@ export default function Skills({ onSceneReady }: SkillsProps) {
         ScrollTrigger.create({
           trigger: leftColRef.current,
           pin: rightColRef.current,
-          start: "top top+=32", // left-col top hits 32px from viewport top
-          end: "bottom bottom", // left-col bottom hits viewport bottom
-          pinSpacing: false, // no spacer — left col height is the spacer
+          start: "top top+=32",
+          end: "bottom bottom",
+          pinSpacing: false,
         });
       }
       const groupEls =
@@ -162,8 +161,7 @@ export default function Skills({ onSceneReady }: SkillsProps) {
     <section
       ref={sectionRef}
       id="skills"
-      className="py-32 px-8 md:px-16 bg-ink text-cream"
-      // NO overflow-hidden on section — that would clip the pinned element
+      className="lg:py-32 py-5 px-8 md:px-16 bg-ink text-cream"
     >
       <div className="max-w-7xl mx-auto">
         {/* ── Label row ── */}

@@ -434,26 +434,26 @@ const ParticleScene: FC<SceneProps> = ({
 
   return (
     <>
-      <ambientLight color="#c8a86a" intensity={1.2} />
-      <directionalLight color="#ffd580" intensity={5.0} position={[4, 6, 4]} />
+      <ambientLight color="#c8a86a" intensity={30} />
+      <directionalLight color="#ffd580" intensity={15} position={[4, 6, 4]} />
       <directionalLight
         color="#4466bb"
-        intensity={1.8}
+        intensity={15}
         position={[-5, -3, -2]}
       />
       <directionalLight
         color="#ff6820"
-        intensity={2.8}
+        intensity={15}
         position={[0.5, -5, -5]}
       />
       <pointLight
         color="#ffe8c0"
-        intensity={3.0}
+        intensity={15}
         distance={12}
         decay={2}
         position={[0, 3, 3]}
       />
-      <primitive object={mesh} scale={1.5} />
+      <primitive object={mesh} scale={1.8} />
     </>
   );
 };

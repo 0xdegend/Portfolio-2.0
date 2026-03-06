@@ -53,8 +53,6 @@ export default function About() {
         });
       };
 
-      // ─── Pre-hide desktop elements — scoped to stickyRef ─────────────────
-      // Query inside stickyRef so MobileAbout elements are never touched
       const bodyEls = Array.from(
         stickyRef.current?.querySelectorAll<HTMLElement>(".about-body") ?? [],
       );
@@ -66,24 +64,20 @@ export default function About() {
       );
 
       gsap.set(stickyRef.current, { opacity: 0, y: 24 });
-      // h2 is NOT hidden here — split.chars are hidden below so revert() leaves h2 visible
+
       gsap.set(lineRef.current, { scaleY: 0, transformOrigin: "top center" });
       gsap.set(bodyEls, { opacity: 0, y: 16 });
       gsap.set(pillEls, { opacity: 0, scale: 0.82 });
       gsap.set(statEls, { opacity: 0, y: 12 });
 
-      // ─── Entrance timeline (paused — driven by onEnter / onLeaveBack) ─────
-      // This owns stickyRef's opacity so no separate fade tween is needed.
       const entranceTl = gsap.timeline({ paused: true });
 
-      // Panel slides up + fades in
       entranceTl.to(
         stickyRef.current,
         { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" },
         0,
       );
 
-      // Accent line grows downward
       entranceTl.fromTo(
         lineRef.current,
         { scaleY: 0 },
@@ -91,10 +85,9 @@ export default function About() {
         0.1,
       );
 
-      // H2 character split
       if (h2Ref.current) {
         const split = new SplitText(h2Ref.current, { type: "chars" });
-        // Hide chars (not h2 itself) — when revert() removes chars, h2 text is already visible
+
         gsap.set(split.chars, { opacity: 0, y: 35, rotation: -6 });
         entranceTl.fromTo(
           split.chars,
@@ -109,11 +102,10 @@ export default function About() {
           },
           0.15,
         );
-        // Use ">" to revert after ALL tweens in the tl finish, not just the chars tween
+
         entranceTl.call(() => split.revert(), [], ">");
       }
 
-      // Body copy
       if (bodyEls.length) {
         entranceTl.fromTo(
           bodyEls,
@@ -123,7 +115,6 @@ export default function About() {
         );
       }
 
-      // Trait pills
       if (pillEls.length) {
         entranceTl.fromTo(
           pillEls,
@@ -139,7 +130,6 @@ export default function About() {
         );
       }
 
-      // Stats
       if (statEls.length) {
         entranceTl.fromTo(
           statEls,
@@ -155,7 +145,6 @@ export default function About() {
         );
       }
 
-      // ─── Slides init ─────────────────────────────────────────────────────
       slideRefs.current.forEach((s, i) => {
         if (!s) return;
         gsap.set(s, { opacity: i === 0 ? 1 : 0, scale: i === 0 ? 1 : 1.05 });
@@ -191,8 +180,6 @@ export default function About() {
         swapText(accentRef.current, SLIDES[next].accent);
         swapText(yearRef.current, SLIDES[next].year);
       };
-
-      // ─── Subtle text-column parallax while pinned ─────────────────────────
       gsap.to(textColRef.current, {
         y: -45,
         ease: "none",
@@ -204,13 +191,9 @@ export default function About() {
         },
       });
 
-      // ─── Main pin ─────────────────────────────────────────────────────────
-      // onEnter fires when trackRef top hits 80% down the viewport — much earlier
-      // than "top top", so the animation plays as the section scrolls into view.
-      // A separate ScrollTrigger handles the pin itself (must start at "top top").
       ScrollTrigger.create({
         trigger: trackRef.current,
-        start: "top 80%", // ← fires as section approaches — entrance plays here
+        start: "top 80%",
         once: false,
         onEnter: () => entranceTl.play(),
         onLeaveBack: () => entranceTl.reverse(),
@@ -218,7 +201,7 @@ export default function About() {
 
       const st = ScrollTrigger.create({
         trigger: trackRef.current,
-        start: "top top", // ← pin must start exactly at top
+        start: "top top",
         end: () => `+=${(total - 1) * window.innerHeight}`,
         pin: stickyRef.current,
         onUpdate(self) {
@@ -242,10 +225,7 @@ export default function About() {
 
   return (
     <section ref={sectionRef} id="about" className="relative">
-      {/* Mobile — fully self-contained, own useGSAP, own refs */}
       <MobileAbout />
-
-      {/* Desktop — only renders on lg+ */}
       <div
         ref={trackRef}
         style={{ height: `calc(100vh + ${(SLIDES.length - 1) * 100}vh)` }}
@@ -255,7 +235,6 @@ export default function About() {
           ref={stickyRef}
           className="sticky top-0 h-screen w-full flex flex-col overflow-hidden"
         >
-          {/* Header row */}
           <div className="flex items-center gap-6 px-8 md:px-16 pt-10 pb-5 max-w-7xl mx-auto w-full shrink-0">
             <span className="section-label">01 — About</span>
             <div className="flex-1 rule-accent" />

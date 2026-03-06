@@ -134,9 +134,26 @@ export default function Contact() {
   const [copied, setCopied] = useState(false);
 
   const copyEmail = async () => {
-    await navigator.clipboard.writeText(EMAIL);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2200);
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(EMAIL);
+      } else {
+        const el = document.createElement("textarea");
+        el.value = EMAIL;
+        el.setAttribute("readonly", "");
+        el.style.cssText = "position:fixed;top:-9999px;left:-9999px;opacity:0";
+        document.body.appendChild(el);
+        el.focus();
+        el.select();
+        el.setSelectionRange(0, el.value.length); // iOS Safari needs this
+        document.execCommand("copy");
+        document.body.removeChild(el);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    } catch {
+      window.location.href = `mailto:${EMAIL}`;
+    }
   };
 
   useGSAP(
@@ -202,12 +219,10 @@ export default function Contact() {
       className="relative flex flex-col overflow-hidden"
       style={{ background: "#09090b" }}
     >
-      {/* ── Decorative layers (non-interactive, behind everything) ── */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{ zIndex: 0 }}
       >
-        {/* Radial glow */}
         <div
           style={{
             position: "absolute",
@@ -220,7 +235,7 @@ export default function Contact() {
               "radial-gradient(ellipse, rgba(201,168,124,0.06) 0%, transparent 70%)",
           }}
         />
-        {/* Grain overlay */}
+
         <div
           style={{
             position: "absolute",
@@ -232,7 +247,6 @@ export default function Contact() {
         />
       </div>
 
-      {/* ── Section label row ── */}
       <div
         className="relative flex items-center gap-5 px-8 md:px-16 pt-5"
         style={{ zIndex: 10 }}
@@ -424,7 +438,7 @@ export default function Contact() {
         >
           <ParticleTextScene
             text="0xdegend"
-            particleCount={600}
+            particleCount={700}
             color="#C9A87C"
             accentColor="#FFE4B0"
             className="w-full h-full"

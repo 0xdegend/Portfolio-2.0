@@ -30,8 +30,6 @@ export default function MobileAbout() {
   useGSAP(
     () => {
       const total = SLIDES.length;
-
-      // ─── Utility ─────────────────────────────────────────────────────────
       const swapText = (el: HTMLElement | null, text: string) => {
         if (!el) return;
         gsap.to(el, {
@@ -50,7 +48,6 @@ export default function MobileAbout() {
         });
       };
 
-      // ─── H2 — scrolls normally, standard trigger works fine ──────────────
       if (h2Ref.current) {
         const split = new SplitText(h2Ref.current, { type: "chars" });
         gsap.set(split.chars, { opacity: 0, y: 35, rotation: -6 });
@@ -74,7 +71,6 @@ export default function MobileAbout() {
         );
       }
 
-      // ─── Body copy ───────────────────────────────────────────────────────
       const bodyEls =
         wrapRef.current?.querySelectorAll<HTMLElement>(".m-about-body");
       if (bodyEls?.length) {
@@ -96,8 +92,6 @@ export default function MobileAbout() {
           },
         );
       }
-
-      // ─── Trait pills ─────────────────────────────────────────────────────
       const pillEls =
         wrapRef.current?.querySelectorAll<HTMLElement>(".m-trait-pill");
       const traitsRow = wrapRef.current?.querySelector(".m-traits-row");
@@ -121,7 +115,6 @@ export default function MobileAbout() {
         );
       }
 
-      // ─── Stats ───────────────────────────────────────────────────────────
       const statEls =
         wrapRef.current?.querySelectorAll<HTMLElement>(".m-stat-item");
       const statsRow = wrapRef.current?.querySelector(".m-stats-row");
@@ -145,7 +138,6 @@ export default function MobileAbout() {
         );
       }
 
-      // ─── Slides init ─────────────────────────────────────────────────────
       mSlideRefs.current.forEach((s, i) => {
         if (!s) return;
         gsap.set(s, { opacity: i === 0 ? 1 : 0, scale: i === 0 ? 1 : 1.05 });
@@ -182,7 +174,6 @@ export default function MobileAbout() {
         swapText(mYearRef.current, SLIDES[next].year);
       };
 
-      // ─── Sticky gallery pin — onUpdate fires in both scroll directions ────
       const mSt = ScrollTrigger.create({
         trigger: mTrackRef.current,
         start: "top top",
@@ -198,7 +189,6 @@ export default function MobileAbout() {
         },
       });
 
-      // Gallery panel entrance — scrubs in as track scrolls into view
       gsap.set(mStickyRef.current, { opacity: 0, y: 24 });
       gsap.fromTo(
         mStickyRef.current,
@@ -223,8 +213,7 @@ export default function MobileAbout() {
 
   return (
     <div ref={wrapRef} className="lg:hidden">
-      {/* ── Text content — scrolls normally ──────────────────────────────── */}
-      <div className="px-6 pt-16 pb-10 flex flex-col gap-8 max-w-2xl mx-auto">
+      <div className="px-6 lg:pt-16 pt-5 lg:pb-10 pb-5 flex flex-col gap-8 max-w-2xl mx-auto">
         <div className="flex items-center gap-4">
           <span className="section-label">01 — About</span>
           <div className="flex-1 rule-accent" />
