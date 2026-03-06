@@ -59,7 +59,7 @@ body {
   background-image: url("../public/noise-bg.gif");
   pointer-events: none;
   z-index: 9997;
-  opacity: 0.04;
+  opacity: 0.001;
 }
 
 .rule-accent {
