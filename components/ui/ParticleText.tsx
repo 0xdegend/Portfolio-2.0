@@ -435,20 +435,20 @@ const ParticleScene: FC<SceneProps> = ({
   return (
     <>
       <ambientLight color="#c8a86a" intensity={30} />
-      <directionalLight color="#ffd580" intensity={15} position={[4, 6, 4]} />
+      <directionalLight color="#ffd580" intensity={35} position={[4, 6, 4]} />
       <directionalLight
         color="#4466bb"
-        intensity={15}
+        intensity={35}
         position={[-5, -3, -2]}
       />
       <directionalLight
         color="#ff6820"
-        intensity={15}
+        intensity={40}
         position={[0.5, -5, -5]}
       />
       <pointLight
         color="#ffe8c0"
-        intensity={15}
+        intensity={35}
         distance={12}
         decay={2}
         position={[0, 3, 3]}
@@ -503,11 +503,6 @@ const ParticleTextScene: FC<ParticleTextProps> = ({
   className,
 }) => {
   const wrapRef = useRef<HTMLDivElement>(null);
-
-  // ── Hydration-safe client detection via useSyncExternalStore ─────────────
-  // Third arg (() => false) = server snapshot → renders null on SSR.
-  // Second arg (() => true) = client snapshot → renders content after hydration.
-  // No useState, no useEffect, no setState warning, no hydration mismatch.
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
