@@ -251,9 +251,7 @@ export default function About() {
             </div>
           </div>
 
-          {/* Two-column grid */}
           <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-0 max-w-7xl mx-auto w-full px-8 md:px-16 pb-8 min-h-0">
-            {/* Left — text */}
             <div
               ref={textColRef}
               className="flex flex-col justify-center pr-0 lg:pr-14 py-2"
@@ -285,7 +283,7 @@ export default function About() {
                 that enhance the user experience.
               </p>
               <p className="about-body text-stone leading-relaxed mb-8 font-light text-sm md:text-base max-w-[36ch]">
-                Currently open to new opportunities — full-time roles, long-term
+                Currently open to new opportunities full-time roles, long-term
                 contracts, or exciting side projects worth building together.
               </p>
               <div className="traits-row flex flex-wrap gap-2 mb-10">

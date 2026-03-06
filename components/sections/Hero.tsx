@@ -346,7 +346,6 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
         </h1>
 
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 md:gap-6 border-t border-muted pt-5 md:pt-6">
-          {/* opacity-0 class keeps it hidden; inline style removed — GSAP owns opacity */}
           <p
             ref={subRef}
             className="text-stone font-light text-sm md:text-lg max-w-[60%] md:max-w-sm leading-relaxed pointer-events-none opacity-0"

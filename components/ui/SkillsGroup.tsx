@@ -25,11 +25,10 @@ const skillGroups = [
     category: "Tools & More",
     index: "02",
     skills: [
-      { name: "Git & CI/CD" },
-      { name: "Docker" },
+      { name: "Git" },
       { name: "Figma" },
-      { name: "Vercel / AWS" },
-      { name: "Testing (Vitest)" },
+      { name: "Vercel" },
+      { name: "Jira" },
     ],
   },
 ] as const;

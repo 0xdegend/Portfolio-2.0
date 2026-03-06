@@ -17,11 +17,10 @@ const SKILL_PREVIEWS: Record<string, string> = {
   "CSS / Tailwind": 'className="flex gap-4 items-center rounded-xl"',
   "GSAP / Motion": "gsap.fromTo(el, {y:40}, {y:0, ease:'expo.out'})",
   "Three.js / R3F": "<mesh position={[0,0,0]}><boxGeometry /></mesh>",
-  "Git & CI/CD": "git push origin main  →  deploy triggered ✓",
-  Docker: "docker build -t app . && docker push registry/app",
+  Git: "git push origin main  →  deploy triggered ✓",
   Figma: "// component → inspect → export → ship",
-  "Vercel / AWS": "aws ecs update-service --force-new-deployment",
-  "Testing (Vitest)": "expect(render(<App />)).toMatchSnapshot()",
+  Jira: "PROJ-142  In Review  →  merged  →  Done ✓",
+  Vercel: "▲ deployed to production  ✓  23s  cdn edge ready",
 };
 
 const SCRAMBLE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";

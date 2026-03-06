@@ -36,28 +36,26 @@ export default function Hero() {
   );
 }`,
 
-  `#!/bin/bash
-# deploy.sh — production pipeline
+  `# PROJ-142 · feat: hero animation refactor
 
-set -euo pipefail
+$ git add -A
+$ git commit -m "feat(hero): gsap entrance + scroll trigger
+  closes PROJ-142"
+$ git push origin feat/hero-animation
 
-echo "→ Running tests..."
-pnpm vitest run
+  ▲ Vercel · Preview → building... ✓ 28s
+  ↗ https://app-git-feat-hero.vercel.app
 
-echo "→ Type-checking..."
-pnpm tsc --noEmit
+$ gh pr create --reviewer @lead
+  ✓ PR #38 · CI passed · ready to merge
 
-echo "→ Building image..."
-docker build -t app:latest .
-docker push registry/app:latest
+$ git checkout main && git merge feat/hero-animation
+$ git push origin main
 
-echo "→ Rolling deploy..."
-aws ecs update-service \\
-  --cluster prod \\
-  --service app \\
-  --force-new-deployment
+  ▲ Vercel · Production · 0 errors · 98  lighthouse
+  ✓ Jira PROJ-142 → Done · sprint 12 closed
 
-echo "✓ Deployed."`,
+  ✓ Deployed to production.`,
 ];
 
 const CENTER_POSITION: [number, number, number] = [0, 0, 0];
