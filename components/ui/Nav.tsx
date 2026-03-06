@@ -10,12 +10,78 @@ const NAV_LINKS = [
   { label: "Contact", href: "#contact" },
 ];
 
+function NavLink({ href, label }: { href: string; label: string }) {
+  const baseRef = useRef<HTMLSpanElement>(null);
+  const accentRef = useRef<HTMLSpanElement>(null);
+  const clipRef = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (clipRef.current && baseRef.current) {
+      clipRef.current.style.height = `${baseRef.current.offsetHeight}px`;
+    }
+  }, []);
+
+  const onEnter = useCallback(() => {
+    const base = baseRef.current;
+    const accent = accentRef.current;
+    if (!base || !accent) return;
+    gsap.killTweensOf([base, accent]);
+    gsap.to(base, { y: "-100%", duration: 0.2, ease: "power2.inOut" });
+    gsap.to(accent, { y: "-100%", duration: 0.2, ease: "power2.inOut" });
+  }, []);
+
+  const onLeave = useCallback(() => {
+    const base = baseRef.current;
+    const accent = accentRef.current;
+    if (!base || !accent) return;
+    gsap.killTweensOf([base, accent]);
+    gsap.to(base, { y: "0%", duration: 0.2, ease: "power2.inOut" });
+    gsap.to(accent, { y: "0%", duration: 0.2, ease: "power2.inOut" });
+  }, []);
+
+  return (
+    <li className="list-none">
+      <a
+        href={href}
+        onMouseEnter={onEnter}
+        onMouseLeave={onLeave}
+        className="relative flex items-center px-1 cursor-pointer select-none whitespace-nowrap"
+        style={{ textDecoration: "none" }}
+      >
+        <span
+          ref={clipRef}
+          aria-hidden="true"
+          style={{
+            display: "inline-flex",
+            flexDirection: "column",
+            overflow: "hidden",
+          }}
+        >
+          <span
+            ref={baseRef}
+            className="section-label"
+            style={{ flexShrink: 0 }}
+          >
+            {label}
+          </span>
+          <span
+            ref={accentRef}
+            className="section-label"
+            style={{ flexShrink: 0, color: "#C9A87C" }}
+          >
+            {label}
+          </span>
+        </span>
+        <span className="sr-only">{label}</span>
+      </a>
+    </li>
+  );
+}
+
 export default function Nav() {
   const navRef = useRef<HTMLElement>(null);
   const linksRef = useRef<HTMLUListElement>(null);
   const ctaRef = useRef<HTMLAnchorElement>(null);
   const statusRef = useRef<HTMLDivElement>(null);
-  // Mobile refs
   const mobilePillRef = useRef<HTMLDivElement>(null);
   const mobileLinksRef = useRef<HTMLDivElement>(null);
   const bar1Ref = useRef<HTMLSpanElement>(null);
@@ -67,15 +133,12 @@ export default function Nav() {
     const badge = statusRef.current;
     if (!nav || !links || !cta || !badge) return;
     if (window.innerWidth < 768) return;
-
-    // If pinned, don't collapse — user clicked badge to keep full nav open
     if (scrolled && pinned) return;
 
     gsap.killTweensOf([nav, links, cta, badge]);
     const fromW = nav.getBoundingClientRect().width;
 
     if (scrolled) {
-      // ── Collapse to compact badge ────────────────────────────────────────
       links.style.display = "none";
       cta.style.display = "none";
       badge.style.display = "flex";
@@ -110,7 +173,6 @@ export default function Nav() {
           );
         },
       });
-      // left + xPercent keep the pill centred as width shrinks
       gsap.to(nav, {
         width: targetW,
         left: "50%",
@@ -119,7 +181,6 @@ export default function Nav() {
         ease: "power3.inOut",
       });
     } else {
-      // ── Expand back to full nav ──────────────────────────────────────────
       badge.style.display = "none";
       links.style.display = "flex";
       links.style.visibility = "hidden";
@@ -153,7 +214,6 @@ export default function Nav() {
           );
         },
       });
-      // left + xPercent keep the pill centred as width grows back
       gsap.to(nav, {
         width: targetW,
         left: "50%",
@@ -164,7 +224,6 @@ export default function Nav() {
     }
   }, [scrolled, pinned]);
 
-  // ── Badge click: pin full nav open while scrolled ─────────────────────────
   const handleBadgeClick = useCallback(() => {
     const nav = navRef.current;
     const links = linksRef.current;
@@ -324,17 +383,10 @@ export default function Nav() {
         </a>
         <ul ref={linksRef} className="flex items-center gap-5 shrink-0">
           {NAV_LINKS.map((link) => (
-            <li key={link.label}>
-              <a
-                href={link.href}
-                className="section-label hover:text-ink transition-colors duration-300 relative group whitespace-nowrap"
-              >
-                {link.label}
-                <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-accent group-hover:w-full transition-all duration-300" />
-              </a>
-            </li>
+            <NavLink key={link.label} href={link.href} label={link.label} />
           ))}
         </ul>
+
         <div
           ref={statusRef}
           className="hidden items-center gap-2 shrink-0 cursor-pointer select-none px-2 py-1 rounded-full transition-all duration-200 hover:bg-ink/8 active:scale-95"
@@ -366,6 +418,7 @@ export default function Nav() {
             />
           </svg>
         </div>
+
         <a
           ref={ctaRef}
           href="/resume.pdf"
