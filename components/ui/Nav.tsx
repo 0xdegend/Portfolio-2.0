@@ -421,7 +421,7 @@ export default function Nav() {
 
         <a
           ref={ctaRef}
-          href="/resume.pdf"
+          href="/Olagboye Seyi (0xdegend) Frontend Engineer Resume.pdf"
           target="_blank"
           className="inline-flex items-center gap-2 border rounded-2xl border-ink px-5 py-2
             text-xs tracking-widest uppercase font-mono shrink-0 whitespace-nowrap
@@ -514,7 +514,7 @@ export default function Nav() {
               ))}
             </ul>
             <a
-              href="/resume.pdf"
+              href="/Olagboye Seyi (0xdegend) Frontend Engineer Resume.pdf"
               target="_blank"
               onClick={handleLinkClick}
               className="mobile-cta mt-2 flex items-center justify-center gap-2 border border-ink rounded-xl px-5 py-2.5
