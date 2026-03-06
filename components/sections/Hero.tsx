@@ -291,7 +291,7 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
             duration: 0.85,
             ease: "power3.out",
           },
-          "-=0.35",
+          "-=0.9",
         )
         .fromTo(
           metaRef.current,
@@ -309,7 +309,7 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
           ".marquee-strip",
           { opacity: 0, y: 10 },
           { opacity: 1, y: 0, duration: 0.7 },
-          "-=0.5",
+          "-=0.8",
         );
 
       split.chars.forEach((char) => {

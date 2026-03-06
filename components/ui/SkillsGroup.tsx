@@ -144,10 +144,8 @@ export function SkillGroup({
 
       <div className="relative">
         {group.skills.map((skill, si) => {
-          // Absolute index of this skill in the flat all-skills list
           const absIndex = skillOffset + si;
-          // Scroll-driven active: this row is lit when its absolute index
-          // matches the current scroll position's skill index
+
           const scrollActive = activeSkillIndex === absIndex;
           return (
             <SkillRow
