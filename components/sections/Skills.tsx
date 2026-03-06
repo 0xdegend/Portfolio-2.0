@@ -199,7 +199,7 @@ export default function Skills({ onSceneReady }: SkillsProps) {
           />
         </div>
 
-        <div className="flex flex-col md:flex-row md:items-end gap-8 justify-between mb-20">
+        <div className="flex flex-col md:flex-row md:items-end gap-8 justify-between lg:mb-20 mb-6">
           <h2
             ref={headingRef}
             className="font-display text-5xl md:text-6xl font-light text-cream leading-tight"
@@ -223,8 +223,7 @@ export default function Skills({ onSceneReady }: SkillsProps) {
               <div
                 key={group.category}
                 data-skill-group={gi}
-                className="flex flex-col justify-center py-10"
-                style={{ minHeight: PER_GROUP_PX }}
+                className={`flex flex-col justify-center py-10 lg:min-h-${PER_GROUP_PX} min-h-${PER_GROUP_PX - 30}`}
               >
                 <SkillGroup
                   group={group}

@@ -69,7 +69,9 @@ export default function Projects() {
         initImageRef={initImageRef}
       />
       <div className="flex items-center gap-6 mb-20">
-        <span className="projects-header-label section-label">02 — Work</span>
+        <span className="projects-header-label section-label">
+          02 — Projects
+        </span>
         <div className="flex-1 rule-accent" />
       </div>
 

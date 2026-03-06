@@ -33,8 +33,6 @@ export default function About() {
   useGSAP(
     () => {
       const total = SLIDES.length;
-
-      // ─── Utility ─────────────────────────────────────────────────────────
       const swapText = (el: HTMLElement | null, text: string) => {
         if (!el) return;
         gsap.to(el, {

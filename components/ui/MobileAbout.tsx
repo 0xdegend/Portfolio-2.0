@@ -253,11 +253,9 @@ export default function MobileAbout() {
           ))}
         </div>
       </div>
-
-      {/* ── Sticky gallery — only this part pins ─────────────────────────── */}
       <div
         ref={mTrackRef}
-        style={{ height: `calc(${(SLIDES.length - 1) * 70}vh + 100svh)` }}
+        style={{ height: `calc(${(SLIDES.length - 1) * 70}vh + 75svh)` }}
         className="relative"
       >
         <div
