@@ -438,7 +438,7 @@ export default function Contact() {
         >
           <ParticleTextScene
             text="0xdegend"
-            particleCount={700}
+            particleCount={900}
             color="#C9A87C"
             accentColor="#FFE4B0"
             className="w-full h-full"
