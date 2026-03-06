@@ -38,11 +38,15 @@ export function SkillGroup({
   groupIndex,
   activeTerminal,
   onGroupHover,
+  activeSkillIndex = -1,
+  skillOffset = 0,
 }: {
   group: (typeof skillGroups)[number];
   groupIndex: number;
   activeTerminal: number;
   onGroupHover: (i: number | null) => void;
+  activeSkillIndex?: number;
+  skillOffset?: number;
 }) {
   const groupRef = useRef<HTMLDivElement>(null);
   const catNumRef = useRef<HTMLSpanElement>(null);
@@ -139,15 +143,23 @@ export function SkillGroup({
       </div>
 
       <div className="relative">
-        {group.skills.map((skill, si) => (
-          <SkillRow
-            key={skill.name}
-            skill={skill}
-            rowIndex={si}
-            activeSkill={activeSkill}
-            onHoverChange={handleHover}
-          />
-        ))}
+        {group.skills.map((skill, si) => {
+          // Absolute index of this skill in the flat all-skills list
+          const absIndex = skillOffset + si;
+          // Scroll-driven active: this row is lit when its absolute index
+          // matches the current scroll position's skill index
+          const scrollActive = activeSkillIndex === absIndex;
+          return (
+            <SkillRow
+              key={skill.name}
+              skill={skill}
+              rowIndex={si}
+              activeSkill={activeSkill}
+              onHoverChange={handleHover}
+              scrollActive={scrollActive}
+            />
+          );
+        })}
         <div className="border-t border-white/6" />
       </div>
     </div>

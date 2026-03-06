@@ -35,20 +35,16 @@ function useScramble(target: string, running: boolean) {
       cancelAnimationFrame(raf.current);
       raf.current = null;
     }
-
     if (!running) {
       const id = requestAnimationFrame(() => setDisplay(target));
       return () => cancelAnimationFrame(id);
     }
-
     frame.current = 0;
     const totalFrames = 18;
-
     const step = () => {
       frame.current++;
       const progress = frame.current / totalFrames;
       const resolved = Math.floor(progress * target.length);
-
       setDisplay(
         target
           .split("")
@@ -61,7 +57,6 @@ function useScramble(target: string, running: boolean) {
           })
           .join(""),
       );
-
       if (frame.current < totalFrames) {
         raf.current = requestAnimationFrame(step);
       } else {
@@ -69,7 +64,6 @@ function useScramble(target: string, running: boolean) {
         raf.current = null;
       }
     };
-
     raf.current = requestAnimationFrame(step);
     return () => {
       if (raf.current) {
@@ -87,11 +81,13 @@ export function SkillRow({
   rowIndex,
   activeSkill,
   onHoverChange,
+  scrollActive = false,
 }: {
   skill: { name: string };
   rowIndex: number;
   activeSkill: string | null;
   onHoverChange: (n: string | null) => void;
+  scrollActive?: boolean;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const rowRef = useRef<HTMLDivElement>(null);
@@ -100,10 +96,67 @@ export function SkillRow({
   const codeRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
+  const scrollTlRef = useRef<gsap.core.Timeline | null>(null);
   const [hovered, setHovered] = useState(false);
 
-  const scrambled = useScramble(skill.name, hovered);
+  const scrambled = useScramble(skill.name, hovered || scrollActive);
   const preview = SKILL_PREVIEWS[skill.name] ?? `// ${skill.name}`;
+  useEffect(() => {
+    scrollTlRef.current?.kill();
+    if (scrollActive && !hovered) {
+      const tl = gsap.timeline();
+      tl.fromTo(
+        bdrRef.current,
+        { scaleY: 0, opacity: 0 },
+        {
+          scaleY: 1,
+          opacity: 1,
+          duration: 0.38,
+          ease: "expo.out",
+          transformOrigin: "top",
+        },
+        0,
+      );
+      tl.fromTo(
+        glowRef.current,
+        { opacity: 0 },
+        { opacity: 0.65, duration: 0.3, ease: "power2.out" },
+        0,
+      );
+      tl.fromTo(
+        progressRef.current,
+        { scaleX: 0, opacity: 1 },
+        {
+          scaleX: 1,
+          duration: 0.85,
+          ease: "power2.inOut",
+          transformOrigin: "left",
+        },
+        0,
+      );
+      scrollTlRef.current = tl;
+    } else if (!hovered) {
+      const tl = gsap.timeline();
+      tl.to(
+        bdrRef.current,
+        {
+          scaleY: 0,
+          opacity: 0,
+          duration: 0.22,
+          ease: "power2.in",
+          transformOrigin: "bottom",
+        },
+        0,
+      );
+      tl.to(glowRef.current, { opacity: 0, duration: 0.18 }, 0);
+      tl.to(
+        progressRef.current,
+        { scaleX: 0, opacity: 0, duration: 0.15, transformOrigin: "right" },
+        0,
+      );
+      scrollTlRef.current = tl;
+    }
+  }, [scrollActive, hovered]);
   useGSAP(
     () => {
       gsap.fromTo(
@@ -126,10 +179,10 @@ export function SkillRow({
     },
     { scope: wrapRef },
   );
-
   const handleEnter = useCallback(() => {
     onHoverChange(skill.name);
     setHovered(true);
+    scrollTlRef.current?.kill();
 
     tlRef.current?.kill();
     const tl = gsap.timeline();
@@ -166,7 +219,6 @@ export function SkillRow({
       { y: 0, opacity: 1, duration: 0.35, ease: "expo.out" },
       0.15,
     );
-
     tlRef.current = tl;
   }, [skill.name, onHoverChange]);
 
@@ -176,7 +228,6 @@ export function SkillRow({
 
     tlRef.current?.kill();
     const tl = gsap.timeline();
-
     tl.to(
       rowRef.current,
       { height: ROW_CLOSED, duration: 0.38, ease: "power3.inOut" },
@@ -190,19 +241,19 @@ export function SkillRow({
     tl.to(glowRef.current, { opacity: 0, duration: 0.22 }, 0);
     tl.to(progressRef.current, { opacity: 0, duration: 0.2 }, 0);
     tl.to(codeRef.current, { y: 6, opacity: 0, duration: 0.2 }, 0);
-
     tlRef.current = tl;
   }, [onHoverChange]);
 
   const dimmed = activeSkill !== null && activeSkill !== skill.name;
   const isActive = activeSkill === skill.name;
+  const isLit = isActive || scrollActive;
 
   return (
     <div
       ref={wrapRef}
       style={{
         clipPath: "inset(0 0 100% 0)",
-        opacity: dimmed ? 0.45 : 1,
+        opacity: dimmed ? 0.35 : 1,
         transition: "opacity 0.25s ease",
       }}
     >
@@ -215,19 +266,26 @@ export function SkillRow({
       >
         <div
           ref={bdrRef}
-          className="absolute left-0 top-0 w-0.5 h-full opacity-0"
+          className="absolute left-0 top-0 w-0.5 h-full"
           style={{
             background: `linear-gradient(180deg, ${ACCENT}, ${ACCENT}30)`,
+            opacity: 0,
+            transform: "scaleY(0)",
+            transformOrigin: "top",
           }}
         />
+
         <div
           ref={progressRef}
-          className="absolute bottom-0 left-0 h-px w-full opacity-0"
+          className="absolute bottom-0 left-0 h-px w-full"
           style={{
             background: `linear-gradient(90deg, ${ACCENT}90, ${ACCENT}20, transparent)`,
             transformOrigin: "left",
+            opacity: 0,
+            transform: "scaleX(0)",
           }}
         />
+
         <div
           ref={glowRef}
           className="absolute inset-0 opacity-0 pointer-events-none"
@@ -235,6 +293,7 @@ export function SkillRow({
             background: `radial-gradient(ellipse 65% 100% at 0% 50%, ${ACCENT}22, transparent 70%)`,
           }}
         />
+
         {(
           [
             "top-1.5 left-1.5 border-t border-l",
@@ -246,44 +305,42 @@ export function SkillRow({
           <div
             key={i}
             className={`absolute w-2 h-2 pointer-events-none transition-opacity duration-300 ${cls}`}
-            style={{ borderColor: `${ACCENT}70`, opacity: isActive ? 1 : 0 }}
+            style={{ borderColor: `${ACCENT}70`, opacity: isLit ? 1 : 0 }}
           />
         ))}
+
         <div className="relative z-10 flex items-center gap-5 w-full pt-3.5 pb-2 pl-5 pr-4">
           <span
             className="font-mono text-[0.58rem] tracking-[0.22em] shrink-0 tabular-nums"
-            style={{
-              color: isActive ? ACCENT : `${ACCENT}`,
-              transition: "color 0.25s",
-              minWidth: 22,
-            }}
+            style={{ color: ACCENT, transition: "color 0.25s", minWidth: 22 }}
           >
             {String(rowIndex + 1).padStart(2, "0")}
           </span>
           <span
-            className=" font-display text-base md:text-lg font-light flex-1 tracking-wide"
+            className="font-display text-base md:text-lg font-light flex-1 tracking-wide"
             style={{
-              color: isActive ? "#1c1b1b" : "#000000",
-              letterSpacing: isActive ? "0.06em" : "0.02em",
+              color: isLit ? "#1c1b1b" : "#000000",
+              letterSpacing: isLit ? "0.06em" : "0.02em",
               transition: "color 0.25s, letter-spacing 0.4s",
               fontVariantNumeric: "tabular-nums",
             }}
           >
             {scrambled}
           </span>
+
           <div
             className="shrink-0 w-1 h-1 rounded-full transition-all duration-300"
             style={{
               background: ACCENT,
-              opacity: isActive ? 1 : 0,
-              boxShadow: isActive ? `0 0 6px ${ACCENT}` : "none",
+              opacity: isLit ? 1 : 0,
+              boxShadow: isLit ? `0 0 6px ${ACCENT}` : "none",
             }}
           />
         </div>
         <div
           ref={codeRef}
           className="absolute bottom-0 left-0 right-0 opacity-0 px-5 pb-2.5 flex items-center gap-3"
-          style={{ y: 8 } as React.CSSProperties}
+          style={{ transform: "translateY(8px)" }}
         >
           <span
             className="font-mono text-[0.6rem] shrink-0"

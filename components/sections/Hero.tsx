@@ -92,6 +92,28 @@ const ROLES = [
   "AI & Blockchain Engineer",
 ];
 
+const QUOTES = [
+  { text: "The details make the design.", author: "Tobias van Schneider" },
+  {
+    text: "Performance is part of the design.",
+    author: "Addy Osmani · Google",
+  },
+  { text: "Make it work, make it right, make it fast.", author: "Kent Beck" },
+  { text: "The best interface is no interface.", author: "Golden Krishna" },
+  {
+    text: "Good design is as little design as possible.",
+    author: "Dieter Rams",
+  },
+  {
+    text: "Simplicity is the ultimate sophistication.",
+    author: "Leonardo da Vinci",
+  },
+  {
+    text: "Design is the silent ambassador of your brand.",
+    author: "Paul Rand",
+  },
+];
+
 export default function Hero({ onSceneReady, ready = false }: HeroProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const subRef = useRef<HTMLParagraphElement>(null);
@@ -100,14 +122,16 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
   const canvasWrapRef = useRef<HTMLDivElement>(null);
   const h1Ref = useRef<HTMLHeadingElement>(null);
   const roleRef = useRef<HTMLSpanElement>(null);
+  const quoteTextRef = useRef<HTMLSpanElement>(null);
+  const quoteAuthorRef = useRef<HTMLSpanElement>(null);
   const counterRef = useRef<HTMLSpanElement>(null);
   const marqueeRef = useRef<HTMLDivElement>(null);
   const viewWorkRef = useMagnetic(0.5, 100);
   const contactRef = useMagnetic(0.5, 100);
   const scramble = useScramble();
   const [roleIdx, setRoleIdx] = useState(0);
+  const [quoteIdx, setQuoteIdx] = useState(0);
 
-  // Parallax on mouse — fine to run always, it only moves an element that's hidden
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
       const nx = (e.clientX / window.innerWidth - 0.5) * 2;
@@ -125,7 +149,6 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
     return () => window.removeEventListener("mousemove", onMove);
   }, []);
 
-  // Role scramble — only start after preloader is done
   useEffect(() => {
     if (!ready) return;
     const id = setInterval(() => {
@@ -140,7 +163,37 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
     return () => clearInterval(id);
   }, [ready, scramble]);
 
-  // Year counter — only start after preloader is done
+  // Quote card-flip rotation
+  useEffect(() => {
+    if (!ready) return;
+    const id = setInterval(() => {
+      const textEl = quoteTextRef.current;
+      const authorEl = quoteAuthorRef.current;
+      if (!textEl || !authorEl) return;
+      gsap.to([textEl, authorEl], {
+        y: -12,
+        opacity: 0,
+        duration: 0.35,
+        ease: "power2.in",
+        onComplete: () => {
+          setQuoteIdx((prev) => (prev + 1) % QUOTES.length);
+          gsap.fromTo(
+            [textEl, authorEl],
+            { y: 14, opacity: 0 },
+            {
+              y: 0,
+              opacity: 1,
+              duration: 0.45,
+              ease: "expo.out",
+              stagger: 0.07,
+            },
+          );
+        },
+      });
+    }, 4800);
+    return () => clearInterval(id);
+  }, [ready]);
+
   useEffect(() => {
     if (!ready) return;
     const el = counterRef.current;
@@ -150,7 +203,7 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
     gsap.to(obj, {
       val: year,
       duration: 2.4,
-      delay: 0.2, // small offset after reveal, was 1.6 (preloader covered that wait)
+      delay: 0.2,
       ease: "power2.out",
       onUpdate: () => {
         el.textContent = String(Math.round(obj.val));
@@ -158,7 +211,6 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
     });
   }, [ready]);
 
-  // Marquee — only start after preloader is done
   useEffect(() => {
     if (!ready) return;
     const el = marqueeRef.current;
@@ -166,10 +218,9 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
     gsap.to(el, { x: "-50%", duration: 22, ease: "none", repeat: -1 });
   }, [ready]);
 
-  // Main entrance timeline — gated on ready
   useGSAP(
     () => {
-      if (!ready) return; // ← gate: do nothing until preloader completes
+      if (!ready) return;
 
       const h1 = h1Ref.current;
       if (!h1) return;
@@ -284,7 +335,7 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
 
       return () => split.revert();
     },
-    { scope: containerRef, dependencies: [ready] }, // ← re-runs when ready flips to true
+    { scope: containerRef, dependencies: [ready] },
   );
 
   return (
@@ -296,7 +347,7 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
       <div
         className="
           absolute 
-          top-1/2 -translate-y-1/2 -right-25
+          top-1/2 -translate-y-1/2 -right-26
           w-[60%] h-[60%]
           lg:right-2
           md:top-23 md:translate-y-0 md:w-[55%] md:h-[64%] z-9999"
@@ -314,7 +365,6 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
       <div className="hidden md:block absolute top-0 left-0 w-[45%] h-full bg-linear-to-r from-cream via-cream/60 to-transparent z-10" />
       <div className="md:hidden absolute top-0 right-0 w-[20%] h-full bg-linear-to-l from-cream/30 to-transparent z-6 pointer-events-none" />
 
-      {/* Badge — starts hidden via opacity-0 class, GSAP animates it in */}
       <div className="hero-badge opacity-0 absolute lg:top-8 top-20 left-6 md:left-16 z-30 flex items-center gap-2.5">
         <span className="font-mono text-[0.6rem] text-stone/40 tracking-[0.25em] uppercase">
           ©<span ref={counterRef}>{new Date().getFullYear() - 7}</span>
@@ -346,13 +396,24 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
         </h1>
 
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 md:gap-6 border-t border-muted pt-5 md:pt-6">
-          <p
+          <div
             ref={subRef}
-            className="text-stone font-light text-sm md:text-lg max-w-[60%] md:max-w-sm leading-relaxed pointer-events-none opacity-0"
+            className="pointer-events-none opacity-0"
+            style={{ minWidth: 0 }}
           >
-            Developer focused on AI & Blockchain crafting clean interfaces with
-            minimalist design, clear typography, and purposeful motion.
-          </p>
+            <span
+              ref={quoteTextRef}
+              className="block text-stone font-light lg:text-lg  text-xs leading-snug whitespace-nowrap overflow-hidden text-ellipsis italic"
+            >
+              &ldquo;{QUOTES[quoteIdx].text}&rdquo;
+            </span>
+            <span
+              ref={quoteAuthorRef}
+              className="block mt-1.5 lg:text-[0.6rem] text-[0.5rem] tracking-widest opacity-40 font-mono uppercase whitespace-nowrap"
+            >
+              — {QUOTES[quoteIdx].author}
+            </span>
+          </div>
 
           <div
             ref={metaRef}
