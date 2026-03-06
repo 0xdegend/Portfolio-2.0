@@ -92,8 +92,6 @@ export function ProjectRow({
     },
     [expanded],
   );
-
-  // ── Scroll-in entrance ────────────────────────────────────────────────────
   useGSAP(
     () => {
       const row = rowRef.current;

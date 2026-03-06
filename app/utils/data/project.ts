@@ -1,7 +1,7 @@
 export const projects = [
   {
     number: "01",
-    title: "Design System",
+    title: "Fluxa Finance",
     category: "Frontend Engineering",
     year: "2024",
     description:
