@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-
+import { Analytics } from "@vercel/analytics/next";
 const BASE_URL = "https://0xdegend-portfolio.vercel.app/";
 
 export const metadata: Metadata = {
@@ -130,6 +130,7 @@ export default function RootLayout({
           }}
         />
       </head>
+      <Analytics />
       <body className="bg-cream text-ink font-body antialiased">
         {children}
       </body>
