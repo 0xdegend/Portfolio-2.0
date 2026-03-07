@@ -314,7 +314,6 @@ export default function About() {
                       fill
                       className="object-cover"
                       priority={i === 0}
-                      loading="lazy"
                     />
                     <div className="absolute inset-0 bg-linear-to-t from-ink/75 via-ink/5 to-transparent" />
                     <div className="absolute inset-0 bg-linear-to-b from-ink/25 via-transparent to-transparent" />
