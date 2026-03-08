@@ -1,8 +1,22 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
-import FontLoader from "@/components/ui/FontLoader";
+import { Space_Grotesk, Space_Mono } from "next/font/google";
 
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+const spaceMono = Space_Mono({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-mono",
+  display: "swap",
+});
 const BASE_URL = "https://0xdegend-portfolio.vercel.app/";
 
 export const metadata: Metadata = {
@@ -86,7 +100,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className={`${spaceGrotesk.variable} ${spaceMono.variable}`}
+    >
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -94,8 +111,6 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
-
-        <FontLoader />
 
         <script
           type="application/ld+json"
