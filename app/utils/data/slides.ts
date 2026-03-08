@@ -7,7 +7,7 @@ export const SLIDES = [
     accent: "My PFP on X",
   },
   {
-    src: "/images/qatar-visit.JPG",
+    src: "/images/qatar-visit.jpg",
     caption: "When I am not coding",
     tag: "02 — Free Time",
     year: "2025",
