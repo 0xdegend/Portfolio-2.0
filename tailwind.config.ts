@@ -9,9 +9,9 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        display: ["'Cormorant Garamond'", "serif"],
-        body: ["'DM Sans'", "sans-serif"],
-        mono: ["'DM Mono'", "monospace"],
+        display: ["Space Grotesk", "system-ui", "sans-serif"],
+        body: ["Space Grotesk", "system-ui", "sans-serif"],
+        mono: ["Space Mono", "ui-monospace", "monospace"],
       },
       colors: {
         cream: "#F5F2EE",

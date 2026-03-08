@@ -38,30 +38,13 @@ export default function Home() {
         />
       )}
 
-      {/*
-        KEY LCP FIX — opacity + pointer-events instead of visibility:hidden.
-
-        visibility:hidden removes elements from the accessibility tree and
-        makes them completely unmeasurable by Lighthouse. LCP sees nothing
-        and scores 0 until the preloader finishes — which is 3-5 seconds.
-
-        opacity:0 + pointer-events:none is invisible to users (preloader
-        sits on top via z-index) but Lighthouse CAN paint and measure the
-        elements underneath. The h1 in Hero gets measured for LCP immediately
-        on first paint, even though the user can't see it yet.
-
-        pointer-events:none prevents any accidental clicks/interactions
-        reaching the hidden content while the preloader is active.
-        scroll is also locked via overflow:hidden on the wrapper below.
-      */}
       <div
         style={{
           opacity: ready ? 1 : 0,
           pointerEvents: ready ? "auto" : "none",
-          // Lock scroll while preloader is showing — prevents the user
-          // scrolling into un-animated sections before ready
+
           overflow: ready ? "visible" : "hidden",
-          // Smooth fade-in of the whole page when preloader completes
+
           transition: ready ? "opacity 0.4s ease" : "none",
         }}
       >

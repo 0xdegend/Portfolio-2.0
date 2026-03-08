@@ -264,7 +264,7 @@ export default function About() {
 
               <h2
                 ref={h2Ref}
-                className="font-display font-light leading-[0.88] tracking-tight text-ink mb-6"
+                className="font-display font-light leading-none tracking-tight text-ink mb-6"
                 style={{ fontSize: "clamp(3rem, 5.5vw, 6rem)" }}
               >
                 About
