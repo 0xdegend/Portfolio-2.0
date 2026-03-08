@@ -1,10 +1,12 @@
-/**
- * Default Next.js config for Turbopack
- * Remove custom webpack config to enable Turbopack
- */
-const nextConfig = {
-  // Add any config options here
-  // turbopack: {} // Optionally, add this to silence errors
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  experimental: {
+    optimizeCss: true,
+  },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production",
+  },
 };
 
 export default nextConfig;

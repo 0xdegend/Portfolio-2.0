@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFrame, useThree, invalidate } from "@react-three/fiber";
 import { gsap } from "gsap";
 import {
@@ -60,6 +60,38 @@ $ git push origin main
 
 const CENTER_POSITION: [number, number, number] = [0, 0, 0];
 const CENTER_ROTATION: [number, number, number] = [0, 0, 0];
+function PostFX() {
+  const { gl } = useThree();
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (!gl) return;
+    const raf = requestAnimationFrame(() => setReady(true));
+    return () => {
+      cancelAnimationFrame(raf);
+      setReady(false);
+    };
+  }, [gl]);
+
+  if (!ready) return null;
+
+  return (
+    <EffectComposer>
+      <Bloom
+        luminanceThreshold={0.22}
+        luminanceSmoothing={0.9}
+        intensity={1.0}
+        mipmapBlur
+      />
+      <ChromaticAberration
+        offset={new THREE.Vector2(0.0016, 0.0016)}
+        radialModulation={false}
+        modulationOffset={0}
+      />
+      <Vignette eskil={false} offset={0.38} darkness={0.72} />
+    </EffectComposer>
+  );
+}
 
 export function SceneContent({ activeTerminal }: { activeTerminal: number }) {
   const { camera } = useThree();
@@ -119,6 +151,7 @@ export function SceneContent({ activeTerminal }: { activeTerminal: number }) {
         position={[0, 2, 3]}
         distance={8}
       />
+
       <TerminalPlane
         key={activeTerminal}
         position={CENTER_POSITION}
@@ -138,21 +171,7 @@ export function SceneContent({ activeTerminal }: { activeTerminal: number }) {
           opacity={0.65}
         />
       </mesh>
-
-      <EffectComposer>
-        <Bloom
-          luminanceThreshold={0.22}
-          luminanceSmoothing={0.9}
-          intensity={1.0}
-          mipmapBlur
-        />
-        <ChromaticAberration
-          offset={new THREE.Vector2(0.0016, 0.0016)}
-          radialModulation={false}
-          modulationOffset={0}
-        />
-        <Vignette eskil={false} offset={0.38} darkness={0.72} />
-      </EffectComposer>
+      <PostFX />
     </>
   );
 }

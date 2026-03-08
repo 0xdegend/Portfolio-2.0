@@ -47,10 +47,8 @@ export default function MobileAbout() {
           },
         });
       };
-
       if (h2Ref.current) {
         const split = new SplitText(h2Ref.current, { type: "chars" });
-        gsap.set(split.chars, { opacity: 0, y: 35, rotation: -6 });
         gsap.fromTo(
           split.chars,
           { opacity: 0, y: 35, rotation: -6 },
@@ -74,7 +72,7 @@ export default function MobileAbout() {
       const bodyEls =
         wrapRef.current?.querySelectorAll<HTMLElement>(".m-about-body");
       if (bodyEls?.length) {
-        gsap.set(bodyEls, { opacity: 0, y: 22 });
+        gsap.set(bodyEls, { y: 22 });
         gsap.fromTo(
           bodyEls,
           { opacity: 0, y: 22 },
@@ -92,11 +90,12 @@ export default function MobileAbout() {
           },
         );
       }
+
       const pillEls =
         wrapRef.current?.querySelectorAll<HTMLElement>(".m-trait-pill");
       const traitsRow = wrapRef.current?.querySelector(".m-traits-row");
       if (pillEls?.length) {
-        gsap.set(pillEls, { opacity: 0, scale: 0.82 });
+        gsap.set(pillEls, { scale: 0.82 });
         gsap.fromTo(
           pillEls,
           { opacity: 0, scale: 0.82 },
@@ -119,7 +118,7 @@ export default function MobileAbout() {
         wrapRef.current?.querySelectorAll<HTMLElement>(".m-stat-item");
       const statsRow = wrapRef.current?.querySelector(".m-stats-row");
       if (statEls?.length) {
-        gsap.set(statEls, { opacity: 0, y: 14 });
+        gsap.set(statEls, { y: 14 });
         gsap.fromTo(
           statEls,
           { opacity: 0, y: 14 },
@@ -188,8 +187,6 @@ export default function MobileAbout() {
           );
         },
       });
-
-      gsap.set(mStickyRef.current, { opacity: 0, y: 24 });
       gsap.fromTo(
         mStickyRef.current,
         { opacity: 0, y: 24 },
@@ -218,6 +215,7 @@ export default function MobileAbout() {
           <span className="section-label">01 — About</span>
           <div className="flex-1 rule-accent" />
         </div>
+
         <h2
           ref={h2Ref}
           className="font-display font-light leading-[0.88] tracking-tight text-ink"
@@ -227,16 +225,23 @@ export default function MobileAbout() {
           <br />
           <em className="text-stone">Me.</em>
         </h2>
-        <p className="m-about-body text-stone leading-relaxed font-light text-sm">
+        <p
+          className="m-about-body text-stone leading-relaxed font-light text-sm"
+          style={{ opacity: 0 }}
+        >
           I&apos;m a Frontend Engineer with a strong interest in AI, focused on
           creating clean, thoughtful interfaces. I care about minimalist design,
           clear typography, and intuitive animations that enhance the user
           experience.
         </p>
-        <p className="m-about-body text-stone leading-relaxed font-light text-sm">
+        <p
+          className="m-about-body text-stone leading-relaxed font-light text-sm"
+          style={{ opacity: 0 }}
+        >
           Currently open to new opportunities — full-time roles, long-term
           contracts, or exciting side projects worth building together.
         </p>
+
         <div className="m-traits-row flex flex-wrap gap-2">
           {TRAITS.map((t) => (
             <TraitPill key={t} label={t} className="m-trait-pill" />
@@ -253,6 +258,7 @@ export default function MobileAbout() {
           ))}
         </div>
       </div>
+
       <div
         ref={mTrackRef}
         style={{ height: `calc(${(SLIDES.length - 1) * 70}vh + 75svh)` }}
@@ -261,6 +267,7 @@ export default function MobileAbout() {
         <div
           ref={mStickyRef}
           className="sticky top-0 h-svh w-full flex flex-col px-6 py-8 gap-4"
+          style={{ opacity: 0 }}
         >
           <div className="flex items-center justify-between shrink-0">
             <span className="section-label text-stone/40">Gallery</span>

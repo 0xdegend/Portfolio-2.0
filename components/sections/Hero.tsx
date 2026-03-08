@@ -17,49 +17,6 @@ const HeroScene = dynamic(() => import("@/components/canvas/HeroScene"), {
   loading: () => <div className="w-full h-full" />,
 });
 
-function useMagnetic(strength = 0.45, radius = 90) {
-  const ref = useRef<HTMLAnchorElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const onMove = (e: MouseEvent) => {
-      const rect = el.getBoundingClientRect();
-      const dx = e.clientX - (rect.left + rect.width / 2);
-      const dy = e.clientY - (rect.top + rect.height / 2);
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < radius) {
-        gsap.to(el, {
-          x: dx * strength,
-          y: dy * strength,
-          duration: 0.4,
-          ease: "power2.out",
-        });
-      } else {
-        gsap.to(el, {
-          x: 0,
-          y: 0,
-          duration: 0.7,
-          ease: "elastic.out(1, 0.45)",
-        });
-      }
-    };
-
-    const onLeave = () =>
-      gsap.to(el, { x: 0, y: 0, duration: 0.8, ease: "elastic.out(1, 0.4)" });
-
-    window.addEventListener("mousemove", onMove);
-    el.addEventListener("mouseleave", onLeave);
-    return () => {
-      window.removeEventListener("mousemove", onMove);
-      el.removeEventListener("mouseleave", onLeave);
-    };
-  }, [strength, radius]);
-
-  return ref;
-}
-
 function useScramble() {
   const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#∆Ω≈";
   return useCallback((el: HTMLElement, target: string, duration = 750) => {
@@ -115,7 +72,7 @@ const QUOTES = [
 
 export default function Hero({ onSceneReady, ready = false }: HeroProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const subRef = useRef<HTMLParagraphElement>(null);
+  const subRef = useRef<HTMLDivElement>(null);
   const metaRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const canvasWrapRef = useRef<HTMLDivElement>(null);
@@ -125,10 +82,10 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
   const quoteAuthorRef = useRef<HTMLSpanElement>(null);
   const counterRef = useRef<HTMLSpanElement>(null);
   const marqueeRef = useRef<HTMLDivElement>(null);
+
   const scramble = useScramble();
   const [roleIdx, setRoleIdx] = useState(0);
   const [quoteIdx, setQuoteIdx] = useState(0);
-
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
       const nx = (e.clientX / window.innerWidth - 0.5) * 2;
@@ -145,7 +102,6 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
     window.addEventListener("mousemove", onMove);
     return () => window.removeEventListener("mousemove", onMove);
   }, []);
-
   useEffect(() => {
     if (!ready) return;
     const id = setInterval(() => {
@@ -159,7 +115,6 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
     }, 3200);
     return () => clearInterval(id);
   }, [ready, scramble]);
-
   useEffect(() => {
     if (!ready) return;
     const id = setInterval(() => {
@@ -189,7 +144,6 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
     }, 4800);
     return () => clearInterval(id);
   }, [ready]);
-
   useEffect(() => {
     if (!ready) return;
     const el = counterRef.current;
@@ -199,7 +153,7 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
     gsap.to(obj, {
       val: year,
       duration: 2.4,
-      delay: 0.2,
+      delay: 0.4,
       ease: "power2.out",
       onUpdate: () => {
         el.textContent = String(Math.round(obj.val));
@@ -213,16 +167,12 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
     if (!el) return;
     gsap.to(el, { x: "-50%", duration: 22, ease: "none", repeat: -1 });
   }, [ready]);
-
   useGSAP(
     () => {
       if (!ready) return;
-
       const h1 = h1Ref.current;
       if (!h1) return;
-
       const split = new SplitText(h1, { type: "chars,words" });
-
       const tl = gsap.timeline({ delay: 0.05 });
       tl.fromTo(
         split.chars,
@@ -328,7 +278,6 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
           });
         });
       });
-
       return () => split.revert();
     },
     { scope: containerRef, dependencies: [ready] },
@@ -342,7 +291,7 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
     >
       <div
         className="
-          absolute 
+          absolute
           top-1/2 -translate-y-1/2 -right-26
           w-[60%] h-[60%]
           lg:right-2
@@ -360,7 +309,6 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
       <div className="absolute bottom-0 left-0 right-0 h-52 bg-linear-to-t from-cream to-transparent z-10" />
       <div className="hidden md:block absolute top-0 left-0 w-[45%] h-full bg-linear-to-r from-cream via-cream/60 to-transparent z-10" />
       <div className="md:hidden absolute top-0 right-0 w-[20%] h-full bg-linear-to-l from-cream/30 to-transparent z-6 pointer-events-none" />
-
       <div className="hero-badge opacity-0 absolute lg:top-8 top-20 left-6 md:left-16 z-30 flex items-center gap-2.5">
         <span className="font-mono text-[0.6rem] text-stone/40 tracking-[0.25em] uppercase">
           ©<span ref={counterRef}>{new Date().getFullYear() - 7}</span>
@@ -370,7 +318,6 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
           Portfolio
         </span>
       </div>
-
       <div className="relative z-20 max-w-7xl lg:mt-0 mt-40 pb-12 md:pb-16">
         <div className="hero-role opacity-0 flex items-center gap-3 mb-4 md:mb-5 pointer-events-none">
           <span className="block w-6 h-px bg-[#c9a96e] shrink-0" />
@@ -390,7 +337,6 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
             experiences<span className="text-accent non-italic">.</span>
           </span>
         </h1>
-
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 md:gap-6 border-t border-muted pt-5 md:pt-6">
           <div
             ref={subRef}
@@ -399,7 +345,7 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
           >
             <span
               ref={quoteTextRef}
-              className="block text-stone font-light lg:text-lg  text-xs leading-snug whitespace-nowrap overflow-hidden text-ellipsis italic"
+              className="block text-stone font-light lg:text-lg text-xs leading-snug whitespace-nowrap overflow-hidden text-ellipsis italic"
             >
               &ldquo;{QUOTES[quoteIdx].text}&rdquo;
             </span>
@@ -410,7 +356,6 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
               — {QUOTES[quoteIdx].author}
             </span>
           </div>
-
           <div
             ref={metaRef}
             className="flex items-center gap-4 md:gap-6 pointer-events-auto opacity-0"
@@ -425,7 +370,6 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
               </span>
               <span className="relative z-10 w-6 md:w-8 h-px bg-current inline-block group-hover:w-12 md:group-hover:w-14 transition-all duration-500 group-hover:bg-cream" />
             </a>
-
             <a
               href="#contact"
               className="group inline-flex items-center gap-2 text-[0.62rem] md:text-[0.65rem] tracking-[0.22em] uppercase font-mono text-stone/70 hover:text-ink transition-colors duration-300"
@@ -437,7 +381,6 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
           </div>
         </div>
       </div>
-
       <div
         ref={scrollRef}
         className="hidden md:flex absolute bottom-20 right-16 z-20 flex-col items-center gap-3 pointer-events-none"
@@ -456,7 +399,6 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
           />
         </div>
       </div>
-
       <div className="marquee-strip opacity-0 absolute bottom-0 left-0 right-0 z-20 border-t border-muted/30 overflow-hidden pointer-events-none bg-cream/60 backdrop-blur-sm">
         <div className="flex whitespace-nowrap py-2.5">
           <div

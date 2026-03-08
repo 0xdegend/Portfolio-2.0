@@ -33,6 +33,7 @@ export default function About() {
   useGSAP(
     () => {
       const total = SLIDES.length;
+
       const swapText = (el: HTMLElement | null, text: string) => {
         if (!el) return;
         gsap.to(el, {
@@ -60,22 +61,18 @@ export default function About() {
       const statEls = Array.from(
         stickyRef.current?.querySelectorAll<HTMLElement>(".stat-item") ?? [],
       );
-
-      gsap.set(stickyRef.current, { opacity: 0, y: 24 });
-
       gsap.set(lineRef.current, { scaleY: 0, transformOrigin: "top center" });
-      gsap.set(bodyEls, { opacity: 0, y: 16 });
-      gsap.set(pillEls, { opacity: 0, scale: 0.82 });
-      gsap.set(statEls, { opacity: 0, y: 12 });
+      gsap.set(bodyEls, { y: 16 });
+      gsap.set(pillEls, { scale: 0.82 });
+      gsap.set(statEls, { y: 12 });
 
       const entranceTl = gsap.timeline({ paused: true });
-
-      entranceTl.to(
+      entranceTl.fromTo(
         stickyRef.current,
+        { opacity: 0, y: 24 },
         { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" },
         0,
       );
-
       entranceTl.fromTo(
         lineRef.current,
         { scaleY: 0 },
@@ -86,7 +83,7 @@ export default function About() {
       if (h2Ref.current) {
         const split = new SplitText(h2Ref.current, { type: "chars" });
 
-        gsap.set(split.chars, { opacity: 0, y: 35, rotation: -6 });
+        gsap.set(split.chars, { y: 35, rotation: -6 });
         entranceTl.fromTo(
           split.chars,
           { opacity: 0, y: 35, rotation: -6 },
@@ -100,7 +97,6 @@ export default function About() {
           },
           0.15,
         );
-
         entranceTl.call(() => split.revert(), [], ">");
       }
 
@@ -112,7 +108,6 @@ export default function About() {
           0.4,
         );
       }
-
       if (pillEls.length) {
         entranceTl.fromTo(
           pillEls,
@@ -127,7 +122,6 @@ export default function About() {
           0.6,
         );
       }
-
       if (statEls.length) {
         entranceTl.fromTo(
           statEls,
@@ -178,6 +172,7 @@ export default function About() {
         swapText(accentRef.current, SLIDES[next].accent);
         swapText(yearRef.current, SLIDES[next].year);
       };
+
       gsap.to(textColRef.current, {
         y: -45,
         ease: "none",
@@ -232,6 +227,7 @@ export default function About() {
         <div
           ref={stickyRef}
           className="sticky top-0 h-screen w-full flex flex-col overflow-hidden"
+          style={{ opacity: 0 }}
         >
           <div className="flex items-center gap-6 px-8 md:px-16 pt-10 pb-5 max-w-7xl mx-auto w-full shrink-0">
             <span className="section-label">01 — About</span>
@@ -265,6 +261,7 @@ export default function About() {
                   </span>
                 </div>
               </div>
+
               <h2
                 ref={h2Ref}
                 className="font-display font-light leading-[0.88] tracking-tight text-ink mb-6"
@@ -274,16 +271,24 @@ export default function About() {
                 <br />
                 <em className="text-stone">Me.</em>
               </h2>
-              <p className="about-body text-stone leading-relaxed mb-4 font-light text-sm md:text-base max-w-[36ch]">
-                I&apos;m a Frontend Engineer who obsesses over the craft clean
+
+              <p
+                className="about-body text-stone leading-relaxed mb-4 font-light text-sm md:text-base max-w-[36ch]"
+                style={{ opacity: 0 }}
+              >
+                I&apos;m a Frontend Engineer who obsesses over the craft — clean
                 layouts, sharp typography, and animations that guide rather than
                 distract. I am a big fan of AI, Blockchain, and thoughtful user
                 experience.
               </p>
-              <p className="about-body text-stone leading-relaxed mb-8 font-light text-sm md:text-base max-w-[36ch]">
-                Currently open to new opportunities full-time roles, long-term
+              <p
+                className="about-body text-stone leading-relaxed mb-8 font-light text-sm md:text-base max-w-[36ch]"
+                style={{ opacity: 0 }}
+              >
+                Currently open to new opportunities — full-time roles, long-term
                 contracts, or exciting side projects worth building together.
               </p>
+
               <div className="traits-row flex flex-wrap gap-2 mb-10">
                 {TRAITS.map((t) => (
                   <TraitPill key={t} label={t} />
@@ -296,7 +301,6 @@ export default function About() {
               </div>
             </div>
 
-            {/* Right — image gallery */}
             <div className="relative flex flex-col items-stretch py-2 min-h-0">
               <div className="relative flex-1 rounded-2xl overflow-hidden min-h-75">
                 {SLIDES.map((slide, i) => (

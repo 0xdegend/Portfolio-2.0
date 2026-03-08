@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
+import FontLoader from "@/components/ui/FontLoader";
+
 const BASE_URL = "https://0xdegend-portfolio.vercel.app/";
 
 export const metadata: Metadata = {
@@ -30,10 +32,7 @@ export const metadata: Metadata = {
   authors: [{ name: "Olagboye Seyi", url: BASE_URL }],
   creator: "Olagboye Seyi",
   publisher: "Olagboye Seyi",
-
-  alternates: {
-    canonical: "/",
-  },
+  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     url: BASE_URL,
@@ -53,8 +52,8 @@ export const metadata: Metadata = {
     locale: "en_US",
   },
   twitter: {
-    card: "summary_large_image", // big image preview
-    site: "@0xdegend", // ← your Twitter/X handle
+    card: "summary_large_image",
+    site: "@0xdegend",
     creator: "@0xdegend",
     title: "Olagboye Seyi (0xdegend) — Frontend Engineer & Creative Developer",
     description:
@@ -95,10 +94,9 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap"
-          rel="stylesheet"
-        />
+
+        <FontLoader />
+
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -130,9 +128,10 @@ export default function RootLayout({
           }}
         />
       </head>
-      <Analytics />
       <body className="bg-cream text-ink font-body antialiased">
         {children}
+        {/* Analytics must be inside <body>, not between </head> and <body> */}
+        <Analytics />
       </body>
     </html>
   );
