@@ -16,7 +16,6 @@ export default function HeroScene({ onReady }: HeroSceneProps) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(true);
 
-  // Pause render loop when scrolled completely off-screen
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;

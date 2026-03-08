@@ -253,14 +253,10 @@ export function TerminalPlane({
 }: TerminalPlaneProps) {
   const matRef = useRef<THREE.MeshStandardMaterial>(null!);
   const texRef = useRef<THREE.CanvasTexture | null>(null);
-  // ✅ These two were missing — caused "ctxRef is not defined" errors
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const engineRef = useRef<TypingEngine | null>(null);
   const activeRef = useRef(isActive);
   const emRef = useRef(0.08);
-
-  // ✅ Single useEffect for isActive — immediate redraw + activeRef sync
-  // (removed the old duplicate that only called invalidate())
   useEffect(() => {
     activeRef.current = isActive;
     const ctx = ctxRef.current;
@@ -284,23 +280,18 @@ export function TerminalPlane({
     canvas.width = TEX_W;
     canvas.height = TEX_H;
     const ctx = canvas.getContext("2d")!;
-    // ✅ Store ctx so the isActive effect can use it
     ctxRef.current = ctx;
-
     const tex = new THREE.CanvasTexture(canvas);
     tex.minFilter = THREE.LinearFilter;
     tex.magFilter = THREE.LinearFilter;
     texRef.current = tex;
-
     if (matRef.current) {
       matRef.current.map = tex;
       matRef.current.emissiveMap = tex;
       matRef.current.needsUpdate = true;
     }
-
     drawTerminal(ctx, TEX_W, TEX_H, "", true, false);
     tex.needsUpdate = true;
-
     const engine = new TypingEngine(codeText, () => {
       drawTerminal(
         ctx,
@@ -313,7 +304,6 @@ export function TerminalPlane({
       if (texRef.current) texRef.current.needsUpdate = true;
       invalidate();
     });
-    // ✅ Store engine so the isActive effect can call getVisible() / isCursorVisible()
     engineRef.current = engine;
     engine.start(startDelay);
 

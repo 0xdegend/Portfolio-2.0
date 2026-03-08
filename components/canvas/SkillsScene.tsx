@@ -98,11 +98,19 @@ export function SceneContent({ activeTerminal }: { activeTerminal: number }) {
   const mouseRef = useRef({ x: 0, y: 0 });
   const timeRef = useRef(0);
   const camRef = useRef({ x: 0, y: 0, z: 5 });
+  const sizeRef = useRef({ w: window.innerWidth, h: window.innerHeight });
+  useEffect(() => {
+    const onResize = () => {
+      sizeRef.current = { w: window.innerWidth, h: window.innerHeight };
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   useEffect(() => {
     const fn = (e: MouseEvent) => {
-      mouseRef.current.x = (e.clientX / window.innerWidth - 0.5) * 2;
-      mouseRef.current.y = (e.clientY / window.innerHeight - 0.5) * 2;
+      mouseRef.current.x = (e.clientX / sizeRef.current.w - 0.5) * 2;
+      mouseRef.current.y = (e.clientY / sizeRef.current.h - 0.5) * 2;
       invalidate();
     };
     window.addEventListener("mousemove", fn);
