@@ -15,9 +15,12 @@ function NavLink({ href, label }: { href: string; label: string }) {
   const accentRef = useRef<HTMLSpanElement>(null);
   const clipRef = useRef<HTMLSpanElement>(null);
   useEffect(() => {
-    if (clipRef.current && baseRef.current) {
-      clipRef.current.style.height = `${baseRef.current.offsetHeight}px`;
-    }
+    const id = requestAnimationFrame(() => {
+      if (clipRef.current && baseRef.current) {
+        clipRef.current.style.height = `${baseRef.current.offsetHeight}px`;
+      }
+    });
+    return () => cancelAnimationFrame(id);
   }, []);
 
   const onEnter = useCallback(() => {
@@ -92,7 +95,6 @@ export default function Nav() {
   const [pinned, setPinned] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const isAnimating = useRef(false);
-
   useEffect(() => {
     const nav = navRef.current;
     const links = linksRef.current;
@@ -101,9 +103,8 @@ export default function Nav() {
     if (!nav || !links || !cta || !badge) return;
 
     requestAnimationFrame(() => {
-      nav.style.width = "max-content";
-      nav.style.justifyContent = "space-between";
-      nav.style.gap = "1.25rem";
+      nav.style.cssText +=
+        ";width:max-content;justify-content:space-between;gap:1.25rem;";
       const naturalW = nav.getBoundingClientRect().width;
       nav.style.width = `${naturalW}px`;
       initialized.current = true;
@@ -125,6 +126,52 @@ export default function Nav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const measureWidth = useCallback(
+    (
+      nav: HTMLElement,
+      links: HTMLUListElement,
+      cta: HTMLAnchorElement,
+      badge: HTMLDivElement,
+      showLinks: boolean,
+    ): number => {
+      const prevNavW = nav.style.width;
+      const prevNavJ = nav.style.justifyContent;
+      const prevNavG = nav.style.gap;
+
+      if (showLinks) {
+        links.style.display = "flex";
+        links.style.visibility = "hidden";
+        cta.style.display = "inline-flex";
+        cta.style.visibility = "hidden";
+        badge.style.display = "none";
+        nav.style.justifyContent = "space-between";
+        nav.style.gap = "1.25rem";
+      } else {
+        links.style.display = "none";
+        cta.style.display = "none";
+        badge.style.display = "flex";
+        badge.style.visibility = "hidden";
+        nav.style.justifyContent = "flex-start";
+        nav.style.gap = "0.75rem";
+      }
+      nav.style.width = "max-content";
+
+      const w = nav.getBoundingClientRect().width;
+
+      nav.style.width = prevNavW;
+      nav.style.justifyContent = prevNavJ;
+      nav.style.gap = prevNavG;
+      links.style.display = "";
+      links.style.visibility = "";
+      cta.style.display = "";
+      cta.style.visibility = "";
+      badge.style.display = "";
+      badge.style.visibility = "";
+
+      return w;
+    },
+    [],
+  );
   useEffect(() => {
     if (!initialized.current) return;
     const nav = navRef.current;
@@ -136,25 +183,11 @@ export default function Nav() {
     if (scrolled && pinned) return;
 
     gsap.killTweensOf([nav, links, cta, badge]);
+
     const fromW = nav.getBoundingClientRect().width;
+    const targetW = measureWidth(nav, links, cta, badge, !scrolled);
 
     if (scrolled) {
-      links.style.display = "none";
-      cta.style.display = "none";
-      badge.style.display = "flex";
-      badge.style.visibility = "hidden";
-      nav.style.width = "max-content";
-      nav.style.justifyContent = "flex-start";
-      nav.style.gap = "0.75rem";
-      const targetW = nav.getBoundingClientRect().width;
-      nav.style.width = `${fromW}px`;
-      nav.style.justifyContent = "space-between";
-      nav.style.gap = "1.25rem";
-      links.style.display = "flex";
-      cta.style.display = "inline-flex";
-      badge.style.display = "none";
-      badge.style.visibility = "";
-
       gsap.to([links, cta], {
         autoAlpha: 0,
         y: -8,
@@ -173,29 +206,7 @@ export default function Nav() {
           );
         },
       });
-      gsap.to(nav, {
-        width: targetW,
-        left: "50%",
-        xPercent: -50,
-        duration: 0.5,
-        ease: "power3.inOut",
-      });
     } else {
-      badge.style.display = "none";
-      links.style.display = "flex";
-      links.style.visibility = "hidden";
-      cta.style.display = "inline-flex";
-      cta.style.visibility = "hidden";
-      nav.style.width = "max-content";
-      nav.style.justifyContent = "space-between";
-      nav.style.gap = "1.25rem";
-      const targetW = nav.getBoundingClientRect().width;
-      nav.style.width = `${fromW}px`;
-      links.style.display = "none";
-      links.style.visibility = "";
-      cta.style.display = "none";
-      cta.style.visibility = "";
-
       gsap.to(badge, {
         autoAlpha: 0,
         y: -8,
@@ -214,15 +225,18 @@ export default function Nav() {
           );
         },
       });
-      gsap.to(nav, {
-        width: targetW,
-        left: "50%",
-        xPercent: -50,
-        duration: 0.5,
-        ease: "power3.inOut",
-      });
     }
-  }, [scrolled, pinned]);
+
+    gsap.to(nav, {
+      width: targetW,
+      left: "50%",
+      xPercent: -50,
+      duration: 0.5,
+      ease: "power3.inOut",
+    });
+
+    gsap.set(nav, { width: fromW });
+  }, [scrolled, pinned, measureWidth]);
 
   const handleBadgeClick = useCallback(() => {
     const nav = navRef.current;
@@ -234,20 +248,7 @@ export default function Nav() {
     setPinned(true);
 
     const fromW = nav.getBoundingClientRect().width;
-    badge.style.display = "none";
-    links.style.display = "flex";
-    links.style.visibility = "hidden";
-    cta.style.display = "inline-flex";
-    cta.style.visibility = "hidden";
-    nav.style.width = "max-content";
-    nav.style.justifyContent = "space-between";
-    nav.style.gap = "1.25rem";
-    const targetW = nav.getBoundingClientRect().width;
-    nav.style.width = `${fromW}px`;
-    links.style.display = "none";
-    links.style.visibility = "";
-    cta.style.display = "none";
-    cta.style.visibility = "";
+    const targetW = measureWidth(nav, links, cta, badge, true);
 
     gsap.to(badge, {
       autoAlpha: 0,
@@ -267,15 +268,18 @@ export default function Nav() {
         );
       },
     });
-    gsap.to(nav, {
-      width: targetW,
-      left: "50%",
-      xPercent: -50,
-      duration: 0.45,
-      ease: "power3.inOut",
-    });
-  }, []);
-
+    gsap.fromTo(
+      nav,
+      { width: fromW },
+      {
+        width: targetW,
+        left: "50%",
+        xPercent: -50,
+        duration: 0.45,
+        ease: "power3.inOut",
+      },
+    );
+  }, [measureWidth]);
   const toggleMenu = useCallback(() => {
     if (isAnimating.current) return;
     isAnimating.current = true;
@@ -295,9 +299,10 @@ export default function Nav() {
         duration: 0.35,
         ease: "power3.inOut",
       });
+
       gsap.set(linksEl, { display: "flex", height: "auto", opacity: 1 });
-      const fullH = linksEl.getBoundingClientRect().height;
-      gsap.set(linksEl, { height: 0, opacity: 1 });
+      const fullH = linksEl.offsetHeight;
+      gsap.set(linksEl, { height: 0 });
       gsap.to(linksEl, {
         height: fullH,
         duration: 0.5,
@@ -431,7 +436,6 @@ export default function Nav() {
         </a>
       </nav>
 
-      {/* ── Mobile nav ── */}
       <div className="md:hidden w-[80%] mx-auto fixed top-0 left-0 right-0 z-99999 px-5 pt-4">
         <div
           ref={mobilePillRef}

@@ -37,8 +37,8 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: BASE_URL,
-    siteName: "Olagboye Seyi — Portfolio",
-    title: "Olagboye Seyi — Frontend Engineer & Creative Developer",
+    siteName: "Olagboye Seyi (Oxdegend) — Portfolio",
+    title: "Olagboye Seyi (Oxdegend) — Frontend Engineer & Creative Developer",
     description:
       "Crafting elegant digital experiences with React, Three.js, GSAP, AI & Blockchain.",
     images: [
