@@ -36,6 +36,21 @@ export function ProjectRow({
   const qTiltX = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
   const qTiltY = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
 
+  const rowRectRef = useRef<DOMRect | null>(null);
+  const arrowRectRef = useRef<DOMRect | null>(null);
+
+  const cacheRects = useCallback(() => {
+    if (rowRef.current)
+      rowRectRef.current = rowRef.current.getBoundingClientRect();
+    if (arrowRef.current)
+      arrowRectRef.current = arrowRef.current.getBoundingClientRect();
+  }, []);
+  useEffect(() => {
+    const ro = new ResizeObserver(cacheRects);
+    if (rowRef.current) ro.observe(rowRef.current);
+    return () => ro.disconnect();
+  }, [cacheRects]);
+
   const [expanded, setExpanded] = useState(false);
 
   const needsTruncation =
@@ -55,7 +70,6 @@ export function ProjectRow({
     (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-
       const extra = extraRef.current;
       const btn = toggleRef.current;
       if (!extra || !btn) return;
@@ -87,11 +101,11 @@ export function ProjectRow({
           { opacity: 0.7, duration: 0.15, yoyo: true, repeat: 1 },
         );
       }
-
       setExpanded((v) => !v);
     },
     [expanded],
   );
+
   useGSAP(
     () => {
       const row = rowRef.current;
@@ -153,7 +167,6 @@ export function ProjectRow({
     { scope: rowRef },
   );
 
-  // ── Magnetic arrow + tilt setup ───────────────────────────────────────────
   useEffect(() => {
     if (!arrowRef.current || !rowRef.current) return;
     qArrX.current = gsap.quickTo(arrowRef.current, "x", {
@@ -172,20 +185,16 @@ export function ProjectRow({
       duration: 0.45,
       ease: "power2.out",
     });
-    if (rowRef.current) {
-      rowRef.current.style.transformStyle = "preserve-3d";
-      rowRef.current.style.willChange = "transform";
-    }
+    rowRef.current.style.transformStyle = "preserve-3d";
+    rowRef.current.style.willChange = "transform";
     return () => {
-      qArrX.current = null;
-      qArrY.current = null;
-      qTiltX.current = null;
-      qTiltY.current = null;
+      qArrX.current = qArrY.current = qTiltX.current = qTiltY.current = null;
     };
   }, []);
 
   const handleEnter = useCallback(() => {
     onEnter(project.number, project.image);
+    cacheRects();
     if (prefersReducedMotion) {
       if (numRef.current) numRef.current.style.transform = "translateX(4px)";
       if (glowRef.current) glowRef.current.style.opacity = "1";
@@ -215,7 +224,13 @@ export function ProjectRow({
       { scale: 0.9, opacity: 0.75 },
       { scale: 1, opacity: 1, duration: 0.28, ease: "back.out(2)" },
     );
-  }, [onEnter, project.number, project.image, prefersReducedMotion]);
+  }, [
+    onEnter,
+    project.number,
+    project.image,
+    prefersReducedMotion,
+    cacheRects,
+  ]);
 
   const handleLeave = useCallback(() => {
     onLeave();
@@ -247,22 +262,18 @@ export function ProjectRow({
   const handleMouseMoveLocal = useCallback(
     (e: React.MouseEvent) => {
       if (prefersReducedMotion) return;
-      const row = rowRef.current;
-      const arrow = arrowRef.current;
-      if (!row) return;
-      const rect = row.getBoundingClientRect();
+      const rect = rowRectRef.current;
+      const arRect = arrowRectRef.current;
+      if (!rect) return;
       const nx = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
       const ny = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
       qTiltX.current?.(-ny * 4);
       qTiltY.current?.(nx * 6);
-      if (arrow) {
-        const arRect = arrow.getBoundingClientRect();
+      if (arRect) {
         const cx = arRect.left + arRect.width / 2;
         const cy = arRect.top + arRect.height / 2;
-        const dx = (e.clientX - cx) * 0.18;
-        const dy = (e.clientY - cy) * 0.14;
-        qArrX.current?.(gsap.utils.clamp(-6, 6, dx));
-        qArrY.current?.(gsap.utils.clamp(-6, 6, dy));
+        qArrX.current?.(gsap.utils.clamp(-6, 6, (e.clientX - cx) * 0.18));
+        qArrY.current?.(gsap.utils.clamp(-6, 6, (e.clientY - cy) * 0.14));
       }
     },
     [prefersReducedMotion],
@@ -294,6 +305,7 @@ export function ProjectRow({
               {project.number}
             </span>
           </div>
+
           <div className="col-span-12 md:col-span-6">
             <div className="overflow-hidden mb-3">
               <h3
@@ -348,7 +360,6 @@ export function ProjectRow({
             </p>
           </div>
 
-          {/* Category + tech */}
           <div className="col-span-12 md:col-span-3 flex flex-col gap-2">
             <span className="proj-meta-item section-label text-stone/60">
               {project.category}
@@ -365,7 +376,6 @@ export function ProjectRow({
             </div>
           </div>
 
-          {/* Year + arrow */}
           <div className="col-span-12 md:col-span-2 flex md:flex-col md:items-end gap-4 md:gap-2 justify-between items-center">
             <span className="proj-meta-item font-mono text-xs text-stone/40">
               {project.year}
