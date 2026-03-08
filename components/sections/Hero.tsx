@@ -2,7 +2,6 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import dynamic from "next/dynamic";
 
@@ -126,8 +125,6 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
   const quoteAuthorRef = useRef<HTMLSpanElement>(null);
   const counterRef = useRef<HTMLSpanElement>(null);
   const marqueeRef = useRef<HTMLDivElement>(null);
-  const viewWorkRef = useMagnetic(0.5, 100);
-  const contactRef = useMagnetic(0.5, 100);
   const scramble = useScramble();
   const [roleIdx, setRoleIdx] = useState(0);
   const [quoteIdx, setQuoteIdx] = useState(0);
@@ -163,7 +160,6 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
     return () => clearInterval(id);
   }, [ready, scramble]);
 
-  // Quote card-flip rotation
   useEffect(() => {
     if (!ready) return;
     const id = setInterval(() => {
