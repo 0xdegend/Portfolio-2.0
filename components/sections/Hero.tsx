@@ -84,7 +84,6 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
   const marqueeRef = useRef<HTMLDivElement>(null);
 
   const scramble = useScramble();
-  const [roleIdx, setRoleIdx] = useState(0);
   const [quoteIdx, setQuoteIdx] = useState(0);
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
@@ -104,14 +103,12 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
   }, []);
   useEffect(() => {
     if (!ready) return;
+    let idx = 0;
     const id = setInterval(() => {
       const el = roleRef.current;
       if (!el) return;
-      setRoleIdx((prev) => {
-        const next = (prev + 1) % ROLES.length;
-        scramble(el, ROLES[next]);
-        return next;
-      });
+      idx = (idx + 1) % ROLES.length;
+      scramble(el, ROLES[idx]);
     }, 3200);
     return () => clearInterval(id);
   }, [ready, scramble]);
