@@ -316,8 +316,11 @@ export default function About() {
                       src={slide.src}
                       alt={slide.caption}
                       fill
+                      sizes="(max-width: 1024px) 100vw, 50vw"
                       className="object-cover"
                       priority={i === 0}
+                      loading={i === 0 ? "eager" : "lazy"}
+                      quality={60}
                     />
                     <div className="absolute inset-0 bg-linear-to-t from-ink/75 via-ink/5 to-transparent" />
                     <div className="absolute inset-0 bg-linear-to-b from-ink/25 via-transparent to-transparent" />
