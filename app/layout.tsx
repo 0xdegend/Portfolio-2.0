@@ -17,7 +17,7 @@ const spaceMono = Space_Mono({
   variable: "--font-mono",
   display: "swap",
 });
-const BASE_URL = "https://0xdegend-portfolio.vercel.app/";
+const BASE_URL = "https://0xdegend.xyz";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
