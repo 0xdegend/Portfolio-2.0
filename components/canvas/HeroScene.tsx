@@ -33,10 +33,10 @@ export default function HeroScene({ onReady }: HeroSceneProps) {
         frameloop={visible ? "always" : "never"}
         camera={{ position: [0, 0, 6], fov: 50 }}
         gl={{
-          antialias: true, // kept — no quality loss
+          antialias: true,
           alpha: true,
           powerPreference: "high-performance",
-          stencil: false, // free saving — unused
+          stencil: false,
           depth: true,
         }}
         style={{ background: "transparent" }}

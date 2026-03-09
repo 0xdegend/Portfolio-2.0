@@ -14,13 +14,11 @@ function NavLink({ href, label }: { href: string; label: string }) {
   const baseRef = useRef<HTMLSpanElement>(null);
   const accentRef = useRef<HTMLSpanElement>(null);
   const clipRef = useRef<HTMLSpanElement>(null);
+
   useEffect(() => {
-    const id = requestAnimationFrame(() => {
-      if (clipRef.current && baseRef.current) {
-        clipRef.current.style.height = `${baseRef.current.offsetHeight}px`;
-      }
-    });
-    return () => cancelAnimationFrame(id);
+    if (clipRef.current && baseRef.current) {
+      clipRef.current.style.height = `${baseRef.current.offsetHeight}px`;
+    }
   }, []);
 
   const onEnter = useCallback(() => {
@@ -103,11 +101,13 @@ export default function Nav() {
     if (!nav || !links || !cta || !badge) return;
 
     requestAnimationFrame(() => {
-      nav.style.cssText +=
-        ";width:max-content;justify-content:space-between;gap:1.25rem;";
+      nav.style.width = "max-content";
+      nav.style.justifyContent = "space-between";
+      nav.style.gap = "1.25rem";
       const naturalW = nav.getBoundingClientRect().width;
       nav.style.width = `${naturalW}px`;
       initialized.current = true;
+      gsap.set(nav, { xPercent: -50 });
       gsap.fromTo(
         nav,
         { y: -24, opacity: 0 },
@@ -115,7 +115,6 @@ export default function Nav() {
       );
     });
   }, []);
-
   useEffect(() => {
     const onScroll = () => {
       const isScrolled = window.scrollY > 60;
@@ -125,53 +124,6 @@ export default function Nav() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  const measureWidth = useCallback(
-    (
-      nav: HTMLElement,
-      links: HTMLUListElement,
-      cta: HTMLAnchorElement,
-      badge: HTMLDivElement,
-      showLinks: boolean,
-    ): number => {
-      const prevNavW = nav.style.width;
-      const prevNavJ = nav.style.justifyContent;
-      const prevNavG = nav.style.gap;
-
-      if (showLinks) {
-        links.style.display = "flex";
-        links.style.visibility = "hidden";
-        cta.style.display = "inline-flex";
-        cta.style.visibility = "hidden";
-        badge.style.display = "none";
-        nav.style.justifyContent = "space-between";
-        nav.style.gap = "1.25rem";
-      } else {
-        links.style.display = "none";
-        cta.style.display = "none";
-        badge.style.display = "flex";
-        badge.style.visibility = "hidden";
-        nav.style.justifyContent = "flex-start";
-        nav.style.gap = "0.75rem";
-      }
-      nav.style.width = "max-content";
-
-      const w = nav.getBoundingClientRect().width;
-
-      nav.style.width = prevNavW;
-      nav.style.justifyContent = prevNavJ;
-      nav.style.gap = prevNavG;
-      links.style.display = "";
-      links.style.visibility = "";
-      cta.style.display = "";
-      cta.style.visibility = "";
-      badge.style.display = "";
-      badge.style.visibility = "";
-
-      return w;
-    },
-    [],
-  );
   useEffect(() => {
     if (!initialized.current) return;
     const nav = navRef.current;
@@ -183,11 +135,25 @@ export default function Nav() {
     if (scrolled && pinned) return;
 
     gsap.killTweensOf([nav, links, cta, badge]);
-
     const fromW = nav.getBoundingClientRect().width;
-    const targetW = measureWidth(nav, links, cta, badge, !scrolled);
 
     if (scrolled) {
+      links.style.display = "none";
+      cta.style.display = "none";
+      badge.style.display = "flex";
+      badge.style.visibility = "hidden";
+      nav.style.width = "max-content";
+      nav.style.justifyContent = "flex-start";
+      nav.style.gap = "0.75rem";
+      const targetW = nav.getBoundingClientRect().width;
+      nav.style.width = `${fromW}px`;
+      nav.style.justifyContent = "space-between";
+      nav.style.gap = "1.25rem";
+      links.style.display = "flex";
+      cta.style.display = "inline-flex";
+      badge.style.display = "none";
+      badge.style.visibility = "";
+
       gsap.to([links, cta], {
         autoAlpha: 0,
         y: -8,
@@ -206,7 +172,29 @@ export default function Nav() {
           );
         },
       });
+
+      gsap.to(nav, {
+        width: targetW,
+        xPercent: -50,
+        duration: 0.5,
+        ease: "power3.inOut",
+      });
     } else {
+      badge.style.display = "none";
+      links.style.display = "flex";
+      links.style.visibility = "hidden";
+      cta.style.display = "inline-flex";
+      cta.style.visibility = "hidden";
+      nav.style.width = "max-content";
+      nav.style.justifyContent = "space-between";
+      nav.style.gap = "1.25rem";
+      const targetW = nav.getBoundingClientRect().width;
+      nav.style.width = `${fromW}px`;
+      links.style.display = "none";
+      links.style.visibility = "";
+      cta.style.display = "none";
+      cta.style.visibility = "";
+
       gsap.to(badge, {
         autoAlpha: 0,
         y: -8,
@@ -225,19 +213,15 @@ export default function Nav() {
           );
         },
       });
+
+      gsap.to(nav, {
+        width: targetW,
+        xPercent: -50,
+        duration: 0.5,
+        ease: "power3.inOut",
+      });
     }
-
-    gsap.to(nav, {
-      width: targetW,
-      left: "50%",
-      xPercent: -50,
-      duration: 0.5,
-      ease: "power3.inOut",
-    });
-
-    gsap.set(nav, { width: fromW });
-  }, [scrolled, pinned, measureWidth]);
-
+  }, [scrolled, pinned]);
   const handleBadgeClick = useCallback(() => {
     const nav = navRef.current;
     const links = linksRef.current;
@@ -248,7 +232,20 @@ export default function Nav() {
     setPinned(true);
 
     const fromW = nav.getBoundingClientRect().width;
-    const targetW = measureWidth(nav, links, cta, badge, true);
+    badge.style.display = "none";
+    links.style.display = "flex";
+    links.style.visibility = "hidden";
+    cta.style.display = "inline-flex";
+    cta.style.visibility = "hidden";
+    nav.style.width = "max-content";
+    nav.style.justifyContent = "space-between";
+    nav.style.gap = "1.25rem";
+    const targetW = nav.getBoundingClientRect().width;
+    nav.style.width = `${fromW}px`;
+    links.style.display = "none";
+    links.style.visibility = "";
+    cta.style.display = "none";
+    cta.style.visibility = "";
 
     gsap.to(badge, {
       autoAlpha: 0,
@@ -268,18 +265,14 @@ export default function Nav() {
         );
       },
     });
-    gsap.fromTo(
-      nav,
-      { width: fromW },
-      {
-        width: targetW,
-        left: "50%",
-        xPercent: -50,
-        duration: 0.45,
-        ease: "power3.inOut",
-      },
-    );
-  }, [measureWidth]);
+
+    gsap.to(nav, {
+      width: targetW,
+      xPercent: -50,
+      duration: 0.45,
+      ease: "power3.inOut",
+    });
+  }, []);
   const toggleMenu = useCallback(() => {
     if (isAnimating.current) return;
     isAnimating.current = true;
@@ -301,8 +294,9 @@ export default function Nav() {
       });
 
       gsap.set(linksEl, { display: "flex", height: "auto", opacity: 1 });
-      const fullH = linksEl.offsetHeight;
-      gsap.set(linksEl, { height: 0 });
+      const fullH = linksEl.getBoundingClientRect().height;
+      gsap.set(linksEl, { height: 0, opacity: 1 });
+
       gsap.to(linksEl, {
         height: fullH,
         duration: 0.5,
@@ -332,6 +326,7 @@ export default function Nav() {
     } else {
       gsap.to(b1, { y: 0, rotation: 0, duration: 0.35, ease: "power3.inOut" });
       gsap.to(b2, { y: 0, rotation: 0, duration: 0.35, ease: "power3.inOut" });
+
       gsap.to(linksEl.querySelectorAll(".mobile-link, .mobile-cta"), {
         opacity: 0,
         y: -6,
@@ -370,7 +365,7 @@ export default function Nav() {
     <>
       <nav
         ref={navRef}
-        className={`hidden md:flex fixed top-5 left-1/2 -translate-x-1/2 z-9999 px-3 py-2
+        className={`hidden md:flex fixed top-5 left-1/2 z-9999 px-3 py-2
           items-center rounded-full transition-colors duration-500 ${
             scrolled
               ? "bg-cream/80 backdrop-blur-md border border-muted"
@@ -386,6 +381,7 @@ export default function Nav() {
             className="rounded-full"
           />
         </a>
+
         <ul ref={linksRef} className="flex items-center gap-5 shrink-0">
           {NAV_LINKS.map((link) => (
             <NavLink key={link.label} href={link.href} label={link.label} />
@@ -423,7 +419,6 @@ export default function Nav() {
             />
           </svg>
         </div>
-
         <a
           ref={ctaRef}
           href="/Olagboye Seyi (0xdegend) Frontend Engineer Resume.pdf"
@@ -436,7 +431,7 @@ export default function Nav() {
         </a>
       </nav>
 
-      <div className="md:hidden w-[80%] mx-auto fixed top-0 left-0 right-0 z-99999 px-5 pt-4">
+      <div className="md:hidden w-[80%] mx-auto fixed top-0 left-0 right-0 z-[99999] px-5 pt-4">
         <div
           ref={mobilePillRef}
           className={`overflow-hidden rounded-4xl border border-muted transition-colors duration-500 ${

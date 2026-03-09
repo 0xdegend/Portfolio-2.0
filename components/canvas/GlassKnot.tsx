@@ -4,13 +4,11 @@ import { useFrame } from "@react-three/fiber";
 import {
   Float,
   MeshTransmissionMaterial,
-  PerformanceMonitor,
   usePerformanceMonitor,
 } from "@react-three/drei";
 import * as THREE from "three";
 import KnotParticles from "./KnotParticles";
 
-// ─── Module-level constants ────────────────────────────────────────────────────
 const ZERO_VEC2 = new THREE.Vector2(0, 0);
 const _scratchVec2 = new THREE.Vector2();
 
@@ -27,8 +25,6 @@ const IDLE_COLOR = "#E8D5B0";
 const CLICK_COLOR = "#E8C060";
 
 const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-
-// ─── Pointer force hook ────────────────────────────────────────────────────────
 function usePointerForce(active: boolean) {
   const force = useRef(new THREE.Vector2(0, 0));
   useFrame(({ pointer }) => {
@@ -61,9 +57,6 @@ export default function GlassKnot() {
     aberration: 0.06,
     distortion: 0.1,
   });
-
-  // Adaptive samples via PerformanceMonitor —
-  // starts lower on mobile, drops further if GPU struggles
   const samplesRef = useRef(isMobile ? 2 : 4);
   usePerformanceMonitor({
     onIncline: () => {
@@ -73,8 +66,6 @@ export default function GlassKnot() {
       samplesRef.current = isMobile ? 1 : 2;
     },
   });
-
-  // Click timer
   const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handleClick = () => {
     setClicked(true);
@@ -88,7 +79,6 @@ export default function GlassKnot() {
     [],
   );
 
-  // Target color on state change
   useEffect(() => {
     if (hovered) {
       colorIndex.current = (colorIndex.current + 1) % HOVER_COLORS.length;
@@ -101,8 +91,6 @@ export default function GlassKnot() {
   useEffect(() => {
     if (clicked) targetColor.current.set(CLICK_COLOR);
   }, [clicked]);
-
-  // Geometry — same quality on all devices, memoised
   const knotArgs = useMemo<[number, number, number, number, number, number]>(
     () => [1.2, 0.38, 200, 32, 6, 3],
     [],
@@ -173,7 +161,7 @@ export default function GlassKnot() {
           <mesh
             ref={meshRef}
             position={[0.5, -0.2, 0]}
-            scale={1.1}
+            scale={isMobile ? 1.1 : 1.23}
             onPointerEnter={() => {
               setHovered(true);
               document.body.style.cursor = "pointer";
@@ -189,14 +177,14 @@ export default function GlassKnot() {
               // @ts-expect-error — MeshTransmissionMaterial has props not in MeshPhysicalMaterial types
               ref={matRef as React.Ref<THREE.MeshPhysicalMaterial>}
               backside
-              samples={isMobile ? 2 : 4} // key saving: halves refraction passes on mobile
-              resolution={isMobile ? 256 : 512} // halves transmission FBO size on mobile
+              samples={isMobile ? 2 : 4}
+              resolution={isMobile ? 256 : 512}
               thickness={0.3}
               anisotropy={0.3}
               chromaticAberration={0.06}
               distortion={0.1}
               distortionScale={0.3}
-              temporalDistortion={isMobile ? 0 : 0.05} // skip temporal jitter on mobile
+              temporalDistortion={isMobile ? 0 : 0.05}
               transmission={1}
               roughness={0.4}
               color={IDLE_COLOR}

@@ -292,7 +292,7 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
           top-1/2 -translate-y-1/2 -right-26
           w-[60%] h-[60%]
           lg:right-2
-          md:top-23 md:translate-y-0 md:w-[55%] md:h-[64%] z-9999"
+          md:top-20 md:translate-y-0 md:w-[55%] md:h-[64%] z-9999"
         style={{ pointerEvents: "none" }}
       >
         <div
