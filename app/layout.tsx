@@ -17,7 +17,7 @@ const spaceMono = Space_Mono({
   variable: "--font-mono",
   display: "swap",
 });
-const BASE_URL = "https://0xdegend.xyz/";
+const BASE_URL = "https://www.0xdegend.xyz";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
       "Crafting elegant digital experiences with React, Three.js, GSAP, AI & Blockchain.",
     images: [
       {
-        url: "/og-image.png",
+        url: "https://www.0xdegend.xyz/og-image.png",
         width: 1200,
         height: 630,
         alt: "Olagboye Seyi — Frontend Engineer & Creative Developer",
@@ -72,7 +72,7 @@ export const metadata: Metadata = {
     title: "Olagboye Seyi (0xdegend) — Frontend Engineer & Creative Developer",
     description:
       "Crafting elegant digital experiences with React, Three.js, GSAP, AI & Blockchain.",
-    images: ["/og-image.png"],
+    images: ["https://www.0xdegend.xyz/og-image.png"],
   },
   icons: {
     icon: [
