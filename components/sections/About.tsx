@@ -285,7 +285,7 @@ export default function About() {
                 className="about-body text-stone leading-relaxed mb-8 font-light text-sm md:text-base max-w-[36ch]"
                 style={{ opacity: 0 }}
               >
-                Currently open to new opportunities — full-time roles, long-term
+                Currently open to new opportunities full-time roles, long-term
                 contracts, or exciting side projects worth building together.
               </p>
 
