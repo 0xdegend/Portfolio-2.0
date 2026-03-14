@@ -276,7 +276,7 @@ export default function About() {
                 className="about-body text-stone leading-relaxed mb-4 font-light text-sm md:text-base max-w-[36ch]"
                 style={{ opacity: 0 }}
               >
-                I&apos;m a Frontend Engineer who obsesses over the craft — clean
+                I&apos;m a Frontend Engineer who obsesses over the craft clean
                 layouts, sharp typography, and animations that guide rather than
                 distract. I am a big fan of AI, Blockchain, and thoughtful user
                 experience.
