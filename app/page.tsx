@@ -27,7 +27,7 @@ export default function Home() {
   }, [startSim]);
 
   return (
-    <main className="noise bg-cream overflow-x-hidden">
+    <div className="noise bg-cream overflow-x-hidden">
       {!ready && (
         <Preloader
           progress={progress}
@@ -60,6 +60,6 @@ export default function Home() {
         <Contact />
         <Footer />
       </div>
-    </main>
+    </div>
   );
 }

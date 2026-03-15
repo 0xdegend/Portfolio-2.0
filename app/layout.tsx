@@ -92,6 +92,17 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+
+  formatDetection: {
+    telephone: false,
+    date: false,
+    address: false,
+    email: false,
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+  },
 };
 
 export default function RootLayout({
@@ -111,6 +122,7 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
+        <meta name="mobile-web-app-capable" content="yes" />
 
         <script
           type="application/ld+json"
