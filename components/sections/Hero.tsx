@@ -281,7 +281,8 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
   );
 
   return (
-    <section
+    <div
+      role="region"
       ref={containerRef}
       id="hero"
       className="relative lg:min-h-screen min-h-[70vh] flex flex-col justify-start md:justify-end px-6 md:px-16 overflow-hidden"
@@ -431,6 +432,6 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
           100% { top: 135%; }
         }
       `}</style>
-    </section>
+    </div>
   );
 }

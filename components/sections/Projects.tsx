@@ -13,7 +13,7 @@ import { useCursorFollower_rAF } from "../../app/utils/hooks/useCursorFollower";
 gsap.registerPlugin(ScrollTrigger, useGSAP, SplitText);
 
 export default function Projects() {
-  const sectionRef = useRef<HTMLElement | null>(null);
+  const sectionRef = useRef<HTMLDivElement | null>(null);
   const { initFollower, initNumLabel, initArrow, initImageRef, show, hide } =
     useCursorFollower_rAF(sectionRef);
 
@@ -57,7 +57,8 @@ export default function Projects() {
   );
 
   return (
-    <section
+    <div
+      role="region"
       ref={sectionRef}
       id="projects"
       className="relative overflow-visible lg:py-32 py-5 px-8 md:px-16 max-w-7xl mx-auto"
@@ -105,6 +106,6 @@ export default function Projects() {
         ))}
         <div className="border-t border-muted" />
       </div>
-    </section>
+    </div>
   );
 }

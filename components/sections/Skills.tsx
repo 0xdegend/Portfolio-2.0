@@ -43,7 +43,7 @@ const skillGroups = [
 const TOTAL_SKILLS = skillGroups.reduce((acc, g) => acc + g.skills.length, 0);
 
 export default function Skills({ onSceneReady }: SkillsProps) {
-  const sectionRef = useRef<HTMLElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
   const pinWrapRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const canvasWrapRef = useRef<HTMLDivElement>(null);
@@ -181,7 +181,8 @@ export default function Skills({ onSceneReady }: SkillsProps) {
   const displayIndex = activeTerminal >= 0 ? activeTerminal : 0;
 
   return (
-    <section
+    <div
+      role="region"
       ref={sectionRef}
       id="skills"
       className="px-8 md:px-16 bg-ink text-cream pt-24 pb-10"
@@ -305,6 +306,6 @@ export default function Skills({ onSceneReady }: SkillsProps) {
           }}
         />
       </div>
-    </section>
+    </div>
   );
 }

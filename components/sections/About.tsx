@@ -15,7 +15,7 @@ import MobileAbout from "../ui/MobileAbout";
 gsap.registerPlugin(ScrollTrigger, useGSAP, SplitText);
 
 export default function About() {
-  const sectionRef = useRef<HTMLElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
   const textColRef = useRef<HTMLDivElement>(null);
@@ -217,7 +217,7 @@ export default function About() {
   );
 
   return (
-    <section ref={sectionRef} id="about" className="relative">
+    <div role="region" ref={sectionRef} id="about" className="relative">
       <MobileAbout />
       <div
         ref={trackRef}
@@ -382,6 +382,6 @@ export default function About() {
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
