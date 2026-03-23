@@ -12,6 +12,17 @@ export const projects = [
   },
   {
     number: "02",
+    title: "FlexBoat",
+    category: "Frontend Engineering",
+    year: "2026",
+    description:
+      "A marketing landing page for FlexBoat, a boat rental marketplace within the Flex Super App ecosystem. The page targets boat owners, walking them through the value proposition, vendor onboarding flow, and key platform features — including verified user matching, smart booking management, and flexible earning controls. Includes animated preloader, responsive layout, and CTAs linking to the vendor dashboard and mobile app download",
+    tech: ["Next.js", "TypeScript", "Tailwind CSS", "Gsap"],
+    image: "/images/projects/flex-boat.png",
+    link: "https://flex-boat-landing-page.vercel.app/",
+  },
+  {
+    number: "03",
     title: "Army Barracks",
     category: "Full-Stack",
     year: "2025",
@@ -29,7 +40,7 @@ export const projects = [
     link: "https://army-barrack-prod.vercel.app/",
   },
   {
-    number: "03",
+    number: "04",
     title: "Bonk PFP",
     category: "Frontend Engineering",
     year: "2025",
@@ -40,14 +51,14 @@ export const projects = [
     link: "https://bonk-tribe.vercel.app/",
   },
   {
-    number: "04",
-    title: "FlexBoat",
+    number: "05",
+    title: "Conekt",
     category: "Frontend Engineering",
-    year: "2025",
+    year: "2024",
     description:
-      "A marketing landing page for FlexBoat, a boat rental marketplace within the Flex Super App ecosystem. The page targets boat owners, walking them through the value proposition, vendor onboarding flow, and key platform features — including verified user matching, smart booking management, and flexible earning controls. Includes animated preloader, responsive layout, and CTAs linking to the vendor dashboard and mobile app download",
-    tech: ["Next.js", "TypeScript", "Tailwind CSS", "Gsap"],
-    image: "/images/projects/flex-boat.png",
-    link: "https://flex-boat-landing-page.vercel.app/",
+      "Conekt is a Web3-native messaging platform built on Solana combining familiar chat features with on-chain identity, end-to-end encryption, and a chat-to-earn reward engine. I built the marketing landing page to communicate a complex Web3 product to both crypto-native users and mainstream audiences, balancing technical credibility with an approachable, energetic visual identity. Built with Next.js and TailwindCSS.",
+    tech: ["Next.js", "Typescript", "Tailwind Css", "Gsap"],
+    image: "/images/projects/conektapp.png",
+    link: "https://bonk-tribe.vercel.app/",
   },
 ];
