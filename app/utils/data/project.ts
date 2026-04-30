@@ -59,6 +59,6 @@ export const projects = [
       "Conekt is a Web3-native messaging platform built on Solana combining familiar chat features with on-chain identity, end-to-end encryption, and a chat-to-earn reward engine. I built the marketing landing page to communicate a complex Web3 product to both crypto-native users and mainstream audiences, balancing technical credibility with an approachable, energetic visual identity. Built with Next.js and TailwindCSS.",
     tech: ["Next.js", "Typescript", "Tailwind Css", "Gsap"],
     image: "/images/projects/conektapp.png",
-    link: "https://bonk-tribe.vercel.app/",
+    link: "https://conekt-landing-page-v2.vercel.app/",
   },
 ];
