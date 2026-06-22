@@ -61,14 +61,37 @@ $ git push origin main
 const CENTER_POSITION: [number, number, number] = [0, 0, 0];
 const CENTER_ROTATION: [number, number, number] = [0, 0, 0];
 function PostFX() {
-  const { gl } = useThree();
+  const gl = useThree((s) => s.gl);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     if (!gl) return;
-    const raf = requestAnimationFrame(() => setReady(true));
+    const canvas = gl.domElement;
+
+    // Only mount the EffectComposer once the WebGL context is actually
+    // valid. In dev (React StrictMode) the canvas mounts twice and R3F
+    // calls forceContextLoss() on the throwaway mount — at that point
+    // ctx.getContextAttributes() returns null, which crashes postprocessing
+    // inside EffectComposer.addPass ("Cannot read properties of null").
+    const isContextOk = () => {
+      const ctx = gl.getContext();
+      return !!ctx && !ctx.isContextLost() && !!ctx.getContextAttributes();
+    };
+
+    const raf = requestAnimationFrame(() => setReady(isContextOk()));
+
+    const onLost = (e: Event) => {
+      e.preventDefault();
+      setReady(false);
+    };
+    const onRestored = () => setReady(isContextOk());
+    canvas.addEventListener("webglcontextlost", onLost as EventListener);
+    canvas.addEventListener("webglcontextrestored", onRestored);
+
     return () => {
       cancelAnimationFrame(raf);
+      canvas.removeEventListener("webglcontextlost", onLost as EventListener);
+      canvas.removeEventListener("webglcontextrestored", onRestored);
       setReady(false);
     };
   }, [gl]);

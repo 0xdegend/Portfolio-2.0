@@ -1,17 +1,44 @@
 export const projects = [
   {
     number: "01",
-    title: "Fluxa Finance",
+    title: "Skew",
     category: "Frontend Engineering",
     year: "2026",
     description:
-      "Fluxa Finance is a cross-chain decentralized exchange (DEX) built to simplify multi-chain token swapping. Users can search for and swap tokens across different blockchain networks powered by the Relay Protocol SDK for seamless cross-chain bridging and execution. ",
-    tech: ["Next.js", "TypeScript", "Privy", "Rest Apis"],
-    image: "/images/projects/fluxa-finance.png",
-    link: "https://fluxa-finance.vercel.app/",
+      "Skew is a live 3D volatility-surface trading terminal for DeepBook Predict on Sui. Instead of a flat list of yes/no markets, it renders the actual SVI volatility surface the protocol prices against — strike × expiry × implied vol, streamed live from on-chain events — and lets users click any point to mint a binary or range bet in a single transaction, with chain-authoritative quotes, gasless zkLogin onboarding, and two custom Move contracts deployed on testnet.",
+    tech: [
+      "Next.js",
+      "TypeScript",
+      "React Three Fiber",
+      "Sui Move",
+      "dapp-kit",
+      "Enoki zkLogin",
+    ],
+    image: "/images/projects/skew.png",
+    link: "https://tryskew.xyz",
   },
+
   {
     number: "02",
+    title: "Pandabox",
+    category: "Frontend Engineering · Blockchain",
+    year: "2026",
+    description:
+      "Pandabox is a programmable, fully on-chain funding launchpad on the Sui Network — Juicebox reimagined for Sui. Creators deploy projects that raise SUI, issue tokens via configurable bonding curves, mint tiered NFT supporter passes, and run on locked funding cycles with on-chain payout splits and treasury cash-outs. Every parameter is on-chain and every action is a Sui programmable transaction block, wrapped in a light-mode-first, engineered-minimal interface.",
+    tech: [
+      "Next.js 16",
+      "React 19",
+      "TypeScript",
+      "Sui / Move",
+      "@mysten/dapp-kit",
+      "GSAP",
+    ],
+    image: "/images/projects/pandabox.png",
+    link: "https://pandabox.money",
+  },
+
+  {
+    number: "03",
     title: "FlexBoat",
     category: "Frontend Engineering",
     year: "2026",
@@ -21,35 +48,25 @@ export const projects = [
     image: "/images/projects/flex-boat.png",
     link: "https://flex-boat-landing-page.vercel.app/",
   },
-  {
-    number: "03",
-    title: "Army Barracks",
-    category: "Full-Stack",
-    year: "2025",
-    description:
-      "A community-driven SocialFi web application built for the $ARMY token ecosystem on Solana. Army Barrack serves as the central hub for the $ARMY community originally launched within the BLAST ecosystem and later migrated to Solana as a fully community-led project.",
-    tech: [
-      "Next.js",
-      "Typescript",
-      "Tailwind CSS",
-      "Node.js",
-      "Rest Apis",
-      "Solana SDK",
-    ],
-    image: "/images/projects/army-barracks.png",
-    link: "https://army-barrack-prod.vercel.app/",
-  },
+
   {
     number: "04",
-    title: "Bonk PFP",
+    title: "Sui Studio",
     category: "Frontend Engineering",
     year: "2025",
     description:
-      "A free, browser-based profile picture generator for Solana memecoin communities. Users can pick a base avatar, layer community-specific sticker packs (BONK, SSX, Unstable State Dollar, Useless Coin), and customize with a full drag-and-drop editor supporting resize, rotate, and z-index control. Finished avatars export as 1024×1024 PNG/JPEG with optional circle crop no wallet required, no fees, instant download.",
-    tech: ["Next.js", "Typescript", "Tailwind Css"],
-    image: "/images/projects/bonk-pfp.png",
-    link: "https://bonk-tribe.vercel.app/",
+      "The PFP studio for every Sui NFT collection. A free, browser-based identity forge where holders connect their Sui wallet and dress up their NFT with custom backgrounds, frames, badges and tier-gated overlays — then export a finished avatar or a 1500×500 Twitter/X cover. Wallet tiers (Mythic Whale, Whale, Collector, Holder) are derived live from on-chain Random Panda holdings to unlock rarer assets, and the whole landing is a cinematic WebGL 'forge' experience built with React Three Fiber. No signup, no fees, instant download.",
+    tech: [
+      "Next.js",
+      "TypeScript",
+      "React Three Fiber",
+      "Sui dApp Kit",
+      "Tailwind CSS",
+    ],
+    image: "/images/projects/sui-studio.png",
+    link: "https://sui-studio.xyz/",
   },
+
   {
     number: "05",
     title: "Conekt",
