@@ -18,7 +18,7 @@ export const projects: Project[] = [
     category: "Frontend Engineering",
     year: "2026",
     description:
-      "Skew is a live 3D volatility-surface trading terminal for DeepBook Predict on Sui. Instead of a flat list of yes/no markets, it renders the actual SVI volatility surface the protocol prices against — strike × expiry × implied vol, streamed live from on-chain events — and lets users click any point to mint a binary or range bet in a single transaction, with chain-authoritative quotes, gasless zkLogin onboarding, and two custom Move contracts deployed on testnet.",
+      "Skew is a live 3D volatility-surface trading terminal for DeepBook Predict on Sui. Instead of a flat list of yes/no markets, it renders the actual SVI volatility surface the protocol prices against — strike × expiry × implied vol, streamed live from on-chain events, and lets users click any point to mint a binary or range bet in a single transaction, with chain-authoritative quotes, gasless zkLogin onboarding, and two custom Move contracts deployed on testnet.",
     tech: [
       "Next.js",
       "TypeScript",
