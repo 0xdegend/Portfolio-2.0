@@ -37,7 +37,7 @@ export const projects: Project[] = [
     category: "Frontend Engineering · Blockchain",
     year: "2026",
     description:
-      "Pandabox is a programmable, fully on-chain funding launchpad on the Sui Network — Juicebox reimagined for Sui. Creators deploy projects that raise SUI, issue tokens via configurable bonding curves, mint tiered NFT supporter passes, and run on locked funding cycles with on-chain payout splits and treasury cash-outs. Every parameter is on-chain and every action is a Sui programmable transaction block, wrapped in a light-mode-first, engineered-minimal interface.",
+      "Pandabox is a programmable, fully on-chain funding launchpad on the Sui Network, Juicebox reimagined for Sui. Creators deploy projects that raise SUI, issue tokens via configurable bonding curves, mint tiered NFT supporter passes, and run on locked funding cycles with on-chain payout splits and treasury cash-outs. Every parameter is on-chain and every action is a Sui programmable transaction block, wrapped in a light-mode-first, engineered-minimal interface.",
     tech: [
       "Next.js 16",
       "React 19",
@@ -56,7 +56,7 @@ export const projects: Project[] = [
     category: "Frontend Engineering",
     year: "2026",
     description:
-      "A marketing landing page for FlexBoat, a boat rental marketplace within the Flex Super App ecosystem. The page targets boat owners, walking them through the value proposition, vendor onboarding flow, and key platform features — including verified user matching, smart booking management, and flexible earning controls. Includes animated preloader, responsive layout, and CTAs linking to the vendor dashboard and mobile app download",
+      "A marketing landing page for FlexBoat, a boat rental marketplace within the Flex Super App ecosystem. The page targets boat owners, walking them through the value proposition, vendor onboarding flow, and key platform features,including verified user matching, smart booking management, and flexible earning controls. Includes animated preloader, responsive layout, and CTAs linking to the vendor dashboard and mobile app download",
     tech: ["Next.js", "TypeScript", "Tailwind CSS", "Gsap"],
     image: "/images/projects/flex-boat.png",
     link: "https://flex-boat-landing-page.vercel.app/",
@@ -68,7 +68,7 @@ export const projects: Project[] = [
     category: "Frontend Engineering",
     year: "2026",
     description:
-      "The PFP studio for every Sui NFT collection. A free, browser-based identity forge where holders connect their Sui wallet and dress up their NFT with custom backgrounds, frames, badges and tier-gated overlays — then export a finished avatar or a 1500×500 Twitter/X cover. Wallet tiers (Mythic Whale, Whale, Collector, Holder) are derived live from on-chain Random Panda holdings to unlock rarer assets, and the whole landing is a cinematic WebGL 'forge' experience built with React Three Fiber. No signup, no fees, instant download.",
+      "The PFP studio for every Sui NFT collection. A free, browser-based identity forge where holders connect their Sui wallet and dress up their NFT with custom backgrounds, frames, badges and tier-gated overlays, then export a finished avatar or a 1500×500 Twitter/X cover. Wallet tiers (Mythic Whale, Whale, Collector, Holder) are derived live from on-chain Random Panda holdings to unlock rarer assets, and the whole landing is a cinematic WebGL 'forge' experience built with React Three Fiber. No signup, no fees, instant download.",
     tech: [
       "Next.js",
       "TypeScript",
