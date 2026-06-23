@@ -1,4 +1,17 @@
-export const projects = [
+export interface Project {
+  number: string;
+  title: string;
+  category: string;
+  year: string;
+  description: string;
+  tech: string[];
+  image: string;
+  /** Optional muted/looping clip (mp4/webm). Falls back to `image` when absent. */
+  video?: string;
+  link: string;
+}
+
+export const projects: Project[] = [
   {
     number: "01",
     title: "Skew",
@@ -53,7 +66,7 @@ export const projects = [
     number: "04",
     title: "Sui Studio",
     category: "Frontend Engineering",
-    year: "2025",
+    year: "2026",
     description:
       "The PFP studio for every Sui NFT collection. A free, browser-based identity forge where holders connect their Sui wallet and dress up their NFT with custom backgrounds, frames, badges and tier-gated overlays — then export a finished avatar or a 1500×500 Twitter/X cover. Wallet tiers (Mythic Whale, Whale, Collector, Holder) are derived live from on-chain Random Panda holdings to unlock rarer assets, and the whole landing is a cinematic WebGL 'forge' experience built with React Three Fiber. No signup, no fees, instant download.",
     tech: [
@@ -71,7 +84,7 @@ export const projects = [
     number: "05",
     title: "Conekt",
     category: "Frontend Engineering",
-    year: "2024",
+    year: "2025",
     description:
       "Conekt is a Web3-native messaging platform built on Solana combining familiar chat features with on-chain identity, end-to-end encryption, and a chat-to-earn reward engine. I built the marketing landing page to communicate a complex Web3 product to both crypto-native users and mainstream audiences, balancing technical credibility with an approachable, energetic visual identity. Built with Next.js and TailwindCSS.",
     tech: ["Next.js", "Typescript", "Tailwind Css", "Gsap"],

@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useCallback, RefObject } from "react";
+import { useRef, useCallback, useEffect, RefObject } from "react";
 import { gsap } from "gsap";
 
 export function useCursorFollower_rAF(
@@ -13,8 +13,9 @@ export function useCursorFollower_rAF(
   const pos = useRef({ x: 0, y: 0 });
   const rafId = useRef<number | null>(null);
   const visible = useRef(false);
+  const parked = useRef(true); // box is off-screen and needs to snap on next show
   const currentSrc = useRef<string>("");
-  const slot = useRef<"a" | "b">("a"); // which img is "on top"
+  const slot = useRef<"a" | "b">("a"); // which img is currently front
   const tlImg = useRef<gsap.core.Timeline | null>(null);
 
   // ── Init refs ────────────────────────────────────────────────────────────
@@ -54,6 +55,10 @@ export function useCursorFollower_rAF(
       rafId.current = null;
     }
   }, []);
+
+  // A single mousemove listener kept alive for the lifetime of the section so
+  // mouse.current is always fresh (needed to snap the box to the cursor on
+  // show). Tilt only runs while the box is visible.
   const onMouseMove = useCallback((e: MouseEvent) => {
     mouse.current.x = e.clientX;
     mouse.current.y = e.clientY;
@@ -67,8 +72,21 @@ export function useCursorFollower_rAF(
       rotationX: -ny * 8,
       duration: 0.4,
       ease: "power2.out",
+      overwrite: "auto",
     });
   }, []);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    section.addEventListener("mousemove", onMouseMove);
+    return () => section.removeEventListener("mousemove", onMouseMove);
+  }, [sectionRef, onMouseMove]);
+
+  // Crossfade + 3D flip that self-heals if interrupted: every call kills any
+  // in-flight tweens on BOTH images and always drives the outgoing slot to
+  // opacity 0 and the incoming slot to opacity 1, so we can never get stuck
+  // with two half-rotated images on screen.
   const swapImage = useCallback((newSrc: string) => {
     if (newSrc === currentSrc.current) return;
     currentSrc.current = newSrc;
@@ -77,91 +95,82 @@ export function useCursorFollower_rAF(
     const b = imgBRef.current;
     if (!a || !b) return;
 
+    const front = slot.current === "a" ? a : b;
+    const back = slot.current === "a" ? b : a;
+
     tlImg.current?.kill();
+    gsap.killTweensOf([a, b]);
+
+    back.src = newSrc;
+    gsap.set(back, { opacity: 0, rotationY: -22, scale: 0.92, zIndex: 2 });
+    gsap.set(front, { zIndex: 1 });
+
     const tl = gsap.timeline();
+    tl.to(
+      front,
+      {
+        opacity: 0,
+        rotationY: 22,
+        scale: 0.92,
+        duration: 0.34,
+        ease: "power2.in",
+        overwrite: true,
+      },
+      0,
+    );
+    tl.to(
+      back,
+      {
+        opacity: 1,
+        rotationY: 0,
+        scale: 1,
+        duration: 0.42,
+        ease: "expo.out",
+        overwrite: true,
+      },
+      0.1,
+    );
 
-    if (slot.current === "a") {
-      b.src = newSrc;
-      gsap.set(b, { opacity: 0, rotationY: -25, scale: 0.9 });
-      tl.to(
-        a,
-        {
-          opacity: 0,
-          rotationY: 25,
-          scale: 0.9,
-          duration: 0.38,
-          ease: "power2.in",
-        },
-        0,
-      );
-      tl.to(
-        b,
-        {
-          opacity: 1,
-          rotationY: 0,
-          scale: 1,
-          duration: 0.42,
-          ease: "expo.out",
-        },
-        0.12,
-      );
-      slot.current = "b";
-    } else {
-      a.src = newSrc;
-      gsap.set(a, { opacity: 0, rotationY: -25, scale: 0.9 });
-      tl.to(
-        b,
-        {
-          opacity: 0,
-          rotationY: 25,
-          scale: 0.9,
-          duration: 0.38,
-          ease: "power2.in",
-        },
-        0,
-      );
-      tl.to(
-        a,
-        {
-          opacity: 1,
-          rotationY: 0,
-          scale: 1,
-          duration: 0.42,
-          ease: "expo.out",
-        },
-        0.12,
-      );
-      slot.current = "a";
-    }
-
+    slot.current = slot.current === "a" ? "b" : "a";
     tlImg.current = tl;
   }, []);
+
   const show = useCallback(
     (_num?: string, imageSrc?: string) => {
       if (!wrapRef.current) return;
-      const section = sectionRef.current;
-      if (section) section.addEventListener("mousemove", onMouseMove);
 
       if (imageSrc) swapImage(imageSrc);
 
       if (!visible.current) {
         visible.current = true;
+        // If the box was parked off-screen, snap it to the cursor so it fades
+        // in at the pointer instead of flying across the screen.
+        if (parked.current) {
+          pos.current.x = mouse.current.x;
+          pos.current.y = mouse.current.y;
+          parked.current = false;
+          if (wrapRef.current) {
+            gsap.set(wrapRef.current, {
+              x: pos.current.x + 20,
+              y: pos.current.y - 65,
+            });
+          }
+        }
         startRAF();
         gsap.to(wrapRef.current, {
           opacity: 1,
           scale: 1,
           duration: 0.38,
           ease: "back.out(1.4)",
+          overwrite: true,
         });
       }
     },
-    [sectionRef, onMouseMove, swapImage, startRAF],
+    [swapImage, startRAF],
   );
 
   const hide = useCallback(() => {
     if (!wrapRef.current) return;
-    const section = sectionRef.current;
-    if (section) section.removeEventListener("mousemove", onMouseMove);
 
     visible.current = false;
     stopRAF();
@@ -171,13 +180,17 @@ export function useCursorFollower_rAF(
       scale: 0.88,
       duration: 0.28,
       ease: "power2.in",
+      overwrite: true,
       onComplete: () => {
+        // Only park if a new row hasn't re-shown the box in the meantime.
+        if (visible.current) return;
+        parked.current = true;
         if (wrapRef.current) gsap.set(wrapRef.current, { x: -9999, y: -9999 });
         if (innerRef.current)
           gsap.set(innerRef.current, { rotationX: 0, rotationY: 0 });
       },
     });
-  }, [sectionRef, onMouseMove, stopRAF]);
+  }, [stopRAF]);
 
   const initNumLabel = useCallback(() => {}, []);
   const initArrow = useCallback(() => {}, []);

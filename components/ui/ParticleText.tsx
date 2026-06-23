@@ -43,13 +43,19 @@ function sampleGlyphPositions(
   text: string,
   count: number,
 ): { tx: Float32Array; ty: Float32Array } {
-  const FONT_PX = 200;
-  const PAD = FONT_PX * 0.45;
+  const FONT_PX = 220;
+  const PAD = FONT_PX * 0.5;
   const cvs = document.createElement("canvas");
-  cvs.width = Math.ceil(FONT_PX * text.length * 0.66 + PAD * 2);
-  cvs.height = Math.ceil(FONT_PX + PAD * 2);
-
   const ctx = cvs.getContext("2d")!;
+
+  // Measure the real text width first so the canvas fits the glyphs tightly
+  // (no aspect distortion from an arbitrary canvas size).
+  ctx.font = `700 ${FONT_PX}px monospace`;
+  const textW = ctx.measureText(text).width;
+  cvs.width = Math.ceil(textW + PAD * 2);
+  cvs.height = Math.ceil(FONT_PX * 1.4 + PAD * 2); // headroom for descenders (g, y…)
+
+  // Resizing the canvas resets the 2d context — re-apply all draw state.
   ctx.clearRect(0, 0, cvs.width, cvs.height);
   ctx.fillStyle = "#fff";
   ctx.font = `700 ${FONT_PX}px monospace`;
@@ -58,31 +64,39 @@ function sampleGlyphPositions(
   ctx.fillText(text, cvs.width / 2, cvs.height / 2);
 
   const { data } = ctx.getImageData(0, 0, cvs.width, cvs.height);
+  const STEP = 2; // finer sampling → cleaner candidate set
   const candidates: [number, number][] = [];
-  for (let y = 0; y < cvs.height; y += 3)
-    for (let x = 0; x < cvs.width; x += 3)
-      if (data[(y * cvs.width + x) * 4 + 3] > 128)
-        candidates.push([
-          (x - cvs.width / 2) / cvs.width,
-          (y - cvs.height / 2) / cvs.height,
-        ]);
+  for (let y = 0; y < cvs.height; y += STEP)
+    for (let x = 0; x < cvs.width; x += STEP)
+      if (data[(y * cvs.width + x) * 4 + 3] > 128) candidates.push([x, y]);
 
   if (!candidates.length)
     return { tx: new Float32Array(count), ty: new Float32Array(count) };
 
-  const stride = Math.max(1, Math.floor(candidates.length / count));
+  // Fisher–Yates shuffle so the selected particles are spread evenly across
+  // every glyph instead of following scan-line order (which caused banding
+  // and broken-looking letters).
+  for (let i = candidates.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+  }
+
+  // Single uniform scale → letters keep their true proportions. Fit the text
+  // into the scene box, width-bound so it spans the footer.
+  const cx = cvs.width / 2;
+  const cy = cvs.height / 2;
+  const k = Math.min(
+    (SCENE_W * 0.92) / cvs.width,
+    (SCENE_H * 1.6) / cvs.height,
+  );
+
   const tx = new Float32Array(count);
   const ty = new Float32Array(count);
-  let out = 0;
-  for (let i = 0; i < candidates.length && out < count; i += stride, out++) {
-    tx[out] = candidates[i][0] * SCENE_W * 0.86;
-    ty[out] = -candidates[i][1] * SCENE_H * 1.05;
-  }
-  while (out < count) {
-    const src = candidates[Math.floor(Math.random() * candidates.length)];
-    tx[out] = src[0] * SCENE_W * 0.86;
-    ty[out] = -src[1] * SCENE_H * 1.05;
-    out++;
+  for (let out = 0; out < count; out++) {
+    // Wrap with modulo so if count > candidates we reuse points evenly.
+    const [px, py] = candidates[out % candidates.length];
+    tx[out] = (px - cx) * k;
+    ty[out] = -(py - cy) * k;
   }
   return { tx, ty };
 }
@@ -497,7 +511,7 @@ const Fallback: FC<{ text: string; color: string }> = ({ text, color }) => (
 
 const ParticleTextScene: FC<ParticleTextProps> = ({
   text = "0xdegend",
-  particleCount = 900,
+  particleCount = 2200,
   color = "#C9A87C",
   accentColor = "#FFE8B0",
   className,
