@@ -6,8 +6,8 @@ import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import { projects } from "../../app/utils/data/project";
-import { ProjectMedia } from "../ui/ProjectMedia";
 import { BentoCard } from "../ui/BentoCard";
+import { FeaturedProject } from "../ui/FeaturedProject";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP, SplitText);
 
@@ -54,62 +54,6 @@ export default function Projects() {
             scrollTrigger: { trigger: root, start: "top 80%", once: true },
           },
         );
-
-        // ── Featured hero ───────────────────────────────────────
-        const feat = root.querySelector(".proj-featured");
-        if (feat) {
-          gsap.fromTo(
-            ".proj-featured-media",
-            { clipPath: "inset(0 100% 0 0)" },
-            {
-              clipPath: "inset(0 0% 0 0)",
-              duration: 1.1,
-              ease: "expo.out",
-              scrollTrigger: { trigger: feat, start: "top 78%", once: true },
-            },
-          );
-          gsap.fromTo(
-            ".proj-featured-index",
-            { opacity: 0, y: 30 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.9,
-              ease: "expo.out",
-              scrollTrigger: { trigger: feat, start: "top 80%", once: true },
-            },
-          );
-          const titleEl = feat.querySelector(".proj-featured-title");
-          if (titleEl) {
-            const split = new SplitText(titleEl, { type: "chars" });
-            gsap.fromTo(
-              split.chars,
-              { y: 70, opacity: 0 },
-              {
-                y: 0,
-                opacity: 1,
-                duration: 0.7,
-                stagger: 0.03,
-                ease: "expo.out",
-                scrollTrigger: { trigger: feat, start: "top 78%", once: true },
-                onComplete: () => split.revert(),
-              },
-            );
-          }
-          gsap.fromTo(
-            ".proj-featured-fade",
-            { opacity: 0, y: 22 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.8,
-              stagger: 0.08,
-              ease: "power2.out",
-              delay: 0.2,
-              scrollTrigger: { trigger: feat, start: "top 72%", once: true },
-            },
-          );
-        }
 
         // ── Bento grid entrance (staggered rise + settle) ───────
         gsap.fromTo(
@@ -172,78 +116,7 @@ export default function Projects() {
       </div>
 
       {/* ── Featured hero (project 01) ───────────────────────────── */}
-      <div className="proj-featured grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center mb-24 lg:mb-36">
-        <div className="lg:col-span-6 order-2 lg:order-1">
-          <span
-            className="proj-featured-index block font-display font-light leading-none text-7xl md:text-8xl lg:text-[9rem]"
-            style={{
-              color: "transparent",
-              WebkitTextStroke: "1px var(--accent)",
-            }}
-          >
-            {featured.number}
-          </span>
-
-          <h3 className="proj-featured-title font-display text-5xl md:text-6xl lg:text-7xl font-light text-ink mt-4 mb-5">
-            {featured.title}
-          </h3>
-
-          <span className="proj-featured-fade section-label block mb-5 text-accent">
-            {featured.category} · {featured.year}
-          </span>
-
-          <p className="proj-featured-fade text-stone text-base leading-relaxed font-light max-w-xl mb-7">
-            {featured.description}
-          </p>
-
-          <div className="proj-featured-fade flex flex-wrap gap-2 mb-9">
-            {featured.tech.map((t) => (
-              <span
-                key={t}
-                className="font-mono text-xs px-2.5 py-1 border border-muted text-stone/70 rounded-sm"
-              >
-                {t}
-              </span>
-            ))}
-          </div>
-
-          <a
-            href={featured.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="proj-featured-fade group inline-flex items-center gap-3 font-mono text-xs uppercase tracking-[0.25em] text-ink"
-          >
-            <span className="relative">
-              View project
-              <span className="absolute left-0 -bottom-1 h-px w-full origin-left scale-x-0 bg-accent transition-transform duration-500 group-hover:scale-x-100" />
-            </span>
-            <span className="text-base transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1">
-              ↗
-            </span>
-          </a>
-        </div>
-
-        <div className="lg:col-span-6 order-1 lg:order-2">
-          <a
-            href={featured.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            tabIndex={-1}
-            aria-hidden="true"
-            className="proj-featured-media group block relative aspect-[16/11] overflow-hidden rounded-2xl border border-muted bg-muted"
-          >
-            <ProjectMedia
-              project={featured}
-              eager
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.05]"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-ink/30 via-transparent to-transparent" />
-            <span className="absolute bottom-4 right-4 font-mono text-xs text-cream/90 tracking-widest">
-              {featured.year}
-            </span>
-          </a>
-        </div>
-      </div>
+      <FeaturedProject project={featured} />
 
       {/* ── Bento grid (projects 02→) ────────────────────────────── */}
       <div className="bento-grid flex flex-col gap-4 lg:gap-5">
