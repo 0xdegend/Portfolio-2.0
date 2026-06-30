@@ -46,7 +46,40 @@ export default function GlassKnot() {
   const [hovered, setHovered] = useState(false);
   const [clicked, setClicked] = useState(false);
 
-  const force = usePointerForce(hovered);
+  const reduceMotion = useMemo(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    [],
+  );
+
+  // Soft radial glow that sits behind the knot for depth.
+  const glowTex = useMemo(() => {
+    if (typeof document === "undefined") return null;
+    const size = 256;
+    const c = document.createElement("canvas");
+    c.width = c.height = size;
+    const ctx = c.getContext("2d");
+    if (!ctx) return null;
+    const g = ctx.createRadialGradient(
+      size / 2,
+      size / 2,
+      0,
+      size / 2,
+      size / 2,
+      size / 2,
+    );
+    g.addColorStop(0, "rgba(201,169,110,0.5)");
+    g.addColorStop(0.45, "rgba(201,169,110,0.14)");
+    g.addColorStop(1, "rgba(201,169,110,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, size, size);
+    return new THREE.CanvasTexture(c);
+  }, []);
+
+  // Cursor reactivity is always on (so the form feels alive across the hero),
+  // except when the visitor prefers reduced motion.
+  const force = usePointerForce(!reduceMotion);
 
   const currentColor = useRef(new THREE.Color(IDLE_COLOR));
   const targetColor = useRef(new THREE.Color(IDLE_COLOR));
@@ -100,13 +133,15 @@ export default function GlassKnot() {
     if (!meshRef.current || !groupRef.current || !matRef.current) return;
     const t = state.clock.elapsedTime;
 
-    meshRef.current.rotation.x = t * 0.08;
-    meshRef.current.rotation.y = t * 0.12;
+    if (!reduceMotion) {
+      meshRef.current.rotation.x = t * 0.08;
+      meshRef.current.rotation.y = t * 0.12;
 
-    groupRef.current.rotation.x +=
-      (-force.current.y * 0.35 - groupRef.current.rotation.x) * 0.08;
-    groupRef.current.rotation.y +=
-      (force.current.x * 0.35 - groupRef.current.rotation.y) * 0.08;
+      groupRef.current.rotation.x +=
+        (-force.current.y * 0.4 - groupRef.current.rotation.x) * 0.08;
+      groupRef.current.rotation.y +=
+        (force.current.x * 0.4 - groupRef.current.rotation.y) * 0.08;
+    }
 
     const targetScale = clicked ? 1.1 : hovered ? 1.06 : 1.0;
     const scaleDiff = targetScale - groupRef.current.scale.x;
@@ -156,7 +191,21 @@ export default function GlassKnot() {
 
   return (
     <>
-      <Float speed={1.2} rotationIntensity={0.3} floatIntensity={0.4}>
+      {glowTex && (
+        <sprite position={[0.5, -0.2, -2.5]} scale={[8, 8, 1]}>
+          <spriteMaterial
+            map={glowTex}
+            transparent
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </sprite>
+      )}
+      <Float
+        speed={reduceMotion ? 0 : 1.2}
+        rotationIntensity={reduceMotion ? 0 : 0.3}
+        floatIntensity={reduceMotion ? 0 : 0.4}
+      >
         <group ref={groupRef}>
           <mesh
             ref={meshRef}
@@ -186,7 +235,10 @@ export default function GlassKnot() {
               distortionScale={0.3}
               temporalDistortion={isMobile ? 0 : 0.05}
               transmission={1}
-              roughness={0.4}
+              roughness={0.12}
+              ior={1.45}
+              attenuationColor="#C9A96E"
+              attenuationDistance={0.8}
               color={IDLE_COLOR}
             />
           </mesh>

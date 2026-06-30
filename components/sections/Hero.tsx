@@ -86,6 +86,7 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
   const scramble = useScramble();
   const [quoteIdx, setQuoteIdx] = useState(0);
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const onMove = (e: MouseEvent) => {
       const nx = (e.clientX / window.innerWidth - 0.5) * 2;
       const ny = (e.clientY / window.innerHeight - 0.5) * 2;
@@ -160,6 +161,7 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
 
   useEffect(() => {
     if (!ready) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const el = marqueeRef.current;
     if (!el) return;
     gsap.to(el, { x: "-50%", duration: 22, ease: "none", repeat: -1 });
@@ -169,6 +171,30 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
       if (!ready) return;
       const h1 = h1Ref.current;
       if (!h1) return;
+
+      const mm = gsap.matchMedia();
+      const revealEls = [
+        ".hero-badge",
+        ".hero-role",
+        ".hero-stat",
+        subRef.current,
+        metaRef.current,
+        scrollRef.current,
+        ".marquee-strip",
+      ];
+
+      // Reduced motion: reveal everything statically, no entrance choreography.
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(revealEls, {
+          opacity: 1,
+          x: 0,
+          y: 0,
+          scale: 1,
+          filter: "none",
+        });
+      });
+
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
       const split = new SplitText(h1, { type: "chars,words" });
       const tl = gsap.timeline({ delay: 0.05 });
       tl.fromTo(
@@ -275,7 +301,10 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
           });
         });
       });
-      return () => split.revert();
+        return () => split.revert();
+      });
+
+      return () => mm.revert();
     },
     { scope: containerRef, dependencies: [ready] },
   );
@@ -293,8 +322,9 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
           top-1/2 -translate-y-1/2 -right-26
           w-[60%] h-[60%]
           lg:right-2
-          md:top-20 md:translate-y-0 md:w-[55%] md:h-[64%] z-9999"
+          md:top-20 md:translate-y-0 md:w-[55%] md:h-[64%] z-30"
         style={{ pointerEvents: "none" }}
+        aria-hidden="true"
       >
         <div
           ref={canvasWrapRef}
@@ -316,7 +346,7 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
           Portfolio
         </span>
       </div>
-      <div className="relative z-20 max-w-7xl lg:mt-0 mt-40 pb-12 md:pb-16">
+      <div className="relative z-20 max-w-7xl lg:mt-0 mt-40 pb-16 md:pb-24">
         <div className="hero-role opacity-0 flex items-center gap-3 mb-4 md:mb-5 pointer-events-none">
           <span className="block w-6 h-px bg-[#c9a96e] shrink-0" />
           <span className="section-label tracking-[0.3em]">
@@ -325,7 +355,7 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
         </div>
         <h1
           ref={h1Ref}
-          className="font-display font-light text-[clamp(2.6rem,8vw,9.5rem)] leading-[0.92] tracking-tight text-ink mb-6 md:mb-7 pointer-events-auto cursor-default select-none w-[70%] md:w-full"
+          className="font-display font-light text-[clamp(2.6rem,8vw,9.5rem)] leading-[0.92] tracking-tight text-ink mb-8 md:mb-10 pointer-events-auto cursor-default select-none w-[70%] md:w-full"
           style={{ willChange: "transform" }}
         >
           <span className="block">Crafting</span>
@@ -335,7 +365,7 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
             experiences<span className="text-accent non-italic">.</span>
           </span>
         </h1>
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 md:gap-6 border-t border-muted pt-5 md:pt-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 md:gap-8 border-t border-muted pt-6 md:pt-8">
           <div
             ref={subRef}
             className="pointer-events-none opacity-0"
@@ -360,13 +390,13 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
           >
             <a
               href="#projects"
-              className="group relative inline-flex items-center gap-3 text-[0.62rem] md:text-[0.65rem] tracking-[0.22em] uppercase font-mono text-ink border border-ink/15 px-4 md:px-5 py-2.5 md:py-3 overflow-hidden hover:border-ink transition-colors duration-500"
+              className="group relative inline-flex items-center gap-3 md:gap-4 text-xs md:text-sm tracking-[0.22em] uppercase font-mono text-ink border border-ink/30 px-7 md:px-9 py-3.5 md:py-4 overflow-hidden hover:border-ink transition-colors duration-500"
             >
               <span className="absolute inset-0 bg-ink translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)]" />
               <span className="relative z-10 group-hover:text-cream transition-colors duration-200 delay-100">
                 View Work
               </span>
-              <span className="relative z-10 w-6 md:w-8 h-px bg-current inline-block group-hover:w-12 md:group-hover:w-14 transition-all duration-500 group-hover:bg-cream" />
+              <span className="relative z-10 w-8 md:w-10 h-px bg-current inline-block group-hover:w-14 md:group-hover:w-16 transition-all duration-500 group-hover:bg-cream" />
             </a>
             <a
               href="#contact"

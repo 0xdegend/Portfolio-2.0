@@ -45,9 +45,11 @@ export default function HeroScene({ onReady }: HeroSceneProps) {
         onWheel={(e) => e.stopPropagation()}
         onCreated={() => onReady?.()}
       >
-        <ambientLight intensity={1.7} />
-        <directionalLight position={[5, 5, 5]} intensity={1.5} />
-        <pointLight position={[-3, -3, -3]} intensity={1} color="#C9A96E" />
+        <ambientLight intensity={1.5} />
+        <directionalLight position={[5, 5, 5]} intensity={1.6} color="#FFF4E0" />
+        {/* Gold rim from behind to catch the glass edges and reveal form */}
+        <directionalLight position={[-5, 3, -5]} intensity={2.2} color="#E8D5B0" />
+        <pointLight position={[-3, -3, -3]} intensity={1.3} color="#C9A96E" />
 
         <Suspense fallback={null}>
           <PerformanceMonitor onIncline={() => {}} onDecline={() => {}}>
