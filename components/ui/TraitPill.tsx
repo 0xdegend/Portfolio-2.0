@@ -25,12 +25,12 @@ export function TraitPill({ label, className }: traitPillProps) {
   return (
     <span
       ref={ref}
-      className="trait-pill inline-flex items-center gap-2 border border-muted px-3 py-1.5 font-mono text-[0.6rem] tracking-[0.18em] uppercase text-stone cursor-default"
+      className="trait-pill inline-flex items-center gap-2 border border-ink/15 px-3 py-1.5 font-mono text-[0.6rem] tracking-[0.18em] uppercase text-ink/70 cursor-default"
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
     >
       <span
-        className={`w-1 h-1 rounded-full bg-accent/50 shrink-0 ${className}`}
+        className={`w-1 h-1 rounded-full bg-accent shrink-0 ${className}`}
       />
       {label}
     </span>

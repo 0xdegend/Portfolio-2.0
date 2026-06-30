@@ -61,157 +61,184 @@ export default function About() {
       const statEls = Array.from(
         stickyRef.current?.querySelectorAll<HTMLElement>(".stat-item") ?? [],
       );
-      gsap.set(lineRef.current, { scaleY: 0, transformOrigin: "top center" });
-      gsap.set(bodyEls, { y: 16 });
-      gsap.set(pillEls, { scale: 0.82 });
-      gsap.set(statEls, { y: 12 });
 
-      const entranceTl = gsap.timeline({ paused: true });
-      entranceTl.fromTo(
-        stickyRef.current,
-        { opacity: 0, y: 24 },
-        { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" },
-        0,
-      );
-      entranceTl.fromTo(
-        lineRef.current,
-        { scaleY: 0 },
-        { scaleY: 1, duration: 0.65, ease: "power3.out" },
-        0.1,
-      );
+      const mm = gsap.matchMedia();
 
-      if (h2Ref.current) {
-        const split = new SplitText(h2Ref.current, { type: "chars" });
-
-        gsap.set(split.chars, { y: 35, rotation: -6 });
-        entranceTl.fromTo(
-          split.chars,
-          { opacity: 0, y: 35, rotation: -6 },
-          {
-            opacity: 1,
-            y: 0,
-            rotation: 0,
-            duration: 0.75,
-            stagger: 0.03,
-            ease: "expo.out",
-          },
-          0.15,
-        );
-        entranceTl.call(() => split.revert(), [], ">");
-      }
-
-      if (bodyEls.length) {
-        entranceTl.fromTo(
-          bodyEls,
-          { opacity: 0, y: 18 },
-          { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: "power3.out" },
-          0.4,
-        );
-      }
-      if (pillEls.length) {
-        entranceTl.fromTo(
-          pillEls,
-          { opacity: 0, scale: 0.82 },
-          {
-            opacity: 1,
-            scale: 1,
-            duration: 0.4,
-            stagger: 0.05,
-            ease: "back.out(2)",
-          },
-          0.6,
-        );
-      }
-      if (statEls.length) {
-        entranceTl.fromTo(
-          statEls,
-          { opacity: 0, y: 12 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.45,
-            stagger: 0.07,
-            ease: "power3.out",
-          },
-          0.72,
-        );
-      }
-
-      slideRefs.current.forEach((s, i) => {
-        if (!s) return;
-        gsap.set(s, { opacity: i === 0 ? 1 : 0, scale: i === 0 ? 1 : 1.05 });
+      // Reduced motion: no pin/scrub, collapse the tall scroll track, reveal
+      // everything, and just show the first slide. The section degrades to a
+      // calm static layout instead of hijacking the scroll.
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(trackRef.current, { height: "100vh" });
+        gsap.set(stickyRef.current, { opacity: 1, y: 0 });
+        gsap.set(lineRef.current, { scaleY: 1, transformOrigin: "top center" });
+        gsap.set([...bodyEls, ...pillEls, ...statEls], {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+        });
+        slideRefs.current.forEach((s, i) => {
+          if (s) gsap.set(s, { opacity: i === 0 ? 1 : 0, scale: 1 });
+        });
       });
 
-      let currentSlide = 0;
-      const crossfadeTo = (next: number) => {
-        if (next === currentSlide) return;
-        const prev = currentSlide;
-        currentSlide = next;
-        gsap.to(slideRefs.current[prev], {
-          opacity: 0,
-          scale: 1.06,
-          duration: 0.65,
-          ease: "power2.inOut",
-          overwrite: true,
-        });
-        gsap.fromTo(
-          slideRefs.current[next],
-          { opacity: 0, scale: 1.05 },
-          {
-            opacity: 1,
-            scale: 1,
-            duration: 0.7,
-            ease: "power2.out",
-            overwrite: true,
-          },
-        );
-        if (counterRef.current)
-          counterRef.current.textContent = String(next + 1).padStart(2, "0");
-        swapText(captionRef.current, SLIDES[next].caption);
-        swapText(tagRef.current, SLIDES[next].tag);
-        swapText(accentRef.current, SLIDES[next].accent);
-        swapText(yearRef.current, SLIDES[next].year);
-      };
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.set(lineRef.current, { scaleY: 0, transformOrigin: "top center" });
+        gsap.set(bodyEls, { y: 16 });
+        gsap.set(pillEls, { scale: 0.82 });
+        gsap.set(statEls, { y: 12 });
 
-      gsap.to(textColRef.current, {
-        y: -45,
-        ease: "none",
-        scrollTrigger: {
+        const entranceTl = gsap.timeline({ paused: true });
+        entranceTl.fromTo(
+          stickyRef.current,
+          { opacity: 0, y: 24 },
+          { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" },
+          0,
+        );
+        entranceTl.fromTo(
+          lineRef.current,
+          { scaleY: 0 },
+          { scaleY: 1, duration: 0.65, ease: "power3.out" },
+          0.1,
+        );
+
+        if (h2Ref.current) {
+          const split = new SplitText(h2Ref.current, { type: "chars" });
+
+          gsap.set(split.chars, { y: 35, rotation: -6 });
+          entranceTl.fromTo(
+            split.chars,
+            { opacity: 0, y: 35, rotation: -6 },
+            {
+              opacity: 1,
+              y: 0,
+              rotation: 0,
+              duration: 0.75,
+              stagger: 0.03,
+              ease: "expo.out",
+            },
+            0.15,
+          );
+          entranceTl.call(() => split.revert(), [], ">");
+        }
+
+        if (bodyEls.length) {
+          entranceTl.fromTo(
+            bodyEls,
+            { opacity: 0, y: 18 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.6,
+              stagger: 0.1,
+              ease: "power3.out",
+            },
+            0.4,
+          );
+        }
+        if (pillEls.length) {
+          entranceTl.fromTo(
+            pillEls,
+            { opacity: 0, scale: 0.82 },
+            {
+              opacity: 1,
+              scale: 1,
+              duration: 0.4,
+              stagger: 0.05,
+              ease: "back.out(2)",
+            },
+            0.6,
+          );
+        }
+        if (statEls.length) {
+          entranceTl.fromTo(
+            statEls,
+            { opacity: 0, y: 12 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.45,
+              stagger: 0.07,
+              ease: "power3.out",
+            },
+            0.72,
+          );
+        }
+
+        slideRefs.current.forEach((s, i) => {
+          if (!s) return;
+          gsap.set(s, { opacity: i === 0 ? 1 : 0, scale: i === 0 ? 1 : 1.05 });
+        });
+
+        let currentSlide = 0;
+        const crossfadeTo = (next: number) => {
+          if (next === currentSlide) return;
+          const prev = currentSlide;
+          currentSlide = next;
+          gsap.to(slideRefs.current[prev], {
+            opacity: 0,
+            scale: 1.06,
+            duration: 0.65,
+            ease: "power2.inOut",
+            overwrite: true,
+          });
+          gsap.fromTo(
+            slideRefs.current[next],
+            { opacity: 0, scale: 1.05 },
+            {
+              opacity: 1,
+              scale: 1,
+              duration: 0.7,
+              ease: "power2.out",
+              overwrite: true,
+            },
+          );
+          if (counterRef.current)
+            counterRef.current.textContent = String(next + 1).padStart(2, "0");
+          swapText(captionRef.current, SLIDES[next].caption);
+          swapText(tagRef.current, SLIDES[next].tag);
+          swapText(accentRef.current, SLIDES[next].accent);
+          swapText(yearRef.current, SLIDES[next].year);
+        };
+
+        gsap.to(textColRef.current, {
+          y: -45,
+          ease: "none",
+          scrollTrigger: {
+            trigger: trackRef.current,
+            start: "top top",
+            end: () => `+=${(total - 1) * window.innerHeight}`,
+            scrub: 1,
+          },
+        });
+
+        ScrollTrigger.create({
+          trigger: trackRef.current,
+          start: "top 80%",
+          once: false,
+          onEnter: () => entranceTl.play(),
+          onLeaveBack: () => entranceTl.reverse(),
+        });
+
+        ScrollTrigger.create({
           trigger: trackRef.current,
           start: "top top",
           end: () => `+=${(total - 1) * window.innerHeight}`,
-          scrub: 1,
-        },
+          pin: stickyRef.current,
+          onUpdate(self) {
+            const pct = (self.progress * 100).toFixed(2) + "%";
+            if (progressRef.current) progressRef.current.style.width = pct;
+            if (progressDot.current) progressDot.current.style.left = pct;
+            crossfadeTo(
+              Math.min(Math.round(self.progress * (total - 1)), total - 1),
+            );
+          },
+        });
       });
 
-      ScrollTrigger.create({
-        trigger: trackRef.current,
-        start: "top 80%",
-        once: false,
-        onEnter: () => entranceTl.play(),
-        onLeaveBack: () => entranceTl.reverse(),
-      });
-
-      const st = ScrollTrigger.create({
-        trigger: trackRef.current,
-        start: "top top",
-        end: () => `+=${(total - 1) * window.innerHeight}`,
-        pin: stickyRef.current,
-        onUpdate(self) {
-          const pct = (self.progress * 100).toFixed(2) + "%";
-          if (progressRef.current) progressRef.current.style.width = pct;
-          if (progressDot.current) progressDot.current.style.left = pct;
-          crossfadeTo(
-            Math.min(Math.round(self.progress * (total - 1)), total - 1),
-          );
-        },
-      });
-
-      return () => {
-        st.kill();
-        entranceTl.kill();
-        ScrollTrigger.getAll().forEach((t) => t.kill());
-      };
+      // Scoped cleanup — reverts only About's own animations/triggers
+      // (the previous ScrollTrigger.getAll().kill() was nuking every other
+      // section's triggers too).
+      return () => mm.revert();
     },
     { scope: sectionRef },
   );
@@ -273,7 +300,7 @@ export default function About() {
               </h2>
 
               <p
-                className="about-body text-stone leading-relaxed mb-4 font-light text-sm md:text-base max-w-[36ch]"
+                className="about-body text-ink/70 leading-relaxed mb-4 font-light text-sm md:text-base max-w-[36ch]"
                 style={{ opacity: 0 }}
               >
                 I&apos;m a Frontend Engineer who obsesses over the craft clean
@@ -282,7 +309,7 @@ export default function About() {
                 experience.
               </p>
               <p
-                className="about-body text-stone leading-relaxed mb-8 font-light text-sm md:text-base max-w-[36ch]"
+                className="about-body text-ink/70 leading-relaxed mb-8 font-light text-sm md:text-base max-w-[36ch]"
                 style={{ opacity: 0 }}
               >
                 Currently open to new opportunities full-time roles, long-term

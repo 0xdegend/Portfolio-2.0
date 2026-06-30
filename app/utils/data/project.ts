@@ -10,6 +10,8 @@ export interface Project {
   image: string;
   /** Optional muted/looping clip (mp4/webm). Falls back to `image` when absent. */
   video?: string;
+  /** Screenshot has a dark background — use a light hover chip so it stays visible. */
+  darkMedia?: boolean;
   link: string;
 }
 
@@ -31,6 +33,7 @@ export const projects: Project[] = [
       "Enoki zkLogin",
     ],
     image: "/images/projects/skew.png",
+    darkMedia: true,
     link: "https://tryskew.xyz",
   },
 
@@ -96,6 +99,7 @@ export const projects: Project[] = [
       "Conekt is a Web3-native messaging platform built on Solana combining familiar chat features with on-chain identity, end-to-end encryption, and a chat-to-earn reward engine. I built the marketing landing page to communicate a complex Web3 product to both crypto-native users and mainstream audiences, balancing technical credibility with an approachable, energetic visual identity. Built with Next.js and TailwindCSS.",
     tech: ["Next.js", "Typescript", "Tailwind Css", "Gsap"],
     image: "/images/projects/conektapp.png",
+    darkMedia: true,
     link: "https://conekt-landing-page-v2.vercel.app/",
   },
 ];

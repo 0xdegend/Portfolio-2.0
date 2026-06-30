@@ -1,5 +1,28 @@
 @import "tailwindcss";
 
+/* Tailwind v4 reads design tokens from @theme (the JS config in
+   tailwind.config.ts is NOT auto-loaded in v4). This is what generates the
+   bg-cream / text-ink / text-stone / bg-accent / font-display / … utilities
+   used across the app. */
+@theme {
+  --color-cream: #f5f2ee;
+  --color-ink: #0f0e0c;
+  --color-stone: #8c8580;
+  --color-accent: #c9a96e;
+  --color-accent-light: #e8d5b0;
+  --color-muted: #e8e4df;
+
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, monospace;
+
+  --text-10xl: 10rem;
+  --text-12xl: 12rem;
+
+  --tracking-widest2: 0.2em;
+  --tracking-widest3: 0.3em;
+}
+
 :root {
   --cream: #f5f2ee;
   --ink: #0f0e0c;

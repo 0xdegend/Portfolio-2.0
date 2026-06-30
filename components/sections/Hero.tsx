@@ -406,7 +406,7 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
             {Array.from({ length: 6 }, (_, i) => (
               <span
                 key={i}
-                className="flex items-center font-mono text-[0.58rem] text-stone/30 tracking-[0.25em] uppercase"
+                className="flex items-center font-mono text-[0.58rem] text-ink/45 tracking-[0.25em] uppercase"
               >
                 <span className="px-6">Frontend Engineering</span>
                 <span className="text-accent/60">✦</span>

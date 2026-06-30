@@ -41,8 +41,26 @@ function ProjectCard({
         />
         <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/20 via-transparent to-transparent" />
 
-        {/* View chip — surfaces the link affordance on hover */}
-        <span className="absolute right-4 top-4 flex -translate-y-1 items-center gap-1.5 rounded-full border border-white/20 bg-ink/40 px-3 py-1.5 font-mono text-[0.6rem] uppercase tracking-[0.15em] text-cream/90 opacity-0 backdrop-blur-sm transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+        {/* View chip — surfaces the link affordance on hover. Colours are set
+            inline (via the CSS vars in :root) because the project's custom
+            Tailwind colour utilities aren't generated under Tailwind v4.
+            Dark-screenshot projects get a solid light pill; the rest get a
+            dark frosted glass chip. */}
+        <span
+          style={
+            project.darkMedia
+              ? { backgroundColor: "var(--cream)", color: "var(--ink)" }
+              : {
+                  backgroundColor: "rgba(15,14,12,0.45)",
+                  color: "rgba(245,242,238,0.92)",
+                }
+          }
+          className={`absolute right-4 top-4 flex -translate-y-1 items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-[0.6rem] uppercase tracking-[0.15em] opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 ${
+            project.darkMedia
+              ? "shadow-lg ring-1 ring-black/10"
+              : "border border-white/20 backdrop-blur-sm"
+          }`}
+        >
           View ↗
         </span>
       </div>

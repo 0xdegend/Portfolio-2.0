@@ -7,7 +7,7 @@ import { SkillRow } from "./SkillsRow";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP, SplitText);
 
-const ACCENT = "#000000";
+const ACCENT = "#C9A96E";
 
 const skillGroups = [
   {
@@ -117,7 +117,7 @@ export function SkillGroup({
         <span
           className="font-display text-2xl md:text-3xl font-light tracking-tight"
           style={{
-            color: isThisActive ? "#000000" : "#1c1b1b",
+            color: isThisActive ? "#F5F2EE" : "rgba(245,242,238,0.4)",
             transition: "color 0.4s",
           }}
         >

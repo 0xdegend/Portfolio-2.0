@@ -7,7 +7,7 @@ import { gsap } from "gsap";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP, SplitText);
 
-const ACCENT = "#000000";
+const ACCENT = "#C9A96E";
 const ROW_CLOSED = 56;
 const ROW_OPEN = 110;
 
@@ -319,7 +319,7 @@ export function SkillRow({
           <span
             className="font-display text-base md:text-lg font-light flex-1 tracking-wide"
             style={{
-              color: isLit ? "#1c1b1b" : "#000000",
+              color: isLit ? "#F5F2EE" : "rgba(245,242,238,0.55)",
               letterSpacing: isLit ? "0.06em" : "0.02em",
               transition: "color 0.25s, letter-spacing 0.4s",
               fontVariantNumeric: "tabular-nums",

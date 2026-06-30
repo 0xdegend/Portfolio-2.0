@@ -60,7 +60,7 @@ function NavLink({ href, label }: { href: string; label: string }) {
           <span
             ref={baseRef}
             className="section-label"
-            style={{ flexShrink: 0 }}
+            style={{ flexShrink: 0, color: "rgba(15,14,12,0.82)" }}
           >
             {label}
           </span>
@@ -368,7 +368,7 @@ export default function Nav() {
         className={`hidden md:flex fixed top-5 left-1/2 z-9999 px-3 py-2
           items-center rounded-full transition-colors duration-500 ${
             scrolled
-              ? "bg-cream/80 backdrop-blur-md border border-muted"
+              ? "bg-cream/50 backdrop-blur-xl backdrop-saturate-150 border border-muted"
               : "bg-transparent border border-muted"
           }`}
       >
@@ -436,8 +436,8 @@ export default function Nav() {
           ref={mobilePillRef}
           className={`overflow-hidden rounded-4xl border border-muted transition-colors duration-500 ${
             scrolled || menuOpen
-              ? "bg-cream/90 backdrop-blur-md"
-              : "bg-cream/60 backdrop-blur-sm"
+              ? "bg-cream/60 backdrop-blur-xl backdrop-saturate-150"
+              : "bg-cream/40 backdrop-blur-lg backdrop-saturate-150"
           }`}
         >
           <div className="flex items-center justify-between px-3 py-2">
