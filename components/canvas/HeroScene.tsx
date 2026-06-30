@@ -49,7 +49,16 @@ export default function HeroScene({ onReady }: HeroSceneProps) {
         <directionalLight position={[5, 5, 5]} intensity={1.6} color="#FFF4E0" />
         {/* Gold rim from behind to catch the glass edges and reveal form */}
         <directionalLight position={[-5, 3, -5]} intensity={2.2} color="#E8D5B0" />
-        <pointLight position={[-3, -3, -3]} intensity={1.3} color="#C9A96E" />
+        <pointLight
+          position={[-3, -3, -3]}
+          intensity={isMobile ? 2.1 : 1.3}
+          color="#C9A96E"
+        />
+        {/* Mobile renders at lower transmission resolution, which darkens the
+            glass — a warm front fill keeps the gold reading on phones. */}
+        {isMobile && (
+          <pointLight position={[2, 1, 4]} intensity={1.6} color="#E8D5B0" />
+        )}
 
         <Suspense fallback={null}>
           <PerformanceMonitor onIncline={() => {}} onDecline={() => {}}>

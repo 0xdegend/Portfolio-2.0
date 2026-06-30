@@ -319,8 +319,8 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
       <div
         className="
           absolute
-          top-3 -right-8
-          w-[68%] h-[34%]
+          top-8 -right-4
+          w-[60%] h-[30%]
           md:top-20 md:w-[58%] md:h-[80%]
           lg:right-2 z-30"
         style={{ pointerEvents: "none" }}
