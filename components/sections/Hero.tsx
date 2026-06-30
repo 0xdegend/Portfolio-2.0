@@ -319,10 +319,10 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
       <div
         className="
           absolute
-          top-1/2 -translate-y-1/2 -right-26
-          w-[60%] h-[60%]
-          lg:right-2
-          md:top-20 md:translate-y-0 md:w-[55%] md:h-[64%] z-30"
+          top-3 -right-8
+          w-[68%] h-[34%]
+          md:top-20 md:w-[58%] md:h-[80%]
+          lg:right-2 z-30"
         style={{ pointerEvents: "none" }}
         aria-hidden="true"
       >
@@ -355,7 +355,7 @@ export default function Hero({ onSceneReady, ready = false }: HeroProps) {
         </div>
         <h1
           ref={h1Ref}
-          className="font-display font-light text-[clamp(2.6rem,8vw,9.5rem)] leading-[0.92] tracking-tight text-ink mb-8 md:mb-10 pointer-events-auto cursor-default select-none w-[70%] md:w-full"
+          className="font-display font-light text-[clamp(2.6rem,8vw,9.5rem)] leading-[0.92] tracking-tight text-ink mb-8 md:mb-10 pointer-events-auto cursor-default select-none w-full wrap-normal"
           style={{ willChange: "transform" }}
         >
           <span className="block">Crafting</span>

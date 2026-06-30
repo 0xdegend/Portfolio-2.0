@@ -31,7 +31,7 @@ export default function HeroScene({ onReady }: HeroSceneProps) {
     <div ref={wrapRef} style={{ width: "100%", height: "100%" }}>
       <Canvas
         frameloop={visible ? "always" : "never"}
-        camera={{ position: [0, 0, 6], fov: 50 }}
+        camera={{ position: [0, 0, 6.6], fov: 50 }}
         gl={{
           antialias: true,
           alpha: true,
