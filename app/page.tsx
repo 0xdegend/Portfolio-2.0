@@ -14,6 +14,7 @@ import Skills from "@/components/sections/Skills";
 import Contact from "@/components/sections/Contact";
 import Footer from "@/components/ui/Footer";
 import { usePreloader } from "./utils/hooks/usePreloader";
+import { useSmoothScroll } from "./utils/hooks/useSmoothScroll";
 import Preloader from "@/components/ui/Preloader";
 
 export default function Home() {
@@ -21,6 +22,9 @@ export default function Home() {
   const { progress, registerTask, startSim } = usePreloader(TASKS);
   const [ready, setReady] = useState(false);
   const [heroReady, setHeroReady] = useState(false);
+
+  // Lenis smooth scroll — starts only once the preloader has revealed the page.
+  useSmoothScroll(ready);
 
   useEffect(() => {
     startSim();
